@@ -7,6 +7,7 @@ import argparse
 import re
 import json
 from datetime import datetime, timedelta
+import math  # Import math module for entropy calculation
 
 CACHE_DIR = 'cache'
 REQUEST_DELAY = 1  # seconds
@@ -127,24 +128,43 @@ def calculate_winrate_excluding_top_20(hero_stats):
     else:
         return (wins_excl_top_20 / games_excl_top_20) * 100
 
-def calculate_discomfort_factor(hero_stats, total_games_played):
-    # Define the threshold dynamically based on total games played
-    threshold = total_games_played / 20
-    high_play_heroes = [hero for hero in hero_stats if hero['games'] >= threshold]
-    low_play_heroes = [hero for hero in hero_stats if hero['games'] < threshold]
+def calculate_discomfort_factor(hero_stats, time_frame_name):
+    # Get the threshold for the time frame
+    if time_frame_name == 'all_time':
+        threshold = 40
+    elif time_frame_name == 'last_2_years':
+        threshold = 24
+    elif time_frame_name == 'last_9_months':
+        threshold = 9
+    else:
+        threshold = 0  # Should not occur
 
-    wins_high = sum(hero['win'] for hero in high_play_heroes)
-    games_high = sum(hero['games'] for hero in high_play_heroes)
+    # Separate heroes into comfy and uncomfy
+    comfy_heroes = [hero for hero in hero_stats if hero['games'] >= threshold]
+    uncomfy_heroes = [hero for hero in hero_stats if 0 < hero['games'] < threshold]
 
-    wins_low = sum(hero['win'] for hero in low_play_heroes)
-    games_low = sum(hero['games'] for hero in low_play_heroes)
+    # Calculate comfy winrate
+    comfy_games = sum(hero['games'] for hero in comfy_heroes)
+    comfy_wins = sum(hero['win'] for hero in comfy_heroes)
+    comfy_winrate = (comfy_wins / comfy_games) if comfy_games > 0 else None
 
-    winrate_high = (wins_high / games_high) * 100 if games_high > 0 else 0
-    winrate_low = (wins_low / games_low) * 100 if games_low > 0 else 0
+    # Calculate uncomfy winrate
+    uncomfy_games = sum(hero['games'] for hero in uncomfy_heroes)
+    uncomfy_wins = sum(hero['win'] for hero in uncomfy_heroes)
+    uncomfy_winrate = (uncomfy_wins / uncomfy_games) if uncomfy_games > 0 else None
 
-    if winrate_high == 0:
-        return 0.0
-    discomfort_factor = (winrate_low / winrate_high) * 100
+    # Handle cases where we cannot compute the discomfort factor
+    if comfy_winrate is None or comfy_winrate == 0 or uncomfy_winrate is None:
+        discomfort_factor = 0
+    else:
+        discomfort_factor = (uncomfy_winrate / comfy_winrate) * 100
+
+    # If the discomfort factor is 0, set it to 50
+    if discomfort_factor == 0:
+        discomfort_factor = 50
+
+    discomfort_factor = round(discomfort_factor, 2)
+
     return discomfort_factor
 
 def calculate_versatility_factor(hero_stats):
@@ -155,23 +175,29 @@ def calculate_versatility_factor(hero_stats):
 def calculate_role_diversity(counts_data):
     # Roles are represented by integers 1 to 5 in OpenDota API
     role_counts = counts_data.get('lane_role', {})
-    roles_played = []
+    total_games = 0
+    role_game_counts = {}
+    for role_id in ['1', '2', '3', '4', '5']:
+        role_data = role_counts.get(role_id, {})
+        games_played = role_data.get('games', 0) if isinstance(role_data, dict) else role_data if isinstance(role_data, int) else 0
+        role_game_counts[role_id] = games_played
+        total_games += games_played
 
-    for role_id, data in role_counts.items():
-        if isinstance(data, dict):
-            games_played = data.get('games', 0)
-        elif isinstance(data, int):
-            games_played = data
-        else:
-            games_played = 0
+    if total_games == 0:
+        return 0.0
 
+    entropy = 0.0
+    for games_played in role_game_counts.values():
         if games_played > 0:
-            roles_played.append(role_id)
+            p_i = games_played / total_games
+            entropy -= p_i * math.log2(p_i)
 
-    num_roles_played = len(set(roles_played))
+    max_entropy = math.log2(5)  # There are 5 roles
 
-    role_diversity_factor = (num_roles_played / 5) * 100  # There are 5 roles
-    return role_diversity_factor
+    # Normalize entropy to a percentage
+    role_diversity_factor = (entropy / max_entropy) * 100
+
+    return round(role_diversity_factor, 2)
 
 def calculate_aggregated_value(data):
     try:
@@ -253,7 +279,7 @@ def process_players(input_csv, output_html, refresh=False):
 
                     overall_winrate = calculate_overall_winrate(wl_data)
                     winrate_excl_top20 = calculate_winrate_excluding_top_20(hero_stats)
-                    discomfort_factor = calculate_discomfort_factor(hero_stats, total_games_played)
+                    discomfort_factor = calculate_discomfort_factor(hero_stats, time_frame_name)
                     versatility_factor = calculate_versatility_factor(hero_stats)
                     role_diversity_factor = calculate_role_diversity(counts_data)
 
@@ -306,7 +332,7 @@ def generate_html_report(players_data, output_html):
 
     # Generate HTML
     with open(output_html, 'w', encoding='utf-8') as outfile:
-        outfile.write('<html><head><title>Dota 2 Player Metrics Report</title>\n')
+        outfile.write('<html><head><title>PST-SUN Player Report</title>\n')  # Changed title here
         outfile.write('<style>\n')
         outfile.write('body { font-family: Arial, sans-serif; background-color: #1e1e1e; color: #f0f0f0; }\n')
         outfile.write('table { border-collapse: collapse; width: 80%; margin: 20px auto; }\n')
@@ -396,7 +422,8 @@ def generate_html_report(players_data, output_html):
         outfile.write('};\n')
         outfile.write('</script>\n')
         outfile.write('</head><body>\n')
-        outfile.write('<h1 style="text-align:center;">Dota 2 Player Metrics Report</h1>\n')
+        outfile.write('<h1 style="text-align:center;">PST-SUN Player Report</h1>\n')  # Changed title here
+        outfile.write('<p style="text-align:center;"><a href="https://joedobrow.github.io/hero_stats/hero_report.html">View Hero Report</a></p>\n')  # Added link here
 
         # Time frame selection
         outfile.write('<div style="text-align:center; margin-bottom:20px;">\n')
@@ -422,9 +449,9 @@ def generate_html_report(players_data, output_html):
             outfile.write('<th>Games Played</th>')
             outfile.write('<th>Overall Winrate (%)</th>')
             outfile.write('<th>Winrate Excl. Top 20 Heroes (%)</th>')
-            outfile.write('<th><span class="tooltip">Discomfort Factor<span class="tooltiptext">How well the player performs with less played heroes compared to their most played heroes.</span></span></th>')
+            outfile.write('<th><span class="tooltip">Discomfort Factor<span class="tooltiptext">Calculated as (Uncomfy Winrate / Comfy Winrate) x 100. If zero, set to 50.</span></span></th>')
             outfile.write('<th><span class="tooltip">Versatility Factor<span class="tooltiptext">The variety of different heroes a player has played.</span></span></th>')
-            outfile.write('<th><span class="tooltip">Role Diversity Factor<span class="tooltiptext">The variety of different roles a player plays.</span></span></th>')
+            outfile.write('<th><span class="tooltip">Role Diversity Factor<span class="tooltiptext">Based on the entropy of roles played across all games.</span></span></th>')
             outfile.write('<th><span class="tooltip">Aggregated Value<span class="tooltiptext">Calculated as: (Overall Winrate + (Winrate Excl. Top 20 x 2) + (Discomfort Factor x 2) + (Versatility Factor x 2) + Role Diversity Factor) divided by 8.</span></span></th>')
             outfile.write('</tr>\n')
             outfile.write('</thead>\n')
