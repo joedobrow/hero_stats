@@ -95,7 +95,7 @@ def main():
         print("Loaded hero stats from cache.")
 
     hero_name_to_id = {hero['localized_name'].lower(): hero['id'] for hero in heroes_response}
-    hero_id_to_name = {hero['id']: hero['name'] for hero in heroes_response}  # 'name' is like 'npc_dota_hero_antimage'}
+    hero_id_to_name = {hero['id']: hero['name'] for hero in heroes_response}  # 'name' is like 'npc_dota_hero_antimage'
     hero_id_to_localized_name = {hero['id']: hero['localized_name'] for hero in heroes_response}
     hero_ids = list(hero_id_to_name.keys())
 
@@ -120,33 +120,11 @@ def main():
             data = load_cached_data(filename) if not args.refresh else None
             if data is None:
                 print(f"Fetching hero stats for {time_frame_name} for player {player['name']}...")
-                if days is None:
-                    # All time data
-                    url = f'https://api.opendota.com/api/players/{account_id}/heroes'
-                    data = make_api_request(url)
-                else:
-                    # Recent data
-                    matches = []
-                    offset = 0
-                    while True:
-                        params = {'date': days, 'offset': offset}
-                        url = f'https://api.opendota.com/api/players/{account_id}/matches'
-                        matches_batch = make_api_request(url, params)
-                        if matches_batch is None or len(matches_batch) == 0:
-                            break
-                        matches.extend(matches_batch)
-                        offset += len(matches_batch)
-                        if len(matches_batch) < 100:
-                            break
-                    hero_stats_data = {}
-                    for match in matches:
-                        hero_id = match['hero_id']
-                        win = 1 if (match['radiant_win'] == (match['player_slot'] < 128)) else 0
-                        if hero_id not in hero_stats_data:
-                            hero_stats_data[hero_id] = {'games': 0, 'wins': 0}
-                        hero_stats_data[hero_id]['games'] += 1
-                        hero_stats_data[hero_id]['wins'] += win
-                    data = hero_stats_data
+                params = {}
+                if days is not None:
+                    params['date'] = days
+                url = f'https://api.opendota.com/api/players/{account_id}/heroes'
+                data = make_api_request(url, params)
                 if data is not None:
                     cache_data(filename, data)
             else:
@@ -165,20 +143,14 @@ def main():
             for player in players:
                 account_id = player['player_id']
                 name = player['name']
-                if days is None:
-                    stats = player_hero_stats[time_frame_name].get(account_id, [])
-                    hero_stat = next((s for s in stats if s['hero_id'] == hero_id), None)
-                    if hero_stat:
-                        games = hero_stat['games']
-                        wins = hero_stat['win']
-                    else:
-                        games = 0
-                        wins = 0
-                else:
-                    stats = player_hero_stats[time_frame_name].get(account_id, {})
-                    hero_stat = stats.get(hero_id, {'games': 0, 'wins': 0})
+                stats = player_hero_stats[time_frame_name].get(account_id, [])
+                hero_stat = next((s for s in stats if s['hero_id'] == hero_id), None)
+                if hero_stat:
                     games = hero_stat['games']
-                    wins = hero_stat['wins']
+                    wins = hero_stat['win']
+                else:
+                    games = 0
+                    wins = 0
                 winrate = wins / games if games > 0 else 0
                 score = adjusted_score(wins, games, gamma=0.69)
                 player_totals[time_frame_name][name] = player_totals[time_frame_name].get(name, 0) + score
