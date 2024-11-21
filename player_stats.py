@@ -1,331 +1,196 @@
-#!/usr/bin/env python3
-
 import requests
 import csv
-import sys
-import re
-import math
-import time
-import datetime
 import os
-import json
-import argparse
+import time
 import shutil
+import argparse
+import re
+import json
+from datetime import datetime, timedelta
 
-# Time frames in days
+CACHE_DIR = 'cache'
+REQUEST_DELAY = 1  # seconds
+API_KEY = None  # Will be loaded from opendota.properties
+
 TIME_FRAMES = {
-    'all_time': 0,  # 0 indicates all time
-    'last_2_years': 730,
-    'last_9_months': 274
+    'all_time': None,
+    'last_2_years': (datetime.now() - timedelta(days=730)).strftime('%Y-%m-%d'),
+    'last_9_months': (datetime.now() - timedelta(days=270)).strftime('%Y-%m-%d'),
 }
 
-# Rate limit settings
-MAX_RETRIES = 5
-RATE_LIMIT_SLEEP = 61
-REQUEST_DELAY = 1.1
+def load_api_key():
+    global API_KEY
+    properties_file = 'opendota.properties'
+    if os.path.exists(properties_file):
+        with open(properties_file, 'r') as f:
+            for line in f:
+                if line.startswith('api_key='):
+                    API_KEY = line.strip().split('=', 1)[1]
+                    print("API key loaded from opendota.properties")
+                    break
+    else:
+        print("opendota.properties file not found. Continuing without API key.")
 
-CACHE_DIR = 'cache'  # Directory to store cached data
+def make_api_request(url, params=None):
+    # Append the API key to the params if it's available
+    if API_KEY:
+        if params is None:
+            params = {}
+        params['api_key'] = API_KEY
+    try:
+        response = requests.get(url, params=params)
+        if response.status_code == 429:
+            print("Rate limit exceeded. Sleeping for 60 seconds.")
+            time.sleep(60)
+            return make_api_request(url, params)
+        else:
+            return response
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+        return None
 
-def ensure_cache_dir():
+def fetch_player_data(account_id, date_range, refresh=False):
+    cache_filename = os.path.join(CACHE_DIR, f"{account_id}_{date_range if date_range else 'all'}.json")
+
     if not os.path.exists(CACHE_DIR):
         os.makedirs(CACHE_DIR)
 
-def make_api_request(url):
-    retries = 0
-    while retries < MAX_RETRIES:
-        response = requests.get(url)
-        if response.status_code == 200:
-            return response
-        elif response.status_code == 429:
-            print(f"Rate limit hit. Sleeping for {RATE_LIMIT_SLEEP} seconds before retrying.")
-            time.sleep(RATE_LIMIT_SLEEP)
-            retries += 1
-        else:
-            print(f"Failed to fetch data from {url}. Status code: {response.status_code}")
-            return None
-    print(f"Max retries exceeded for {url}")
-    return None
+    if not refresh and os.path.exists(cache_filename):
+        with open(cache_filename, 'r', encoding='utf-8') as cache_file:
+            print(f"Using cached data for account ID {account_id} and date range {date_range if date_range else 'all'}")
+            return json.load(cache_file)
 
-def fetch_player_data(account_id, date_range, refresh=False):
-    """
-    Fetches player data, including win/loss, heroes, counts, and MMR.
-    Checks if data is cached; if not, fetches from API and caches it.
-    Returns a dictionary with 'wl', 'heroes', 'counts', and 'mmr' keys.
-    """
-    ensure_cache_dir()
-    cache_file = os.path.join(CACHE_DIR, f'player_{account_id}_{date_range}.json')
+    params = {}
+    if date_range:
+        days = (datetime.now() - datetime.strptime(date_range, '%Y-%m-%d')).days
+        params['date'] = days
 
-    if not refresh and os.path.exists(cache_file):
-        print(f"Loading cached data for player {account_id}, date range {date_range}")
-        with open(cache_file, 'r', encoding='utf-8') as f:
-            player_data = json.load(f)
-    else:
-        print(f"Fetching data from API for player {account_id}, date range {date_range}")
-        player_data = {}
-
-        wl_data = fetch_player_wl(account_id, date_range)
-        hero_stats = fetch_player_heroes(account_id, date_range)
-        counts_data = fetch_player_counts(account_id, date_range)
-        mmr = fetch_player_mmr(account_id)  # Fetch MMR
-
-        if wl_data is None or hero_stats is None or counts_data is None or mmr is None:
-            print(f"Failed to fetch all data for player {account_id}.")
-            return None  # Return None if any API call fails
-
-        player_data['wl'] = wl_data
-        player_data['heroes'] = hero_stats
-        player_data['counts'] = counts_data
-        player_data['mmr'] = mmr
-
-        # Save to cache
-        with open(cache_file, 'w', encoding='utf-8') as f:
-            json.dump(player_data, f)
-        print(f"Cached data for player {account_id}, date range {date_range}")
-
-    return player_data
-
-def fetch_player_wl(account_id, date_range):
-    if date_range == 0:
-        url = f'https://api.opendota.com/api/players/{account_id}/wl'
-    else:
-        url = f'https://api.opendota.com/api/players/{account_id}/wl?date={date_range}'
+    # Fetch win/loss data
+    wl_url = f'https://api.opendota.com/api/players/{account_id}/wl'
     time.sleep(REQUEST_DELAY)
-    response = make_api_request(url)
-    if response and response.status_code == 200:
-        return response.json()
-    else:
+    wl_response = make_api_request(wl_url, params)
+    if not wl_response or wl_response.status_code != 200:
         print(f"Failed to fetch win/loss data for account ID {account_id}.")
         return None
+    wl_data = wl_response.json()
 
-def fetch_player_heroes(account_id, date_range):
-    if date_range == 0:
-        url = f'https://api.opendota.com/api/players/{account_id}/heroes'
-    else:
-        url = f'https://api.opendota.com/api/players/{account_id}/heroes?date={date_range}'
+    # Fetch hero stats
+    heroes_url = f'https://api.opendota.com/api/players/{account_id}/heroes'
     time.sleep(REQUEST_DELAY)
-    response = make_api_request(url)
-    if response and response.status_code == 200:
-        return response.json()
-    else:
-        print(f"Failed to fetch hero data for account ID {account_id}.")
+    heroes_response = make_api_request(heroes_url, params)
+    if not heroes_response or heroes_response.status_code != 200:
+        print(f"Failed to fetch hero stats for account ID {account_id}.")
         return None
+    heroes_data = heroes_response.json()
 
-def fetch_player_counts(account_id, date_range):
-    if date_range == 0:
-        url = f'https://api.opendota.com/api/players/{account_id}/counts'
-    else:
-        url = f'https://api.opendota.com/api/players/{account_id}/counts?date={date_range}'
+    # Fetch role counts
+    counts_url = f'https://api.opendota.com/api/players/{account_id}/counts'
     time.sleep(REQUEST_DELAY)
-    response = make_api_request(url)
-    if response and response.status_code == 200:
-        return response.json()
-    else:
+    counts_response = make_api_request(counts_url, params)
+    if not counts_response or counts_response.status_code != 200:
         print(f"Failed to fetch counts data for account ID {account_id}.")
         return None
+    counts_data = counts_response.json()
 
-def fetch_player_mmr(account_id):
-    url = f'https://api.opendota.com/api/players/{account_id}/ratings'
-    time.sleep(REQUEST_DELAY)
-    response = make_api_request(url)
-    
-    if response and response.status_code == 200:
-        data = response.json()
-        if data:
-            # Filter out objects with a `competitive_rank` value, sort by `time`, and get the latest one
-            recent_rank = next(
-                (item['competitive_rank'] for item in sorted(data, key=lambda x: x['time'], reverse=True) 
-                 if item.get('competitive_rank')), 
-                None
-            )
-            if recent_rank:
-                return recent_rank
-            else:
-                print(f"Competitive rank not available for account ID {account_id}.")
-                return 'N/A'
-        else:
-            print(f"No data found for account ID {account_id}.")
-            return 'N/A'
-    else:
-        print(f"Failed to fetch MMR data for account ID {account_id}.")
-        return None
-
-def extract_count(value):
-    if isinstance(value, dict):
-        return value.get('games', 0)
-    elif isinstance(value, (int, float)):
-        return value
-    else:
-        return 0
-
-def calculate_discomfort_factor(hero_stats, total_games_played):
-    threshold = total_games_played / 20 if total_games_played > 0 else 0
-    comfortable_games = comfortable_wins = 0
-    uncomfortable_games = uncomfortable_wins = 0
-
-    for hero in hero_stats:
-        games = hero['games']
-        wins = hero['win']
-
-        if games >= threshold:
-            comfortable_games += games
-            comfortable_wins += wins
-        else:
-            uncomfortable_games += games
-            uncomfortable_wins += wins
-
-    comfortable_win_rate = (comfortable_wins / comfortable_games * 100) if comfortable_games else 0
-    uncomfortable_win_rate = (uncomfortable_wins / uncomfortable_games * 100) if uncomfortable_games else 0
-
-    if comfortable_win_rate > 0:
-        discomfort_factor = (uncomfortable_win_rate / comfortable_win_rate) * 100
-    else:
-        discomfort_factor = 50  # Arbitrary value if no comfortable games
-
-    return discomfort_factor
-
-def calculate_versatility_factor(hero_stats):
-    total_games = sum(hero['games'] for hero in hero_stats)
-    if total_games == 0:
-        return 0  # Zero if no games played
-
-    # Proportion of games played on each hero
-    p_list = [hero['games'] / total_games for hero in hero_stats if hero['games'] > 0]
-
-    N = len(p_list)
-    if N <= 1:
-        return 0  # Zero if only one hero is played
-
-    entropy = -sum(p * math.log(p) for p in p_list)
-
-    max_entropy = math.log(N)
-
-    versatility_factor = entropy / max_entropy if max_entropy > 0 else 0
-
-    versatility_factor *= 100
-
-    return versatility_factor
-
-def calculate_role_diversity(counts_data):
-    if 'lane_role' not in counts_data:
-        print("Lane role data not available.")
-        return 0
-
-    lane_role_counts = counts_data['lane_role']
-
-    total_games = sum(
-        extract_count(count)
-        for lane_role, count in lane_role_counts.items()
-        if lane_role != '0'
-    )
-
-    if total_games == 0:
-        return 0
-
-    # Map lane roles to positions
-    role_counts = {
-        'Carry': 0,    # Position 1
-        'Mid': 0,      # Position 2
-        'Offlane': 0,  # Position 3
-        'Support4': 0, # Position 4
-        'Support5': 0  # Position 5
+    player_data = {
+        'wl': wl_data,
+        'heroes': heroes_data,
+        'counts': counts_data,
     }
 
-    for lane_role, count in lane_role_counts.items():
-        if lane_role == '0':
-            continue
+    with open(cache_filename, 'w', encoding='utf-8') as cache_file:
+        json.dump(player_data, cache_file)
 
-        lane_role_int = int(lane_role)
-        count = extract_count(count)
-        if count == 0:
-            continue
-
-        if lane_role_int == 1:  # Safe Lane
-            # Assume half are Carry, half are Support5
-            role_counts['Carry'] += count * 0.5
-            role_counts['Support5'] += count * 0.5
-        elif lane_role_int == 2:  # Mid Lane
-            role_counts['Mid'] += count
-        elif lane_role_int == 3:  # Off Lane
-            # Assume half are Offlane, half are Support4
-            role_counts['Offlane'] += count * 0.5
-            role_counts['Support4'] += count * 0.5
-        elif lane_role_int == 4:  # Jungle
-            role_counts['Support4'] += count
-        elif lane_role_int == 5:  # Roaming
-            role_counts['Support4'] += count
-
-    total_games = sum(role_counts.values())
-    if total_games == 0:
-        return 0
-
-    p_list = [count / total_games for count in role_counts.values() if count > 0]
-    N = len(p_list)
-    if N <= 1:
-        return 0
-
-    entropy = -sum(p * math.log(p) for p in p_list)
-
-    max_entropy = math.log(N)
-
-    role_diversity_factor = entropy / max_entropy if max_entropy > 0 else 0
-
-    role_diversity_factor *= 100
-
-    return role_diversity_factor
+    return player_data
 
 def calculate_overall_winrate(wl_data):
     wins = wl_data.get('win', 0)
     losses = wl_data.get('lose', 0)
     total_games = wins + losses
     if total_games == 0:
-        return 0
-    winrate = (wins / total_games) * 100
-    return winrate
+        return 0.0
+    return (wins / total_games) * 100
 
 def calculate_winrate_excluding_top_20(hero_stats):
-    # Sort heroes by games played in descending order
-    sorted_heroes = sorted(hero_stats, key=lambda x: x['games'], reverse=True)
-    # Get the top 20 most played heroes
-    top_20_heroes = [hero['hero_id'] for hero in sorted_heroes[:20]]
-    # Exclude top 20 heroes
-    remaining_heroes = [hero for hero in hero_stats if hero['hero_id'] not in top_20_heroes]
-    total_games = sum(hero['games'] for hero in remaining_heroes)
-    total_wins = sum(hero['win'] for hero in remaining_heroes)
-    if total_games == 0:
-        return 'N/A'  # Set to 'N/A' if no games played outside top 20 heroes
-    winrate = (total_wins / total_games) * 100
-    return winrate
+    top_20_heroes = hero_stats[:20]
+    games_in_top_20 = sum(hero['games'] for hero in top_20_heroes)
+    wins_in_top_20 = sum(hero['win'] for hero in top_20_heroes)
 
-def calculate_suggested_bid(data):
-    """
-    Calculate the Suggested Relative Bid using the formula:
-    (MMR / 50) * ((%winrate + 50) / 100)^2 * ((%winrate_excluding_top_20 + 50) / 100)^2 *
-    (discomfort_factor / 100)^3 * (versatility_factor / 100)^3 * (role_diversity_factor / 100)
-    """
+    total_games = sum(hero['games'] for hero in hero_stats)
+    total_wins = sum(hero['win'] for hero in hero_stats)
+
+    games_excl_top_20 = total_games - games_in_top_20
+    wins_excl_top_20 = total_wins - wins_in_top_20
+
+    if games_excl_top_20 == 0:
+        return 'N/A'  # Cannot calculate winrate if no games outside top 20 heroes
+    else:
+        return (wins_excl_top_20 / games_excl_top_20) * 100
+
+def calculate_discomfort_factor(hero_stats, total_games_played):
+    # Define the threshold dynamically based on total games played
+    threshold = total_games_played / 20
+    high_play_heroes = [hero for hero in hero_stats if hero['games'] >= threshold]
+    low_play_heroes = [hero for hero in hero_stats if hero['games'] < threshold]
+
+    wins_high = sum(hero['win'] for hero in high_play_heroes)
+    games_high = sum(hero['games'] for hero in high_play_heroes)
+
+    wins_low = sum(hero['win'] for hero in low_play_heroes)
+    games_low = sum(hero['games'] for hero in low_play_heroes)
+
+    winrate_high = (wins_high / games_high) * 100 if games_high > 0 else 0
+    winrate_low = (wins_low / games_low) * 100 if games_low > 0 else 0
+
+    if winrate_high == 0:
+        return 0.0
+    discomfort_factor = (winrate_low / winrate_high) * 100
+    return discomfort_factor
+
+def calculate_versatility_factor(hero_stats):
+    num_heroes_played = len([hero for hero in hero_stats if hero['games'] > 0])
+    versatility_factor = (num_heroes_played / 123) * 100  # Assuming 123 heroes in Dota 2
+    return versatility_factor
+
+def calculate_role_diversity(counts_data):
+    # Roles are represented by integers 1 to 5 in OpenDota API
+    role_counts = counts_data.get('lane_role', {})
+    roles_played = []
+
+    for role_id, data in role_counts.items():
+        if isinstance(data, dict):
+            games_played = data.get('games', 0)
+        elif isinstance(data, int):
+            games_played = data
+        else:
+            games_played = 0
+
+        if games_played > 0:
+            roles_played.append(role_id)
+
+    num_roles_played = len(set(roles_played))
+
+    role_diversity_factor = (num_roles_played / 5) * 100  # There are 5 roles
+    return role_diversity_factor
+
+def calculate_aggregated_value(data):
     try:
-        mmr = data['mmr']
-        if mmr == 'N/A':
-            return 'N/A'
-        mmr = float(mmr)
         overall_winrate = float(data['overall_winrate'])
+        winrate_excl_top20 = float(data['winrate_excl_top20']) if data['winrate_excl_top20'] != 'N/A' else 0
         discomfort_factor = float(data['discomfort_factor'])
         versatility_factor = float(data['versatility_factor'])
         role_diversity_factor = float(data['role_diversity_factor'])
 
-        winrate_excl_top20 = data['winrate_excl_top20']
-        if winrate_excl_top20 == 'N/A':
-            # Exclude from calculation
-            winrate_excl_top20_factor = 1
-        else:
-            winrate_excl_top20 = float(winrate_excl_top20)
-            winrate_excl_top20_factor = ((winrate_excl_top20 + 50) / 100) ** 2
+        aggregated_value = (
+            overall_winrate +
+            winrate_excl_top20 * 2 +
+            discomfort_factor * 2 +
+            versatility_factor * 2 +
+            role_diversity_factor
+        ) / 8
 
-        bid = (mmr / 50) * (((overall_winrate + 50) / 100) ** 2) * winrate_excl_top20_factor \
-            * ((discomfort_factor / 100) ** 3) * ((versatility_factor / 100) ** 3) \
-            * (role_diversity_factor / 100)
-
-        bid = round(bid, 2)
-        return bid
+        aggregated_value = round(aggregated_value, 2)
+        return aggregated_value
     except (ValueError, ZeroDivisionError):
         return 'N/A'
 
@@ -352,18 +217,18 @@ def process_players(input_csv, output_html, refresh=False):
                 # If player ID couldn't be extracted, write 'N/A' and continue
                 player_info = {
                     'name': name,
+                    'dotabuff_url': dotabuff_url,
                     'data': {}
                 }
                 for time_frame in TIME_FRAMES.keys():
                     player_info['data'][time_frame] = {
                         'games_played': 'N/A',
-                        'mmr': 'N/A',
                         'overall_winrate': 'N/A',
                         'winrate_excl_top20': 'N/A',
                         'discomfort_factor': 'N/A',
                         'versatility_factor': 'N/A',
                         'role_diversity_factor': 'N/A',
-                        'suggested_bid': 'N/A'
+                        'aggregated_value': 'N/A'
                     }
                 players_data[name] = player_info
                 continue
@@ -372,6 +237,7 @@ def process_players(input_csv, output_html, refresh=False):
 
             player_info = {
                 'name': name,
+                'dotabuff_url': dotabuff_url,
                 'data': {}
             }
 
@@ -382,7 +248,6 @@ def process_players(input_csv, output_html, refresh=False):
                     wl_data = player_data['wl']
                     hero_stats = player_data['heroes']
                     counts_data = player_data['counts']
-                    mmr = player_data['mmr']
 
                     total_games_played = sum(hero['games'] for hero in hero_stats)
 
@@ -394,7 +259,6 @@ def process_players(input_csv, output_html, refresh=False):
 
                     data_dict = {
                         'games_played': total_games_played,
-                        'mmr': mmr,
                         'overall_winrate': f"{overall_winrate:.2f}",
                         'winrate_excl_top20': f"{winrate_excl_top20:.2f}" if winrate_excl_top20 != 'N/A' else 'N/A',
                         'discomfort_factor': f"{discomfort_factor:.2f}",
@@ -402,20 +266,19 @@ def process_players(input_csv, output_html, refresh=False):
                         'role_diversity_factor': f"{role_diversity_factor:.2f}",
                     }
 
-                    suggested_bid = calculate_suggested_bid(data_dict)
-                    data_dict['suggested_bid'] = suggested_bid
+                    aggregated_value = calculate_aggregated_value(data_dict)
+                    data_dict['aggregated_value'] = aggregated_value
 
                     player_info['data'][time_frame_name] = data_dict
                 else:
                     player_info['data'][time_frame_name] = {
                         'games_played': 'N/A',
-                        'mmr': 'N/A',
                         'overall_winrate': 'N/A',
                         'winrate_excl_top20': 'N/A',
                         'discomfort_factor': 'N/A',
                         'versatility_factor': 'N/A',
                         'role_diversity_factor': 'N/A',
-                        'suggested_bid': 'N/A'
+                        'aggregated_value': 'N/A'
                     }
             players_data[name] = player_info
 
@@ -424,7 +287,7 @@ def process_players(input_csv, output_html, refresh=False):
 
 def generate_html_report(players_data, output_html):
     # Collect metrics across all players and time frames for normalization
-    metrics = ['overall_winrate', 'winrate_excl_top20', 'discomfort_factor', 'versatility_factor', 'role_diversity_factor', 'suggested_bid']
+    metrics = ['games_played', 'overall_winrate', 'winrate_excl_top20', 'discomfort_factor', 'versatility_factor', 'role_diversity_factor', 'aggregated_value']
     metric_values = {tf: {metric: [] for metric in metrics} for tf in TIME_FRAMES.keys()}
 
     for player_info in players_data.values():
@@ -451,14 +314,23 @@ def generate_html_report(players_data, output_html):
         outfile.write('th { background-color: #333; color: #f0f0f0; cursor: pointer; position: relative; }\n')
         outfile.write('tr:nth-child(even) { background-color: #2e2e2e; }\n')
         outfile.write('tr:nth-child(odd) { background-color: #262626; }\n')
-        outfile.write('.hidden { display: none; }\n')
+        outfile.write('td.name-column {\n')
+        outfile.write('  background-color: #dcdcdc;\n')  # Slightly darker eggshell greyish color
+        outfile.write('}\n')
+        outfile.write('td.name-column a {\n')
+        outfile.write('  color: #1e90ff;\n')  # Dark blue color
+        outfile.write('  text-decoration: none;\n')
+        outfile.write('}\n')
+        outfile.write('td.name-column a:hover {\n')
+        outfile.write('  text-decoration: underline;\n')
+        outfile.write('}\n')
         outfile.write('.tooltip {\n')
         outfile.write('  position: relative;\n')
         outfile.write('  display: inline-block;\n')
         outfile.write('}\n')
         outfile.write('.tooltip .tooltiptext {\n')
         outfile.write('  visibility: hidden;\n')
-        outfile.write('  width: 200px;\n')
+        outfile.write('  width: 250px;\n')
         outfile.write('  background-color: #555;\n')
         outfile.write('  color: #fff;\n')
         outfile.write('  text-align: center;\n')
@@ -468,7 +340,7 @@ def generate_html_report(players_data, output_html):
         outfile.write('  z-index: 1;\n')
         outfile.write('  bottom: 125%;\n')
         outfile.write('  left: 50%;\n')
-        outfile.write('  margin-left: -100px;\n')
+        outfile.write('  margin-left: -125px;\n')
         outfile.write('  opacity: 0;\n')
         outfile.write('  transition: opacity 0.3s;\n')
         outfile.write('}\n')
@@ -506,9 +378,9 @@ def generate_html_report(players_data, output_html):
         outfile.write('function showTimeFrame(timeFrame) {\n')
         outfile.write('    let tables = document.getElementsByClassName("data-table");\n')
         outfile.write('    for(let i = 0; i < tables.length; i++) {\n')
-        outfile.write('        tables[i].classList.add("hidden");\n')
+        outfile.write('        tables[i].style.display = "none";\n')
         outfile.write('    }\n')
-        outfile.write('    document.getElementById("table_" + timeFrame).classList.remove("hidden");\n')
+        outfile.write('    document.getElementById("table_" + timeFrame).style.display = "table";\n')
         outfile.write('}\n')
         outfile.write('window.onload = function() {\n')
         outfile.write('    let timeFrameSelect = document.getElementById("timeFrameSelect");\n')
@@ -519,6 +391,7 @@ def generate_html_report(players_data, output_html):
         outfile.write('    for(let i = 0; i < tables.length; i++) {\n')
         outfile.write('        makeSortable(tables[i]);\n')
         outfile.write('    }\n')
+        # Set initial display state
         outfile.write('    showTimeFrame(timeFrameSelect.value);\n')
         outfile.write('};\n')
         outfile.write('</script>\n')
@@ -537,39 +410,51 @@ def generate_html_report(players_data, output_html):
 
         # Generate tables for each time frame
         for time_frame in TIME_FRAMES.keys():
-            # Sort players by suggested bid for display purposes
-            players_data_sorted = sorted(players_data.values(), key=lambda x: float(x['data'][time_frame]['suggested_bid']) if x['data'][time_frame]['suggested_bid'] != 'N/A' else 0, reverse=True)
+            # Sort players by aggregated value for display purposes
+            players_data_sorted = sorted(players_data.values(), key=lambda x: float(x['data'][time_frame]['aggregated_value']) if x['data'][time_frame]['aggregated_value'] != 'N/A' else 0, reverse=True)
 
-            outfile.write(f'<table id="table_{time_frame}" class="data-table">\n')
+            # Set initial display style
+            display_style = "display: table;" if time_frame == 'all_time' else "display: none;"
+            outfile.write(f'<table id="table_{time_frame}" class="data-table" style="{display_style}">\n')
             outfile.write('<thead>\n')
             outfile.write('<tr>')
             outfile.write('<th>Player Name</th>')
             outfile.write('<th>Games Played</th>')
-            outfile.write('<th>MMR</th>')
             outfile.write('<th>Overall Winrate (%)</th>')
             outfile.write('<th>Winrate Excl. Top 20 Heroes (%)</th>')
-            outfile.write('<th class="tooltip">Discomfort Factor<span class="tooltiptext">Comparison of win rates between less and more played heroes</span></th>')
-            outfile.write('<th class="tooltip">Versatility Factor<span class="tooltiptext">Measure of how many different heroes a player can play effectively</span></th>')
-            outfile.write('<th class="tooltip">Role Diversity Factor<span class="tooltiptext">Measure of how many different roles a player plays</span></th>')
-            outfile.write('<th class="tooltip">Suggested Relative Bid<span class="tooltiptext">(MMR / 50) * ((%Winrate + 50)/100)^2 * ((%Winrate Excl. Top 20 + 50)/100)^2 * (Discomfort Factor / 100)^3 * (Versatility Factor / 100)^3 * (Role Diversity Factor / 100)</span></th>')
+            outfile.write('<th><span class="tooltip">Discomfort Factor<span class="tooltiptext">How well the player performs with less played heroes compared to their most played heroes.</span></span></th>')
+            outfile.write('<th><span class="tooltip">Versatility Factor<span class="tooltiptext">The variety of different heroes a player has played.</span></span></th>')
+            outfile.write('<th><span class="tooltip">Role Diversity Factor<span class="tooltiptext">The variety of different roles a player plays.</span></span></th>')
+            outfile.write('<th><span class="tooltip">Aggregated Value<span class="tooltiptext">Calculated as: (Overall Winrate + (Winrate Excl. Top 20 x 2) + (Discomfort Factor x 2) + (Versatility Factor x 2) + Role Diversity Factor) divided by 8.</span></span></th>')
             outfile.write('</tr>\n')
             outfile.write('</thead>\n')
             outfile.write('<tbody>\n')
 
             for player_info in players_data_sorted:
                 data = player_info['data'][time_frame]
+                dotabuff_url = player_info.get('dotabuff_url', '#')
                 outfile.write('<tr>')
-                outfile.write(f"<td>{player_info['name']}</td>")
-                outfile.write(f"<td>{data['games_played']}</td>")
-                outfile.write(f"<td>{data['mmr']}</td>")
-                for metric in metrics:
+                outfile.write(f"<td class='name-column'><a href='{dotabuff_url}' target='_blank'>{player_info['name']}</a></td>")
+                # Apply color gradient to 'Games Played'
+                value = data['games_played']
+                if value != 'N/A':
+                    val_float = float(value)
+                    min_val, max_val = metric_min_max[time_frame]['games_played']
+                    if max_val > min_val:
+                        normalized = (val_float - min_val) / (max_val - min_val)
+                    else:
+                        normalized = 0.5
+                    hue = 30 + 90 * normalized  # From red to green
+                    saturation = 50 + 10 * normalized
+                    lightness = 25 + 10 * normalized
+                    color = f'hsl({hue:.0f}, {saturation:.0f}%, {lightness:.0f}%)'
+                    outfile.write(f'<td style="background-color:{color};">{value}</td>')
+                else:
+                    outfile.write('<td>N/A</td>')
+                for metric in metrics[1:]:
                     value = data[metric]
-                    if metric == 'suggested_bid':
-                        # Format as currency
-                        if value != 'N/A':
-                            value = f"${value}"
                     if value != 'N/A':
-                        val_float = float(value.strip('$')) if isinstance(value, str) else float(value)
+                        val_float = float(value)
                         min_val, max_val = metric_min_max[time_frame][metric]
                         if max_val > min_val:
                             normalized = (val_float - min_val) / (max_val - min_val)
@@ -592,10 +477,12 @@ def generate_html_report(players_data, output_html):
 def main():
     parser = argparse.ArgumentParser(description='Generate Dota 2 Player Metrics Report')
     parser.add_argument('input_csv', help='Input CSV file with player data')
-    parser.add_argument('output_html', nargs='?', default='report.html', help='Output HTML file name')
+    parser.add_argument('output_html', nargs='?', default='player_report.html', help='Output HTML file name')
     parser.add_argument('--refresh', action='store_true', help='Force refresh of cached data')
 
     args = parser.parse_args()
+
+    load_api_key()  # Load the API key before making any requests
 
     if args.refresh:
         # Delete the cache directory or specific cache files
