@@ -3,7 +3,6 @@ import time
 import requests
 import argparse
 import math
-import datetime
 import os
 import json
 
@@ -54,16 +53,25 @@ def adjusted_score(wins, games, gamma=0.69):
     return score
 
 def cache_data(filename, data):
-    if not os.path.exists(CACHE_DIR):
-        os.makedirs(CACHE_DIR)
-    with open(os.path.join(CACHE_DIR, filename), 'w', encoding='utf-8') as f:
-        json.dump(data, f)
+    try:
+        if not os.path.exists(CACHE_DIR):
+            os.makedirs(CACHE_DIR)
+        with open(os.path.join(CACHE_DIR, filename), 'w', encoding='utf-8') as f:
+            json.dump(data, f)
+        print(f"Cached data to {filename}")
+    except Exception as e:
+        print(f"Error caching data to {filename}: {e}")
 
 def load_cached_data(filename):
     try:
         with open(os.path.join(CACHE_DIR, filename), 'r', encoding='utf-8') as f:
+            print(f"Loaded cached data from {filename}")
             return json.load(f)
     except FileNotFoundError:
+        print(f"Cache file {filename} not found.")
+        return None
+    except Exception as e:
+        print(f"Error loading cache file {filename}: {e}")
         return None
 
 def main():
@@ -187,15 +195,19 @@ def main():
         outfile.write('tr:nth-child(even) { background-color: #2e2e2e; }\n')
         outfile.write('tr:nth-child(odd) { background-color: #262626; }\n')
         outfile.write('.hidden { display: none; }\n')
-        outfile.write('.checkbox-container { padding: 10px; border: 1px solid #555; margin: 10px; }\n')
-        outfile.write('.checkbox-container label { font-size: 14px; color: #f0f0f0; margin-right: 10px; }\n')
-        outfile.write('.checkbox-container input { margin-right: 5px; }\n')
-        outfile.write('.checkbox-container { display: flex; flex-wrap: wrap; }\n')
-        outfile.write('.checkbox-item { width: 25%; }\n')
-        outfile.write('.hero-section.hidden { display: none; }\n')
+        # New styles for hero selection grid
+        outfile.write('.hero-selection-container { padding: 10px; border: 1px solid #555; margin: 10px; }\n')
+        outfile.write('.hero-grid { display: flex; flex-wrap: wrap; justify-content: center; }\n')
+        outfile.write('.hero-item { position: relative; width: 80px; height: 80px; margin: 5px; cursor: pointer; }\n')
+        outfile.write('.hero-select-image { width: 100%; height: 100%; object-fit: cover; }\n')
+        outfile.write('.hero-name-overlay { position: absolute; bottom: 0; width: 100%; text-align: center; background: rgba(0, 0, 0, 0.6); color: #fff; font-size: 10px; padding: 2px 0; }\n')
+        outfile.write('.hero-item.deselected { filter: grayscale(100%); opacity: 0.5; }\n')
+        outfile.write('.hero-item.selected { filter: none; opacity: 1; }\n')
+        # Buttons styling
+        outfile.write('.hero-selection-container button { margin: 5px; padding: 5px 10px; font-size: 14px; }\n')
         outfile.write('</style>\n')
-        #JS
-        outfile.write('<script>\n') 
+        # JavaScript
+        outfile.write('<script>\n')
         outfile.write('function sortTable(table, col, reverse) {\n')
         outfile.write('    let tb = table.tBodies[0],\n')
         outfile.write('        tr = Array.prototype.slice.call(tb.rows, 0),\n')
@@ -237,30 +249,36 @@ def main():
         outfile.write('    }\n')
         outfile.write('    updateTotals();\n')
         outfile.write('}\n')
-        outfile.write('function toggleHero(heroId) {\n')
+        outfile.write('function toggleHeroSelection(heroId) {\n')
+        outfile.write('    let heroItem = document.getElementById("hero_select_" + heroId);\n')
         outfile.write('    let heroSection = document.getElementById("hero_" + heroId);\n')
-        outfile.write('    let checkbox = document.getElementById("checkbox_" + heroId);\n')
-        outfile.write('    if (checkbox.checked) {\n')
-        outfile.write('        heroSection.classList.remove("hidden");\n')
-        outfile.write('    } else {\n')
+        outfile.write('    if (heroItem.classList.contains("selected")) {\n')
+        outfile.write('        heroItem.classList.remove("selected");\n')
+        outfile.write('        heroItem.classList.add("deselected");\n')
         outfile.write('        heroSection.classList.add("hidden");\n')
+        outfile.write('    } else {\n')
+        outfile.write('        heroItem.classList.remove("deselected");\n')
+        outfile.write('        heroItem.classList.add("selected");\n')
+        outfile.write('        heroSection.classList.remove("hidden");\n')
         outfile.write('    }\n')
         outfile.write('    updateTotals();\n')
         outfile.write('}\n')
         outfile.write('function selectAllHeroes() {\n')
-        outfile.write('    let checkboxes = document.getElementsByClassName("hero-checkbox");\n')
-        outfile.write('    for (let checkbox of checkboxes) {\n')
-        outfile.write('        checkbox.checked = true;\n')
-        outfile.write('        let heroId = checkbox.dataset.heroId;\n')
+        outfile.write('    let heroItems = document.getElementsByClassName("hero-item");\n')
+        outfile.write('    for (let heroItem of heroItems) {\n')
+        outfile.write('        heroItem.classList.add("selected");\n')
+        outfile.write('        heroItem.classList.remove("deselected");\n')
+        outfile.write('        let heroId = heroItem.dataset.heroId;\n')
         outfile.write('        document.getElementById("hero_" + heroId).classList.remove("hidden");\n')
         outfile.write('    }\n')
         outfile.write('    updateTotals();\n')
         outfile.write('}\n')
         outfile.write('function deselectAllHeroes() {\n')
-        outfile.write('    let checkboxes = document.getElementsByClassName("hero-checkbox");\n')
-        outfile.write('    for (let checkbox of checkboxes) {\n')
-        outfile.write('        checkbox.checked = false;\n')
-        outfile.write('        let heroId = checkbox.dataset.heroId;\n')
+        outfile.write('    let heroItems = document.getElementsByClassName("hero-item");\n')
+        outfile.write('    for (let heroItem of heroItems) {\n')
+        outfile.write('        heroItem.classList.remove("selected");\n')
+        outfile.write('        heroItem.classList.add("deselected");\n')
+        outfile.write('        let heroId = heroItem.dataset.heroId;\n')
         outfile.write('        document.getElementById("hero_" + heroId).classList.add("hidden");\n')
         outfile.write('    }\n')
         outfile.write('    updateTotals();\n')
@@ -288,11 +306,26 @@ def main():
         outfile.write('        if (table.classList.contains(selectedTimeFrame)) {\n')
         outfile.write('            table.classList.remove("hidden");\n')
         outfile.write('            let tbody = table.tBodies[0];\n')
-        outfile.write('            let rows = tbody.rows;\n')
-        outfile.write('            for (let row of rows) {\n')
-        outfile.write('                let playerName = row.cells[0].textContent;\n')
-        outfile.write('                let totalScore = playerTotals[playerName] || 0;\n')
-        outfile.write('                row.cells[1].textContent = totalScore.toFixed(4);\n')
+        outfile.write('            // Remove existing rows\n')
+        outfile.write('            while (tbody.firstChild) {\n')
+        outfile.write('                tbody.removeChild(tbody.firstChild);\n')
+        outfile.write('            }\n')
+        outfile.write('            // Create new rows\n')
+        outfile.write('            let players = [];\n')
+        outfile.write('            for (let playerName in playerTotals) {\n')
+        outfile.write('                players.push({ name: playerName, totalScore: playerTotals[playerName] });\n')
+        outfile.write('            }\n')
+        outfile.write('            // Sort players by totalScore in descending order\n')
+        outfile.write('            players.sort(function(a, b) {\n')
+        outfile.write('                return b.totalScore - a.totalScore;\n')
+        outfile.write('            });\n')
+        outfile.write('            // Add rows to table\n')
+        outfile.write('            for (let player of players) {\n')
+        outfile.write('                let row = tbody.insertRow();\n')
+        outfile.write('                let cellName = row.insertCell(0);\n')
+        outfile.write('                let cellTotalScore = row.insertCell(1);\n')
+        outfile.write('                cellName.textContent = player.name;\n')
+        outfile.write('                cellTotalScore.textContent = player.totalScore.toFixed(4);\n')
         outfile.write('            }\n')
         outfile.write('        } else {\n')
         outfile.write('            table.classList.add("hidden");\n')
@@ -305,9 +338,9 @@ def main():
         outfile.write('        makeSortable(tables[i]);\n')
         outfile.write('    }\n')
         outfile.write('    document.getElementById("timeFrameSelect").addEventListener("change", toggleTimeFrame);\n')
-        outfile.write('    let heroCheckboxes = document.getElementsByClassName("hero-checkbox");\n')
-        outfile.write('    for (let checkbox of heroCheckboxes) {\n')
-        outfile.write('        checkbox.addEventListener("change", function() { toggleHero(this.dataset.heroId); });\n')
+        outfile.write('    let heroItems = document.getElementsByClassName("hero-item");\n')
+        outfile.write('    for (let heroItem of heroItems) {\n')
+        outfile.write('        heroItem.addEventListener("click", function() { toggleHeroSelection(this.dataset.heroId); });\n')
         outfile.write('    }\n')
         outfile.write('    document.getElementById("selectAllBtn").addEventListener("click", selectAllHeroes);\n')
         outfile.write('    document.getElementById("deselectAllBtn").addEventListener("click", deselectAllHeroes);\n')
@@ -322,7 +355,7 @@ def main():
         outfile.write('<a href="https://joedobrow.github.io/hero_stats/player_report.html" style="color:#1e90ff;">View Player Metrics Report</a>\n')
         outfile.write('</div>\n')
         # Time frame selection
-        outfile.write('<div class="checkbox-container">\n')
+        outfile.write('<div class="hero-selection-container">\n')
         outfile.write('<div style="width:100%;"><h3>Time Frame:</h3></div>\n')
         outfile.write('<div style="width:100%; margin-bottom: 10px;">\n')
         outfile.write('<select id="timeFrameSelect">\n')
@@ -332,18 +365,21 @@ def main():
         outfile.write('</select>\n')
         outfile.write('</div>\n')
         outfile.write('</div>\n')
-        # Hero checkboxes
-        outfile.write('<div class="checkbox-container">\n')
+        # Hero selection grid
+        outfile.write('<div class="hero-selection-container">\n')
         outfile.write('<div style="width:100%;"><h3>Select Heroes:</h3></div>\n')
         outfile.write('<div style="width:100%; margin-bottom: 10px;"><button id="selectAllBtn">Select All</button>\n')
         outfile.write('<button id="deselectAllBtn">Deselect All</button></div>\n')
+        outfile.write('<div class="hero-grid">\n')
         for hero_name, hero_id in hero_names_and_ids:
-            outfile.write(f'<div class="checkbox-item">\n')
-            outfile.write('<label>\n')
-            outfile.write(f'<input type="checkbox" class="hero-checkbox" data-hero-id="{hero_id}" id="checkbox_{hero_id}" checked />\n')
-            outfile.write(f'{hero_name}\n')
-            outfile.write('</label>\n')
+            hero_dota_name = hero_id_to_name[hero_id]  # e.g., 'npc_dota_hero_antimage'
+            hero_image_name = hero_dota_name.replace('npc_dota_hero_', '')  # e.g., 'antimage'
+            hero_image_url = f'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/{hero_image_name}.png'
+            outfile.write(f'<div class="hero-item selected" data-hero-id="{hero_id}" id="hero_select_{hero_id}">\n')
+            outfile.write(f'<img src="{hero_image_url}" alt="{hero_name}" class="hero-select-image">\n')
+            outfile.write(f'<div class="hero-name-overlay">{hero_name}</div>\n')
             outfile.write('</div>\n')
+        outfile.write('</div>\n')
         outfile.write('</div>\n')
         outfile.write('<div class="container">\n')
         for hero_name, hero_id in hero_names_and_ids:
@@ -401,12 +437,11 @@ def main():
             outfile.write('</div>\n')
         outfile.write('</div>\n')  # Close container
         for time_frame_name in TIME_FRAMES.keys():
-            player_totals_tf = player_totals[time_frame_name]
             table_class = f'{time_frame_name} player-totals'
             caption = f'Total Scores per Player ({time_frame_name.replace("_", " ").title()})'
 
-            player_totals_list = [{'name': name, 'total_score': total_score} for name, total_score in player_totals_tf.items()]
-            player_totals_list.sort(key=lambda x: x['total_score'], reverse=True)
+            # Get the list of all player names
+            all_player_names = [player['name'] for player in players]
 
             outfile.write(f'<h2 class="{time_frame_name}" style="text-align:center;">{caption}</h2>\n')
             outfile.write(f'<table class="{table_class}" style="margin: 0 auto;">\n')
@@ -414,15 +449,7 @@ def main():
             outfile.write('<tr><th>Player</th><th>Total Score</th></tr>\n')
             outfile.write('</thead>\n')
             outfile.write('<tbody>\n')
-
-            for player in player_totals_list:
-                name = player['name']
-                total_score = player['total_score']
-                outfile.write(f'<tr>')
-                outfile.write(f'<td>{name}</td>')
-                outfile.write(f'<td>{total_score:.4f}</td>')
-                outfile.write('</tr>\n')
-
+            # The tbody will be populated dynamically by JavaScript
             outfile.write('</tbody>\n')
             outfile.write('</table>\n')
         outfile.write('</body></html>')

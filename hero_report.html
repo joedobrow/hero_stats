@@ -10,12 +10,14 @@ th { background-color: #333; color: #f0f0f0; cursor: pointer; }
 tr:nth-child(even) { background-color: #2e2e2e; }
 tr:nth-child(odd) { background-color: #262626; }
 .hidden { display: none; }
-.checkbox-container { padding: 10px; border: 1px solid #555; margin: 10px; }
-.checkbox-container label { font-size: 14px; color: #f0f0f0; margin-right: 10px; }
-.checkbox-container input { margin-right: 5px; }
-.checkbox-container { display: flex; flex-wrap: wrap; }
-.checkbox-item { width: 25%; }
-.hero-section.hidden { display: none; }
+.hero-selection-container { padding: 10px; border: 1px solid #555; margin: 10px; }
+.hero-grid { display: flex; flex-wrap: wrap; justify-content: center; }
+.hero-item { position: relative; width: 80px; height: 80px; margin: 5px; cursor: pointer; }
+.hero-select-image { width: 100%; height: 100%; object-fit: cover; }
+.hero-name-overlay { position: absolute; bottom: 0; width: 100%; text-align: center; background: rgba(0, 0, 0, 0.6); color: #fff; font-size: 10px; padding: 2px 0; }
+.hero-item.deselected { filter: grayscale(100%); opacity: 0.5; }
+.hero-item.selected { filter: none; opacity: 1; }
+.hero-selection-container button { margin: 5px; padding: 5px 10px; font-size: 14px; }
 </style>
 <script>
 function sortTable(table, col, reverse) {
@@ -59,30 +61,36 @@ function toggleTimeFrame() {
     }
     updateTotals();
 }
-function toggleHero(heroId) {
+function toggleHeroSelection(heroId) {
+    let heroItem = document.getElementById("hero_select_" + heroId);
     let heroSection = document.getElementById("hero_" + heroId);
-    let checkbox = document.getElementById("checkbox_" + heroId);
-    if (checkbox.checked) {
-        heroSection.classList.remove("hidden");
-    } else {
+    if (heroItem.classList.contains("selected")) {
+        heroItem.classList.remove("selected");
+        heroItem.classList.add("deselected");
         heroSection.classList.add("hidden");
+    } else {
+        heroItem.classList.remove("deselected");
+        heroItem.classList.add("selected");
+        heroSection.classList.remove("hidden");
     }
     updateTotals();
 }
 function selectAllHeroes() {
-    let checkboxes = document.getElementsByClassName("hero-checkbox");
-    for (let checkbox of checkboxes) {
-        checkbox.checked = true;
-        let heroId = checkbox.dataset.heroId;
+    let heroItems = document.getElementsByClassName("hero-item");
+    for (let heroItem of heroItems) {
+        heroItem.classList.add("selected");
+        heroItem.classList.remove("deselected");
+        let heroId = heroItem.dataset.heroId;
         document.getElementById("hero_" + heroId).classList.remove("hidden");
     }
     updateTotals();
 }
 function deselectAllHeroes() {
-    let checkboxes = document.getElementsByClassName("hero-checkbox");
-    for (let checkbox of checkboxes) {
-        checkbox.checked = false;
-        let heroId = checkbox.dataset.heroId;
+    let heroItems = document.getElementsByClassName("hero-item");
+    for (let heroItem of heroItems) {
+        heroItem.classList.remove("selected");
+        heroItem.classList.add("deselected");
+        let heroId = heroItem.dataset.heroId;
         document.getElementById("hero_" + heroId).classList.add("hidden");
     }
     updateTotals();
@@ -110,11 +118,26 @@ function updateTotals() {
         if (table.classList.contains(selectedTimeFrame)) {
             table.classList.remove("hidden");
             let tbody = table.tBodies[0];
-            let rows = tbody.rows;
-            for (let row of rows) {
-                let playerName = row.cells[0].textContent;
-                let totalScore = playerTotals[playerName] || 0;
-                row.cells[1].textContent = totalScore.toFixed(4);
+            // Remove existing rows
+            while (tbody.firstChild) {
+                tbody.removeChild(tbody.firstChild);
+            }
+            // Create new rows
+            let players = [];
+            for (let playerName in playerTotals) {
+                players.push({ name: playerName, totalScore: playerTotals[playerName] });
+            }
+            // Sort players by totalScore in descending order
+            players.sort(function(a, b) {
+                return b.totalScore - a.totalScore;
+            });
+            // Add rows to table
+            for (let player of players) {
+                let row = tbody.insertRow();
+                let cellName = row.insertCell(0);
+                let cellTotalScore = row.insertCell(1);
+                cellName.textContent = player.name;
+                cellTotalScore.textContent = player.totalScore.toFixed(4);
             }
         } else {
             table.classList.add("hidden");
@@ -127,9 +150,9 @@ window.onload = function() {
         makeSortable(tables[i]);
     }
     document.getElementById("timeFrameSelect").addEventListener("change", toggleTimeFrame);
-    let heroCheckboxes = document.getElementsByClassName("hero-checkbox");
-    for (let checkbox of heroCheckboxes) {
-        checkbox.addEventListener("change", function() { toggleHero(this.dataset.heroId); });
+    let heroItems = document.getElementsByClassName("hero-item");
+    for (let heroItem of heroItems) {
+        heroItem.addEventListener("click", function() { toggleHeroSelection(this.dataset.heroId); });
     }
     document.getElementById("selectAllBtn").addEventListener("click", selectAllHeroes);
     document.getElementById("deselectAllBtn").addEventListener("click", deselectAllHeroes);
@@ -142,7 +165,7 @@ window.onload = function() {
 <div style="text-align:center; margin-bottom:20px;">
 <a href="https://joedobrow.github.io/hero_stats/player_report.html" style="color:#1e90ff;">View Player Metrics Report</a>
 </div>
-<div class="checkbox-container">
+<div class="hero-selection-container">
 <div style="width:100%;"><h3>Time Frame:</h3></div>
 <div style="width:100%; margin-bottom: 10px;">
 <select id="timeFrameSelect">
@@ -152,765 +175,515 @@ window.onload = function() {
 </select>
 </div>
 </div>
-<div class="checkbox-container">
+<div class="hero-selection-container">
 <div style="width:100%;"><h3>Select Heroes:</h3></div>
 <div style="width:100%; margin-bottom: 10px;"><button id="selectAllBtn">Select All</button>
 <button id="deselectAllBtn">Deselect All</button></div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="102" id="checkbox_102" checked />
-Abaddon
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="73" id="checkbox_73" checked />
-Alchemist
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="68" id="checkbox_68" checked />
-Ancient Apparition
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="1" id="checkbox_1" checked />
-Anti-Mage
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="113" id="checkbox_113" checked />
-Arc Warden
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="2" id="checkbox_2" checked />
-Axe
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="3" id="checkbox_3" checked />
-Bane
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="65" id="checkbox_65" checked />
-Batrider
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="38" id="checkbox_38" checked />
-Beastmaster
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="4" id="checkbox_4" checked />
-Bloodseeker
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="62" id="checkbox_62" checked />
-Bounty Hunter
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="78" id="checkbox_78" checked />
-Brewmaster
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="99" id="checkbox_99" checked />
-Bristleback
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="61" id="checkbox_61" checked />
-Broodmother
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="96" id="checkbox_96" checked />
-Centaur Warrunner
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="81" id="checkbox_81" checked />
-Chaos Knight
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="66" id="checkbox_66" checked />
-Chen
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="56" id="checkbox_56" checked />
-Clinkz
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="51" id="checkbox_51" checked />
-Clockwerk
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="5" id="checkbox_5" checked />
-Crystal Maiden
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="55" id="checkbox_55" checked />
-Dark Seer
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="119" id="checkbox_119" checked />
-Dark Willow
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="135" id="checkbox_135" checked />
-Dawnbreaker
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="50" id="checkbox_50" checked />
-Dazzle
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="43" id="checkbox_43" checked />
-Death Prophet
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="87" id="checkbox_87" checked />
-Disruptor
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="69" id="checkbox_69" checked />
-Doom
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="49" id="checkbox_49" checked />
-Dragon Knight
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="6" id="checkbox_6" checked />
-Drow Ranger
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="107" id="checkbox_107" checked />
-Earth Spirit
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="7" id="checkbox_7" checked />
-Earthshaker
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="103" id="checkbox_103" checked />
-Elder Titan
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="106" id="checkbox_106" checked />
-Ember Spirit
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="58" id="checkbox_58" checked />
-Enchantress
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="33" id="checkbox_33" checked />
-Enigma
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="41" id="checkbox_41" checked />
-Faceless Void
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="121" id="checkbox_121" checked />
-Grimstroke
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="72" id="checkbox_72" checked />
-Gyrocopter
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="123" id="checkbox_123" checked />
-Hoodwink
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="59" id="checkbox_59" checked />
-Huskar
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="74" id="checkbox_74" checked />
-Invoker
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="91" id="checkbox_91" checked />
-Io
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="64" id="checkbox_64" checked />
-Jakiro
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="8" id="checkbox_8" checked />
-Juggernaut
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="90" id="checkbox_90" checked />
-Keeper of the Light
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="145" id="checkbox_145" checked />
-Kez
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="23" id="checkbox_23" checked />
-Kunkka
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="104" id="checkbox_104" checked />
-Legion Commander
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="52" id="checkbox_52" checked />
-Leshrac
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="31" id="checkbox_31" checked />
-Lich
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="54" id="checkbox_54" checked />
-Lifestealer
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="25" id="checkbox_25" checked />
-Lina
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="26" id="checkbox_26" checked />
-Lion
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="80" id="checkbox_80" checked />
-Lone Druid
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="48" id="checkbox_48" checked />
-Luna
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="77" id="checkbox_77" checked />
-Lycan
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="97" id="checkbox_97" checked />
-Magnus
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="136" id="checkbox_136" checked />
-Marci
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="129" id="checkbox_129" checked />
-Mars
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="94" id="checkbox_94" checked />
-Medusa
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="82" id="checkbox_82" checked />
-Meepo
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="9" id="checkbox_9" checked />
-Mirana
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="114" id="checkbox_114" checked />
-Monkey King
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="10" id="checkbox_10" checked />
-Morphling
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="138" id="checkbox_138" checked />
-Muerta
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="89" id="checkbox_89" checked />
-Naga Siren
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="53" id="checkbox_53" checked />
-Nature's Prophet
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="36" id="checkbox_36" checked />
-Necrophos
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="60" id="checkbox_60" checked />
-Night Stalker
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="88" id="checkbox_88" checked />
-Nyx Assassin
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="84" id="checkbox_84" checked />
-Ogre Magi
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="57" id="checkbox_57" checked />
-Omniknight
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="111" id="checkbox_111" checked />
-Oracle
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="76" id="checkbox_76" checked />
-Outworld Devourer
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="120" id="checkbox_120" checked />
-Pangolier
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="44" id="checkbox_44" checked />
-Phantom Assassin
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="12" id="checkbox_12" checked />
-Phantom Lancer
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="110" id="checkbox_110" checked />
-Phoenix
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="137" id="checkbox_137" checked />
-Primal Beast
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="13" id="checkbox_13" checked />
-Puck
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="14" id="checkbox_14" checked />
-Pudge
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="45" id="checkbox_45" checked />
-Pugna
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="39" id="checkbox_39" checked />
-Queen of Pain
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="15" id="checkbox_15" checked />
-Razor
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="32" id="checkbox_32" checked />
-Riki
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="131" id="checkbox_131" checked />
-Ring Master
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="86" id="checkbox_86" checked />
-Rubick
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="16" id="checkbox_16" checked />
-Sand King
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="79" id="checkbox_79" checked />
-Shadow Demon
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="11" id="checkbox_11" checked />
-Shadow Fiend
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="27" id="checkbox_27" checked />
-Shadow Shaman
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="75" id="checkbox_75" checked />
-Silencer
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="101" id="checkbox_101" checked />
-Skywrath Mage
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="28" id="checkbox_28" checked />
-Slardar
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="93" id="checkbox_93" checked />
-Slark
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="128" id="checkbox_128" checked />
-Snapfire
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="35" id="checkbox_35" checked />
-Sniper
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="67" id="checkbox_67" checked />
-Spectre
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="71" id="checkbox_71" checked />
-Spirit Breaker
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="17" id="checkbox_17" checked />
-Storm Spirit
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="18" id="checkbox_18" checked />
-Sven
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="105" id="checkbox_105" checked />
-Techies
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="46" id="checkbox_46" checked />
-Templar Assassin
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="109" id="checkbox_109" checked />
-Terrorblade
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="29" id="checkbox_29" checked />
-Tidehunter
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="98" id="checkbox_98" checked />
-Timbersaw
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="34" id="checkbox_34" checked />
-Tinker
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="19" id="checkbox_19" checked />
-Tiny
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="83" id="checkbox_83" checked />
-Treant Protector
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="95" id="checkbox_95" checked />
-Troll Warlord
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="100" id="checkbox_100" checked />
-Tusk
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="108" id="checkbox_108" checked />
-Underlord
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="85" id="checkbox_85" checked />
-Undying
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="70" id="checkbox_70" checked />
-Ursa
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="20" id="checkbox_20" checked />
-Vengeful Spirit
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="40" id="checkbox_40" checked />
-Venomancer
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="47" id="checkbox_47" checked />
-Viper
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="92" id="checkbox_92" checked />
-Visage
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="126" id="checkbox_126" checked />
-Void Spirit
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="37" id="checkbox_37" checked />
-Warlock
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="63" id="checkbox_63" checked />
-Weaver
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="21" id="checkbox_21" checked />
-Windranger
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="112" id="checkbox_112" checked />
-Winter Wyvern
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="30" id="checkbox_30" checked />
-Witch Doctor
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="42" id="checkbox_42" checked />
-Wraith King
-</label>
-</div>
-<div class="checkbox-item">
-<label>
-<input type="checkbox" class="hero-checkbox" data-hero-id="22" id="checkbox_22" checked />
-Zeus
-</label>
+<div class="hero-grid">
+<div class="hero-item selected" data-hero-id="102" id="hero_select_102">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/abaddon.png" alt="Abaddon" class="hero-select-image">
+<div class="hero-name-overlay">Abaddon</div>
+</div>
+<div class="hero-item selected" data-hero-id="73" id="hero_select_73">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/alchemist.png" alt="Alchemist" class="hero-select-image">
+<div class="hero-name-overlay">Alchemist</div>
+</div>
+<div class="hero-item selected" data-hero-id="68" id="hero_select_68">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/ancient_apparition.png" alt="Ancient Apparition" class="hero-select-image">
+<div class="hero-name-overlay">Ancient Apparition</div>
+</div>
+<div class="hero-item selected" data-hero-id="1" id="hero_select_1">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/antimage.png" alt="Anti-Mage" class="hero-select-image">
+<div class="hero-name-overlay">Anti-Mage</div>
+</div>
+<div class="hero-item selected" data-hero-id="113" id="hero_select_113">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/arc_warden.png" alt="Arc Warden" class="hero-select-image">
+<div class="hero-name-overlay">Arc Warden</div>
+</div>
+<div class="hero-item selected" data-hero-id="2" id="hero_select_2">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/axe.png" alt="Axe" class="hero-select-image">
+<div class="hero-name-overlay">Axe</div>
+</div>
+<div class="hero-item selected" data-hero-id="3" id="hero_select_3">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/bane.png" alt="Bane" class="hero-select-image">
+<div class="hero-name-overlay">Bane</div>
+</div>
+<div class="hero-item selected" data-hero-id="65" id="hero_select_65">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/batrider.png" alt="Batrider" class="hero-select-image">
+<div class="hero-name-overlay">Batrider</div>
+</div>
+<div class="hero-item selected" data-hero-id="38" id="hero_select_38">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/beastmaster.png" alt="Beastmaster" class="hero-select-image">
+<div class="hero-name-overlay">Beastmaster</div>
+</div>
+<div class="hero-item selected" data-hero-id="4" id="hero_select_4">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/bloodseeker.png" alt="Bloodseeker" class="hero-select-image">
+<div class="hero-name-overlay">Bloodseeker</div>
+</div>
+<div class="hero-item selected" data-hero-id="62" id="hero_select_62">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/bounty_hunter.png" alt="Bounty Hunter" class="hero-select-image">
+<div class="hero-name-overlay">Bounty Hunter</div>
+</div>
+<div class="hero-item selected" data-hero-id="78" id="hero_select_78">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/brewmaster.png" alt="Brewmaster" class="hero-select-image">
+<div class="hero-name-overlay">Brewmaster</div>
+</div>
+<div class="hero-item selected" data-hero-id="99" id="hero_select_99">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/bristleback.png" alt="Bristleback" class="hero-select-image">
+<div class="hero-name-overlay">Bristleback</div>
+</div>
+<div class="hero-item selected" data-hero-id="61" id="hero_select_61">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/broodmother.png" alt="Broodmother" class="hero-select-image">
+<div class="hero-name-overlay">Broodmother</div>
+</div>
+<div class="hero-item selected" data-hero-id="96" id="hero_select_96">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/centaur.png" alt="Centaur Warrunner" class="hero-select-image">
+<div class="hero-name-overlay">Centaur Warrunner</div>
+</div>
+<div class="hero-item selected" data-hero-id="81" id="hero_select_81">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/chaos_knight.png" alt="Chaos Knight" class="hero-select-image">
+<div class="hero-name-overlay">Chaos Knight</div>
+</div>
+<div class="hero-item selected" data-hero-id="66" id="hero_select_66">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/chen.png" alt="Chen" class="hero-select-image">
+<div class="hero-name-overlay">Chen</div>
+</div>
+<div class="hero-item selected" data-hero-id="56" id="hero_select_56">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/clinkz.png" alt="Clinkz" class="hero-select-image">
+<div class="hero-name-overlay">Clinkz</div>
+</div>
+<div class="hero-item selected" data-hero-id="51" id="hero_select_51">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/rattletrap.png" alt="Clockwerk" class="hero-select-image">
+<div class="hero-name-overlay">Clockwerk</div>
+</div>
+<div class="hero-item selected" data-hero-id="5" id="hero_select_5">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/crystal_maiden.png" alt="Crystal Maiden" class="hero-select-image">
+<div class="hero-name-overlay">Crystal Maiden</div>
+</div>
+<div class="hero-item selected" data-hero-id="55" id="hero_select_55">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/dark_seer.png" alt="Dark Seer" class="hero-select-image">
+<div class="hero-name-overlay">Dark Seer</div>
+</div>
+<div class="hero-item selected" data-hero-id="119" id="hero_select_119">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/dark_willow.png" alt="Dark Willow" class="hero-select-image">
+<div class="hero-name-overlay">Dark Willow</div>
+</div>
+<div class="hero-item selected" data-hero-id="135" id="hero_select_135">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/dawnbreaker.png" alt="Dawnbreaker" class="hero-select-image">
+<div class="hero-name-overlay">Dawnbreaker</div>
+</div>
+<div class="hero-item selected" data-hero-id="50" id="hero_select_50">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/dazzle.png" alt="Dazzle" class="hero-select-image">
+<div class="hero-name-overlay">Dazzle</div>
+</div>
+<div class="hero-item selected" data-hero-id="43" id="hero_select_43">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/death_prophet.png" alt="Death Prophet" class="hero-select-image">
+<div class="hero-name-overlay">Death Prophet</div>
+</div>
+<div class="hero-item selected" data-hero-id="87" id="hero_select_87">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/disruptor.png" alt="Disruptor" class="hero-select-image">
+<div class="hero-name-overlay">Disruptor</div>
+</div>
+<div class="hero-item selected" data-hero-id="69" id="hero_select_69">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/doom_bringer.png" alt="Doom" class="hero-select-image">
+<div class="hero-name-overlay">Doom</div>
+</div>
+<div class="hero-item selected" data-hero-id="49" id="hero_select_49">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/dragon_knight.png" alt="Dragon Knight" class="hero-select-image">
+<div class="hero-name-overlay">Dragon Knight</div>
+</div>
+<div class="hero-item selected" data-hero-id="6" id="hero_select_6">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/drow_ranger.png" alt="Drow Ranger" class="hero-select-image">
+<div class="hero-name-overlay">Drow Ranger</div>
+</div>
+<div class="hero-item selected" data-hero-id="107" id="hero_select_107">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/earth_spirit.png" alt="Earth Spirit" class="hero-select-image">
+<div class="hero-name-overlay">Earth Spirit</div>
+</div>
+<div class="hero-item selected" data-hero-id="7" id="hero_select_7">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/earthshaker.png" alt="Earthshaker" class="hero-select-image">
+<div class="hero-name-overlay">Earthshaker</div>
+</div>
+<div class="hero-item selected" data-hero-id="103" id="hero_select_103">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/elder_titan.png" alt="Elder Titan" class="hero-select-image">
+<div class="hero-name-overlay">Elder Titan</div>
+</div>
+<div class="hero-item selected" data-hero-id="106" id="hero_select_106">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/ember_spirit.png" alt="Ember Spirit" class="hero-select-image">
+<div class="hero-name-overlay">Ember Spirit</div>
+</div>
+<div class="hero-item selected" data-hero-id="58" id="hero_select_58">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/enchantress.png" alt="Enchantress" class="hero-select-image">
+<div class="hero-name-overlay">Enchantress</div>
+</div>
+<div class="hero-item selected" data-hero-id="33" id="hero_select_33">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/enigma.png" alt="Enigma" class="hero-select-image">
+<div class="hero-name-overlay">Enigma</div>
+</div>
+<div class="hero-item selected" data-hero-id="41" id="hero_select_41">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/faceless_void.png" alt="Faceless Void" class="hero-select-image">
+<div class="hero-name-overlay">Faceless Void</div>
+</div>
+<div class="hero-item selected" data-hero-id="121" id="hero_select_121">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/grimstroke.png" alt="Grimstroke" class="hero-select-image">
+<div class="hero-name-overlay">Grimstroke</div>
+</div>
+<div class="hero-item selected" data-hero-id="72" id="hero_select_72">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/gyrocopter.png" alt="Gyrocopter" class="hero-select-image">
+<div class="hero-name-overlay">Gyrocopter</div>
+</div>
+<div class="hero-item selected" data-hero-id="123" id="hero_select_123">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/hoodwink.png" alt="Hoodwink" class="hero-select-image">
+<div class="hero-name-overlay">Hoodwink</div>
+</div>
+<div class="hero-item selected" data-hero-id="59" id="hero_select_59">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/huskar.png" alt="Huskar" class="hero-select-image">
+<div class="hero-name-overlay">Huskar</div>
+</div>
+<div class="hero-item selected" data-hero-id="74" id="hero_select_74">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/invoker.png" alt="Invoker" class="hero-select-image">
+<div class="hero-name-overlay">Invoker</div>
+</div>
+<div class="hero-item selected" data-hero-id="91" id="hero_select_91">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/wisp.png" alt="Io" class="hero-select-image">
+<div class="hero-name-overlay">Io</div>
+</div>
+<div class="hero-item selected" data-hero-id="64" id="hero_select_64">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/jakiro.png" alt="Jakiro" class="hero-select-image">
+<div class="hero-name-overlay">Jakiro</div>
+</div>
+<div class="hero-item selected" data-hero-id="8" id="hero_select_8">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/juggernaut.png" alt="Juggernaut" class="hero-select-image">
+<div class="hero-name-overlay">Juggernaut</div>
+</div>
+<div class="hero-item selected" data-hero-id="90" id="hero_select_90">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/keeper_of_the_light.png" alt="Keeper of the Light" class="hero-select-image">
+<div class="hero-name-overlay">Keeper of the Light</div>
+</div>
+<div class="hero-item selected" data-hero-id="145" id="hero_select_145">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/kez.png" alt="Kez" class="hero-select-image">
+<div class="hero-name-overlay">Kez</div>
+</div>
+<div class="hero-item selected" data-hero-id="23" id="hero_select_23">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/kunkka.png" alt="Kunkka" class="hero-select-image">
+<div class="hero-name-overlay">Kunkka</div>
+</div>
+<div class="hero-item selected" data-hero-id="104" id="hero_select_104">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/legion_commander.png" alt="Legion Commander" class="hero-select-image">
+<div class="hero-name-overlay">Legion Commander</div>
+</div>
+<div class="hero-item selected" data-hero-id="52" id="hero_select_52">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/leshrac.png" alt="Leshrac" class="hero-select-image">
+<div class="hero-name-overlay">Leshrac</div>
+</div>
+<div class="hero-item selected" data-hero-id="31" id="hero_select_31">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/lich.png" alt="Lich" class="hero-select-image">
+<div class="hero-name-overlay">Lich</div>
+</div>
+<div class="hero-item selected" data-hero-id="54" id="hero_select_54">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/life_stealer.png" alt="Lifestealer" class="hero-select-image">
+<div class="hero-name-overlay">Lifestealer</div>
+</div>
+<div class="hero-item selected" data-hero-id="25" id="hero_select_25">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/lina.png" alt="Lina" class="hero-select-image">
+<div class="hero-name-overlay">Lina</div>
+</div>
+<div class="hero-item selected" data-hero-id="26" id="hero_select_26">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/lion.png" alt="Lion" class="hero-select-image">
+<div class="hero-name-overlay">Lion</div>
+</div>
+<div class="hero-item selected" data-hero-id="80" id="hero_select_80">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/lone_druid.png" alt="Lone Druid" class="hero-select-image">
+<div class="hero-name-overlay">Lone Druid</div>
+</div>
+<div class="hero-item selected" data-hero-id="48" id="hero_select_48">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/luna.png" alt="Luna" class="hero-select-image">
+<div class="hero-name-overlay">Luna</div>
+</div>
+<div class="hero-item selected" data-hero-id="77" id="hero_select_77">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/lycan.png" alt="Lycan" class="hero-select-image">
+<div class="hero-name-overlay">Lycan</div>
+</div>
+<div class="hero-item selected" data-hero-id="97" id="hero_select_97">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/magnataur.png" alt="Magnus" class="hero-select-image">
+<div class="hero-name-overlay">Magnus</div>
+</div>
+<div class="hero-item selected" data-hero-id="136" id="hero_select_136">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/marci.png" alt="Marci" class="hero-select-image">
+<div class="hero-name-overlay">Marci</div>
+</div>
+<div class="hero-item selected" data-hero-id="129" id="hero_select_129">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/mars.png" alt="Mars" class="hero-select-image">
+<div class="hero-name-overlay">Mars</div>
+</div>
+<div class="hero-item selected" data-hero-id="94" id="hero_select_94">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/medusa.png" alt="Medusa" class="hero-select-image">
+<div class="hero-name-overlay">Medusa</div>
+</div>
+<div class="hero-item selected" data-hero-id="82" id="hero_select_82">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/meepo.png" alt="Meepo" class="hero-select-image">
+<div class="hero-name-overlay">Meepo</div>
+</div>
+<div class="hero-item selected" data-hero-id="9" id="hero_select_9">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/mirana.png" alt="Mirana" class="hero-select-image">
+<div class="hero-name-overlay">Mirana</div>
+</div>
+<div class="hero-item selected" data-hero-id="114" id="hero_select_114">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/monkey_king.png" alt="Monkey King" class="hero-select-image">
+<div class="hero-name-overlay">Monkey King</div>
+</div>
+<div class="hero-item selected" data-hero-id="10" id="hero_select_10">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/morphling.png" alt="Morphling" class="hero-select-image">
+<div class="hero-name-overlay">Morphling</div>
+</div>
+<div class="hero-item selected" data-hero-id="138" id="hero_select_138">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/muerta.png" alt="Muerta" class="hero-select-image">
+<div class="hero-name-overlay">Muerta</div>
+</div>
+<div class="hero-item selected" data-hero-id="89" id="hero_select_89">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/naga_siren.png" alt="Naga Siren" class="hero-select-image">
+<div class="hero-name-overlay">Naga Siren</div>
+</div>
+<div class="hero-item selected" data-hero-id="53" id="hero_select_53">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/furion.png" alt="Nature's Prophet" class="hero-select-image">
+<div class="hero-name-overlay">Nature's Prophet</div>
+</div>
+<div class="hero-item selected" data-hero-id="36" id="hero_select_36">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/necrolyte.png" alt="Necrophos" class="hero-select-image">
+<div class="hero-name-overlay">Necrophos</div>
+</div>
+<div class="hero-item selected" data-hero-id="60" id="hero_select_60">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/night_stalker.png" alt="Night Stalker" class="hero-select-image">
+<div class="hero-name-overlay">Night Stalker</div>
+</div>
+<div class="hero-item selected" data-hero-id="88" id="hero_select_88">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/nyx_assassin.png" alt="Nyx Assassin" class="hero-select-image">
+<div class="hero-name-overlay">Nyx Assassin</div>
+</div>
+<div class="hero-item selected" data-hero-id="84" id="hero_select_84">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/ogre_magi.png" alt="Ogre Magi" class="hero-select-image">
+<div class="hero-name-overlay">Ogre Magi</div>
+</div>
+<div class="hero-item selected" data-hero-id="57" id="hero_select_57">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/omniknight.png" alt="Omniknight" class="hero-select-image">
+<div class="hero-name-overlay">Omniknight</div>
+</div>
+<div class="hero-item selected" data-hero-id="111" id="hero_select_111">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/oracle.png" alt="Oracle" class="hero-select-image">
+<div class="hero-name-overlay">Oracle</div>
+</div>
+<div class="hero-item selected" data-hero-id="76" id="hero_select_76">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/obsidian_destroyer.png" alt="Outworld Devourer" class="hero-select-image">
+<div class="hero-name-overlay">Outworld Devourer</div>
+</div>
+<div class="hero-item selected" data-hero-id="120" id="hero_select_120">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/pangolier.png" alt="Pangolier" class="hero-select-image">
+<div class="hero-name-overlay">Pangolier</div>
+</div>
+<div class="hero-item selected" data-hero-id="44" id="hero_select_44">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/phantom_assassin.png" alt="Phantom Assassin" class="hero-select-image">
+<div class="hero-name-overlay">Phantom Assassin</div>
+</div>
+<div class="hero-item selected" data-hero-id="12" id="hero_select_12">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/phantom_lancer.png" alt="Phantom Lancer" class="hero-select-image">
+<div class="hero-name-overlay">Phantom Lancer</div>
+</div>
+<div class="hero-item selected" data-hero-id="110" id="hero_select_110">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/phoenix.png" alt="Phoenix" class="hero-select-image">
+<div class="hero-name-overlay">Phoenix</div>
+</div>
+<div class="hero-item selected" data-hero-id="137" id="hero_select_137">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/primal_beast.png" alt="Primal Beast" class="hero-select-image">
+<div class="hero-name-overlay">Primal Beast</div>
+</div>
+<div class="hero-item selected" data-hero-id="13" id="hero_select_13">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/puck.png" alt="Puck" class="hero-select-image">
+<div class="hero-name-overlay">Puck</div>
+</div>
+<div class="hero-item selected" data-hero-id="14" id="hero_select_14">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/pudge.png" alt="Pudge" class="hero-select-image">
+<div class="hero-name-overlay">Pudge</div>
+</div>
+<div class="hero-item selected" data-hero-id="45" id="hero_select_45">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/pugna.png" alt="Pugna" class="hero-select-image">
+<div class="hero-name-overlay">Pugna</div>
+</div>
+<div class="hero-item selected" data-hero-id="39" id="hero_select_39">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/queenofpain.png" alt="Queen of Pain" class="hero-select-image">
+<div class="hero-name-overlay">Queen of Pain</div>
+</div>
+<div class="hero-item selected" data-hero-id="15" id="hero_select_15">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/razor.png" alt="Razor" class="hero-select-image">
+<div class="hero-name-overlay">Razor</div>
+</div>
+<div class="hero-item selected" data-hero-id="32" id="hero_select_32">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/riki.png" alt="Riki" class="hero-select-image">
+<div class="hero-name-overlay">Riki</div>
+</div>
+<div class="hero-item selected" data-hero-id="131" id="hero_select_131">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/ringmaster.png" alt="Ring Master" class="hero-select-image">
+<div class="hero-name-overlay">Ring Master</div>
+</div>
+<div class="hero-item selected" data-hero-id="86" id="hero_select_86">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/rubick.png" alt="Rubick" class="hero-select-image">
+<div class="hero-name-overlay">Rubick</div>
+</div>
+<div class="hero-item selected" data-hero-id="16" id="hero_select_16">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/sand_king.png" alt="Sand King" class="hero-select-image">
+<div class="hero-name-overlay">Sand King</div>
+</div>
+<div class="hero-item selected" data-hero-id="79" id="hero_select_79">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/shadow_demon.png" alt="Shadow Demon" class="hero-select-image">
+<div class="hero-name-overlay">Shadow Demon</div>
+</div>
+<div class="hero-item selected" data-hero-id="11" id="hero_select_11">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/nevermore.png" alt="Shadow Fiend" class="hero-select-image">
+<div class="hero-name-overlay">Shadow Fiend</div>
+</div>
+<div class="hero-item selected" data-hero-id="27" id="hero_select_27">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/shadow_shaman.png" alt="Shadow Shaman" class="hero-select-image">
+<div class="hero-name-overlay">Shadow Shaman</div>
+</div>
+<div class="hero-item selected" data-hero-id="75" id="hero_select_75">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/silencer.png" alt="Silencer" class="hero-select-image">
+<div class="hero-name-overlay">Silencer</div>
+</div>
+<div class="hero-item selected" data-hero-id="101" id="hero_select_101">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/skywrath_mage.png" alt="Skywrath Mage" class="hero-select-image">
+<div class="hero-name-overlay">Skywrath Mage</div>
+</div>
+<div class="hero-item selected" data-hero-id="28" id="hero_select_28">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/slardar.png" alt="Slardar" class="hero-select-image">
+<div class="hero-name-overlay">Slardar</div>
+</div>
+<div class="hero-item selected" data-hero-id="93" id="hero_select_93">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/slark.png" alt="Slark" class="hero-select-image">
+<div class="hero-name-overlay">Slark</div>
+</div>
+<div class="hero-item selected" data-hero-id="128" id="hero_select_128">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/snapfire.png" alt="Snapfire" class="hero-select-image">
+<div class="hero-name-overlay">Snapfire</div>
+</div>
+<div class="hero-item selected" data-hero-id="35" id="hero_select_35">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/sniper.png" alt="Sniper" class="hero-select-image">
+<div class="hero-name-overlay">Sniper</div>
+</div>
+<div class="hero-item selected" data-hero-id="67" id="hero_select_67">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/spectre.png" alt="Spectre" class="hero-select-image">
+<div class="hero-name-overlay">Spectre</div>
+</div>
+<div class="hero-item selected" data-hero-id="71" id="hero_select_71">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/spirit_breaker.png" alt="Spirit Breaker" class="hero-select-image">
+<div class="hero-name-overlay">Spirit Breaker</div>
+</div>
+<div class="hero-item selected" data-hero-id="17" id="hero_select_17">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/storm_spirit.png" alt="Storm Spirit" class="hero-select-image">
+<div class="hero-name-overlay">Storm Spirit</div>
+</div>
+<div class="hero-item selected" data-hero-id="18" id="hero_select_18">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/sven.png" alt="Sven" class="hero-select-image">
+<div class="hero-name-overlay">Sven</div>
+</div>
+<div class="hero-item selected" data-hero-id="105" id="hero_select_105">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/techies.png" alt="Techies" class="hero-select-image">
+<div class="hero-name-overlay">Techies</div>
+</div>
+<div class="hero-item selected" data-hero-id="46" id="hero_select_46">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/templar_assassin.png" alt="Templar Assassin" class="hero-select-image">
+<div class="hero-name-overlay">Templar Assassin</div>
+</div>
+<div class="hero-item selected" data-hero-id="109" id="hero_select_109">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/terrorblade.png" alt="Terrorblade" class="hero-select-image">
+<div class="hero-name-overlay">Terrorblade</div>
+</div>
+<div class="hero-item selected" data-hero-id="29" id="hero_select_29">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/tidehunter.png" alt="Tidehunter" class="hero-select-image">
+<div class="hero-name-overlay">Tidehunter</div>
+</div>
+<div class="hero-item selected" data-hero-id="98" id="hero_select_98">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/shredder.png" alt="Timbersaw" class="hero-select-image">
+<div class="hero-name-overlay">Timbersaw</div>
+</div>
+<div class="hero-item selected" data-hero-id="34" id="hero_select_34">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/tinker.png" alt="Tinker" class="hero-select-image">
+<div class="hero-name-overlay">Tinker</div>
+</div>
+<div class="hero-item selected" data-hero-id="19" id="hero_select_19">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/tiny.png" alt="Tiny" class="hero-select-image">
+<div class="hero-name-overlay">Tiny</div>
+</div>
+<div class="hero-item selected" data-hero-id="83" id="hero_select_83">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/treant.png" alt="Treant Protector" class="hero-select-image">
+<div class="hero-name-overlay">Treant Protector</div>
+</div>
+<div class="hero-item selected" data-hero-id="95" id="hero_select_95">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/troll_warlord.png" alt="Troll Warlord" class="hero-select-image">
+<div class="hero-name-overlay">Troll Warlord</div>
+</div>
+<div class="hero-item selected" data-hero-id="100" id="hero_select_100">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/tusk.png" alt="Tusk" class="hero-select-image">
+<div class="hero-name-overlay">Tusk</div>
+</div>
+<div class="hero-item selected" data-hero-id="108" id="hero_select_108">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/abyssal_underlord.png" alt="Underlord" class="hero-select-image">
+<div class="hero-name-overlay">Underlord</div>
+</div>
+<div class="hero-item selected" data-hero-id="85" id="hero_select_85">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/undying.png" alt="Undying" class="hero-select-image">
+<div class="hero-name-overlay">Undying</div>
+</div>
+<div class="hero-item selected" data-hero-id="70" id="hero_select_70">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/ursa.png" alt="Ursa" class="hero-select-image">
+<div class="hero-name-overlay">Ursa</div>
+</div>
+<div class="hero-item selected" data-hero-id="20" id="hero_select_20">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/vengefulspirit.png" alt="Vengeful Spirit" class="hero-select-image">
+<div class="hero-name-overlay">Vengeful Spirit</div>
+</div>
+<div class="hero-item selected" data-hero-id="40" id="hero_select_40">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/venomancer.png" alt="Venomancer" class="hero-select-image">
+<div class="hero-name-overlay">Venomancer</div>
+</div>
+<div class="hero-item selected" data-hero-id="47" id="hero_select_47">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/viper.png" alt="Viper" class="hero-select-image">
+<div class="hero-name-overlay">Viper</div>
+</div>
+<div class="hero-item selected" data-hero-id="92" id="hero_select_92">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/visage.png" alt="Visage" class="hero-select-image">
+<div class="hero-name-overlay">Visage</div>
+</div>
+<div class="hero-item selected" data-hero-id="126" id="hero_select_126">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/void_spirit.png" alt="Void Spirit" class="hero-select-image">
+<div class="hero-name-overlay">Void Spirit</div>
+</div>
+<div class="hero-item selected" data-hero-id="37" id="hero_select_37">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/warlock.png" alt="Warlock" class="hero-select-image">
+<div class="hero-name-overlay">Warlock</div>
+</div>
+<div class="hero-item selected" data-hero-id="63" id="hero_select_63">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/weaver.png" alt="Weaver" class="hero-select-image">
+<div class="hero-name-overlay">Weaver</div>
+</div>
+<div class="hero-item selected" data-hero-id="21" id="hero_select_21">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/windrunner.png" alt="Windranger" class="hero-select-image">
+<div class="hero-name-overlay">Windranger</div>
+</div>
+<div class="hero-item selected" data-hero-id="112" id="hero_select_112">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/winter_wyvern.png" alt="Winter Wyvern" class="hero-select-image">
+<div class="hero-name-overlay">Winter Wyvern</div>
+</div>
+<div class="hero-item selected" data-hero-id="30" id="hero_select_30">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/witch_doctor.png" alt="Witch Doctor" class="hero-select-image">
+<div class="hero-name-overlay">Witch Doctor</div>
+</div>
+<div class="hero-item selected" data-hero-id="42" id="hero_select_42">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/skeleton_king.png" alt="Wraith King" class="hero-select-image">
+<div class="hero-name-overlay">Wraith King</div>
+</div>
+<div class="hero-item selected" data-hero-id="22" id="hero_select_22">
+<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/zuus.png" alt="Zeus" class="hero-select-image">
+<div class="hero-name-overlay">Zeus</div>
+</div>
 </div>
 </div>
 <div class="container">
@@ -24861,59 +24634,6 @@ Zeus
 <tr><th>Player</th><th>Total Score</th></tr>
 </thead>
 <tbody>
-<tr><td>ryrk</td><td>206.7968</td></tr>
-<tr><td>Osis</td><td>176.0796</td></tr>
-<tr><td>fierysnake</td><td>172.3659</td></tr>
-<tr><td>Clare ❤ Teresa</td><td>169.5840</td></tr>
-<tr><td>slowz-</td><td>167.7350</td></tr>
-<tr><td>SkinnyBear</td><td>167.3620</td></tr>
-<tr><td>Ridin' heelies escapin' feelies</td><td>166.0854</td></tr>
-<tr><td>lost in the fog</td><td>165.5858</td></tr>
-<tr><td>Zewqew</td><td>162.6735</td></tr>
-<tr><td>Treebeard</td><td>162.5500</td></tr>
-<tr><td>Scrub</td><td>160.5470</td></tr>
-<tr><td>Littletimmy</td><td>160.4825</td></tr>
-<tr><td>Beach Jeans</td><td>159.9492</td></tr>
-<tr><td>MidOrChen</td><td>158.2555</td></tr>
-<tr><td>Wii Sports Master</td><td>157.0614</td></tr>
-<tr><td>DoomCow33</td><td>155.7802</td></tr>
-<tr><td>Empty Cloud</td><td>153.3158</td></tr>
-<tr><td>Durzo</td><td>153.0572</td></tr>
-<tr><td>Ratman</td><td>152.8161</td></tr>
-<tr><td>JBird</td><td>152.3905</td></tr>
-<tr><td>big lou</td><td>151.6149</td></tr>
-<tr><td>Vuvuzela Virtuoso Hans Rudolph</td><td>150.2921</td></tr>
-<tr><td>King Scal</td><td>149.8549</td></tr>
-<tr><td>redground</td><td>148.9792</td></tr>
-<tr><td>MGHappyhobo</td><td>148.5435</td></tr>
-<tr><td>Space Cowboy</td><td>148.5344</td></tr>
-<tr><td>aerial</td><td>148.4042</td></tr>
-<tr><td>AllRoundGoodGuy</td><td>148.2167</td></tr>
-<tr><td>KatzeHund</td><td>144.5171</td></tr>
-<tr><td>bongcloud attack</td><td>140.4014</td></tr>
-<tr><td>Simple</td><td>139.1204</td></tr>
-<tr><td>Jimmy Pesto</td><td>136.6681</td></tr>
-<tr><td>Zoompa</td><td>135.7629</td></tr>
-<tr><td>Tokc</td><td>134.5847</td></tr>
-<tr><td>Smashe</td><td>134.0834</td></tr>
-<tr><td>Newbycakes</td><td>132.6805</td></tr>
-<tr><td>Cev</td><td>132.5200</td></tr>
-<tr><td>ForTheSwarm</td><td>132.1357</td></tr>
-<tr><td>MAPPO</td><td>129.6278</td></tr>
-<tr><td>Kizu</td><td>127.9301</td></tr>
-<tr><td> inkognito</td><td>126.7893</td></tr>
-<tr><td>Samppa</td><td>124.7843</td></tr>
-<tr><td>Satanic</td><td>124.7408</td></tr>
-<tr><td>TriVal</td><td>121.3715</td></tr>
-<tr><td>Yop</td><td>121.1754</td></tr>
-<tr><td>George</td><td>114.9822</td></tr>
-<tr><td>ShadowAce</td><td>110.3643</td></tr>
-<tr><td>Ez.Sky</td><td>101.4127</td></tr>
-<tr><td>Woh?</td><td>98.2159</td></tr>
-<tr><td>BENNY</td><td>91.1263</td></tr>
-<tr><td>Nameless 💀</td><td>75.5002</td></tr>
-<tr><td>Cerys</td><td>71.5890</td></tr>
-<tr><td>mediocre</td><td>23.0970</td></tr>
 </tbody>
 </table>
 <h2 class="last_2_years" style="text-align:center;">Total Scores per Player (Last 2 Years)</h2>
@@ -24922,59 +24642,6 @@ Zeus
 <tr><th>Player</th><th>Total Score</th></tr>
 </thead>
 <tbody>
-<tr><td>big lou</td><td>122.2592</td></tr>
-<tr><td>Ridin' heelies escapin' feelies</td><td>112.7553</td></tr>
-<tr><td>JBird</td><td>106.6334</td></tr>
-<tr><td>Beach Jeans</td><td>105.7484</td></tr>
-<tr><td>slowz-</td><td>99.9884</td></tr>
-<tr><td>fierysnake</td><td>98.1405</td></tr>
-<tr><td>redground</td><td>95.0548</td></tr>
-<tr><td>Smashe</td><td>94.4075</td></tr>
-<tr><td>Osis</td><td>94.2682</td></tr>
-<tr><td>SkinnyBear</td><td>94.1680</td></tr>
-<tr><td>TriVal</td><td>93.7454</td></tr>
-<tr><td>Simple</td><td>92.0920</td></tr>
-<tr><td>lost in the fog</td><td>91.8621</td></tr>
-<tr><td>Space Cowboy</td><td>90.1542</td></tr>
-<tr><td>Zewqew</td><td>88.3151</td></tr>
-<tr><td>KatzeHund</td><td>87.2742</td></tr>
-<tr><td>Littletimmy</td><td>87.2598</td></tr>
-<tr><td>Newbycakes</td><td>86.3735</td></tr>
-<tr><td>Ez.Sky</td><td>86.1804</td></tr>
-<tr><td>DoomCow33</td><td>84.5362</td></tr>
-<tr><td>Clare ❤ Teresa</td><td>83.8954</td></tr>
-<tr><td>Tokc</td><td>83.7045</td></tr>
-<tr><td>aerial</td><td>79.9703</td></tr>
-<tr><td>ryrk</td><td>76.2191</td></tr>
-<tr><td>Kizu</td><td>75.0135</td></tr>
-<tr><td>Jimmy Pesto</td><td>74.8622</td></tr>
-<tr><td>Satanic</td><td>74.6652</td></tr>
-<tr><td>Empty Cloud</td><td>74.0838</td></tr>
-<tr><td>AllRoundGoodGuy</td><td>73.2004</td></tr>
-<tr><td>Vuvuzela Virtuoso Hans Rudolph</td><td>71.9237</td></tr>
-<tr><td>Scrub</td><td>71.0714</td></tr>
-<tr><td>Ratman</td><td>70.9340</td></tr>
-<tr><td>ShadowAce</td><td>69.2355</td></tr>
-<tr><td>MGHappyhobo</td><td>68.6369</td></tr>
-<tr><td>MidOrChen</td><td>61.9345</td></tr>
-<tr><td>Wii Sports Master</td><td>60.5564</td></tr>
-<tr><td>George</td><td>58.3391</td></tr>
-<tr><td>Treebeard</td><td>56.3484</td></tr>
-<tr><td>MAPPO</td><td>55.0932</td></tr>
-<tr><td>bongcloud attack</td><td>50.6193</td></tr>
-<tr><td>Cev</td><td>49.7746</td></tr>
-<tr><td>Durzo</td><td>48.3760</td></tr>
-<tr><td>Samppa</td><td>48.1165</td></tr>
-<tr><td>King Scal</td><td>47.4091</td></tr>
-<tr><td> inkognito</td><td>44.5115</td></tr>
-<tr><td>Nameless 💀</td><td>38.6636</td></tr>
-<tr><td>Zoompa</td><td>37.6548</td></tr>
-<tr><td>ForTheSwarm</td><td>32.4068</td></tr>
-<tr><td>Yop</td><td>22.1707</td></tr>
-<tr><td>BENNY</td><td>19.0384</td></tr>
-<tr><td>Woh?</td><td>18.6414</td></tr>
-<tr><td>mediocre</td><td>18.5512</td></tr>
-<tr><td>Cerys</td><td>13.4720</td></tr>
 </tbody>
 </table>
 <h2 class="last_9_months" style="text-align:center;">Total Scores per Player (Last 9 Months)</h2>
@@ -24983,59 +24650,6 @@ Zeus
 <tr><th>Player</th><th>Total Score</th></tr>
 </thead>
 <tbody>
-<tr><td>Ridin' heelies escapin' feelies</td><td>91.0469</td></tr>
-<tr><td>big lou</td><td>89.4294</td></tr>
-<tr><td>fierysnake</td><td>76.2781</td></tr>
-<tr><td>Osis</td><td>68.6596</td></tr>
-<tr><td>DoomCow33</td><td>68.5553</td></tr>
-<tr><td>Beach Jeans</td><td>66.4587</td></tr>
-<tr><td>JBird</td><td>65.5524</td></tr>
-<tr><td>Smashe</td><td>65.1229</td></tr>
-<tr><td>redground</td><td>64.3746</td></tr>
-<tr><td>Clare ❤ Teresa</td><td>62.2249</td></tr>
-<tr><td>ryrk</td><td>61.9580</td></tr>
-<tr><td>Newbycakes</td><td>61.0597</td></tr>
-<tr><td>TriVal</td><td>60.9734</td></tr>
-<tr><td>Space Cowboy</td><td>60.7027</td></tr>
-<tr><td>slowz-</td><td>60.6423</td></tr>
-<tr><td>SkinnyBear</td><td>60.3583</td></tr>
-<tr><td>KatzeHund</td><td>59.9717</td></tr>
-<tr><td>Tokc</td><td>58.7983</td></tr>
-<tr><td>Zewqew</td><td>56.5080</td></tr>
-<tr><td>Simple</td><td>54.3716</td></tr>
-<tr><td>Empty Cloud</td><td>53.0235</td></tr>
-<tr><td>aerial</td><td>52.8974</td></tr>
-<tr><td>Wii Sports Master</td><td>51.6764</td></tr>
-<tr><td>lost in the fog</td><td>51.0014</td></tr>
-<tr><td>Jimmy Pesto</td><td>50.3423</td></tr>
-<tr><td>Ez.Sky</td><td>48.2819</td></tr>
-<tr><td>Vuvuzela Virtuoso Hans Rudolph</td><td>47.5140</td></tr>
-<tr><td>ShadowAce</td><td>47.4032</td></tr>
-<tr><td>MidOrChen</td><td>46.5205</td></tr>
-<tr><td>Scrub</td><td>46.3341</td></tr>
-<tr><td>Ratman</td><td>44.3606</td></tr>
-<tr><td>AllRoundGoodGuy</td><td>44.3576</td></tr>
-<tr><td>MGHappyhobo</td><td>40.7089</td></tr>
-<tr><td>Durzo</td><td>40.0355</td></tr>
-<tr><td>Littletimmy</td><td>39.6953</td></tr>
-<tr><td>Satanic</td><td>39.6560</td></tr>
-<tr><td>MAPPO</td><td>38.7264</td></tr>
-<tr><td>Treebeard</td><td>38.6640</td></tr>
-<tr><td>Samppa</td><td>33.4755</td></tr>
-<tr><td>George</td><td>33.1766</td></tr>
-<tr><td>Cev</td><td>31.2750</td></tr>
-<tr><td>bongcloud attack</td><td>30.6106</td></tr>
-<tr><td>Kizu</td><td>28.0078</td></tr>
-<tr><td>King Scal</td><td>27.5323</td></tr>
-<tr><td> inkognito</td><td>24.5514</td></tr>
-<tr><td>Zoompa</td><td>24.1225</td></tr>
-<tr><td>Nameless 💀</td><td>23.2214</td></tr>
-<tr><td>BENNY</td><td>19.0384</td></tr>
-<tr><td>mediocre</td><td>18.5512</td></tr>
-<tr><td>ForTheSwarm</td><td>17.4311</td></tr>
-<tr><td>Woh?</td><td>14.9799</td></tr>
-<tr><td>Cerys</td><td>10.4605</td></tr>
-<tr><td>Yop</td><td>8.6810</td></tr>
 </tbody>
 </table>
 </body></html>
