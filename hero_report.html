@@ -10,14 +10,67 @@ th { background-color: #333; color: #f0f0f0; cursor: pointer; }
 tr:nth-child(even) { background-color: #2e2e2e; }
 tr:nth-child(odd) { background-color: #262626; }
 .hidden { display: none; }
-.hero-selection-container { padding: 10px; border: 1px solid #555; margin: 10px; }
+.hero-selection-container {
+    text-align: center;
+    padding: 10px; border: 1px solid #555; margin: 10px;
+}
+.hero-selection-buttons {
+    margin-bottom: 10px;
+}
+.hero-selection-buttons button {
+    margin: 5px;
+    padding: 5px 10px;
+    font-size: 14px;
+}
 .hero-grid { display: flex; flex-wrap: wrap; justify-content: center; }
 .hero-item { position: relative; width: 80px; height: 80px; margin: 5px; cursor: pointer; }
 .hero-select-image { width: 100%; height: 100%; object-fit: cover; }
 .hero-name-overlay { position: absolute; bottom: 0; width: 100%; text-align: center; background: rgba(0, 0, 0, 0.6); color: #fff; font-size: 10px; padding: 2px 0; }
 .hero-item.deselected { filter: grayscale(100%); opacity: 0.5; }
 .hero-item.selected { filter: none; opacity: 1; }
-.hero-selection-container button { margin: 5px; padding: 5px 10px; font-size: 14px; }
+.timeframe-container {
+    text-align: center;
+    margin: 20px 0;
+}
+.timeframe-container select {
+    margin-top: 10px;
+    font-size: 16px;
+    padding: 5px;
+}
+.totals-container {
+    width: 48%;
+    margin: 1% auto;
+}
+.totals-container table {
+    width: 100%;
+}
+.floating-buttons {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+}
+.floating-buttons a {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    margin: 5px 0;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+.floating-buttons a:hover {
+    background-color: #444;
+}
+.report-timestamp {
+    position: absolute;
+    top: 10px;
+    left: 20px;
+    font-size: 14px;
+    color: #ccc;
+}
 </style>
 <script>
 function sortTable(table, col, reverse) {
@@ -161,24 +214,23 @@ window.onload = function() {
 };
 </script>
 </head><body>
+<a id="top"></a>
+<div class="report-timestamp">Report generated: 2024-11-22 16:08:46</div>
 <h1 style="text-align:center;">PST-SUN Hero Report</h1>
-<div style="text-align:center; margin-bottom:20px;">
-<a href="https://joedobrow.github.io/hero_stats/player_report.html" style="color:#1e90ff;">View Player Metrics Report</a>
-</div>
-<div class="hero-selection-container">
-<div style="width:100%;"><h3>Time Frame:</h3></div>
-<div style="width:100%; margin-bottom: 10px;">
+<div class="timeframe-container">
+<h3>Time Frame:</h3>
 <select id="timeFrameSelect">
 <option value="all_time">All Time</option>
 <option value="last_2_years">Last 2 Years</option>
 <option value="last_9_months">Last 9 Months</option>
 </select>
 </div>
-</div>
 <div class="hero-selection-container">
-<div style="width:100%;"><h3>Select Heroes:</h3></div>
-<div style="width:100%; margin-bottom: 10px;"><button id="selectAllBtn">Select All</button>
-<button id="deselectAllBtn">Deselect All</button></div>
+<h3>Select Heroes:</h3>
+<div class="hero-selection-buttons">
+<button id="selectAllBtn">Select All</button>
+<button id="deselectAllBtn">Deselect All</button>
+</div>
 <div class="hero-grid">
 <div class="hero-item selected" data-hero-id="102" id="hero_select_102">
 <img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/abaddon.png" alt="Abaddon" class="hero-select-image">
@@ -24628,28 +24680,39 @@ window.onload = function() {
 <br/>
 </div>
 </div>
+<a id="totals"></a>
+<div class="totals-container">
 <h2 class="all_time" style="text-align:center;">Total Scores per Player (All Time)</h2>
-<table class="all_time player-totals" style="margin: 0 auto;">
+<table class="all_time player-totals">
 <thead>
 <tr><th>Player</th><th>Total Score</th></tr>
 </thead>
 <tbody>
 </tbody>
 </table>
+</div>
+<div class="totals-container">
 <h2 class="last_2_years" style="text-align:center;">Total Scores per Player (Last 2 Years)</h2>
-<table class="last_2_years player-totals" style="margin: 0 auto;">
+<table class="last_2_years player-totals">
 <thead>
 <tr><th>Player</th><th>Total Score</th></tr>
 </thead>
 <tbody>
 </tbody>
 </table>
+</div>
+<div class="totals-container">
 <h2 class="last_9_months" style="text-align:center;">Total Scores per Player (Last 9 Months)</h2>
-<table class="last_9_months player-totals" style="margin: 0 auto;">
+<table class="last_9_months player-totals">
 <thead>
 <tr><th>Player</th><th>Total Score</th></tr>
 </thead>
 <tbody>
 </tbody>
 </table>
+</div>
+<div class="floating-buttons">
+<a href="#top">Jump to Top</a>
+<a href="#totals">Jump to Totals</a>
+</div>
 </body></html>

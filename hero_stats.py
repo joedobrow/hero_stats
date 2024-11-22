@@ -5,6 +5,7 @@ import argparse
 import math
 import os
 import json
+import datetime  # Added for timestamp
 
 CACHE_DIR = 'cache'
 REQUEST_DELAY = 1  # seconds
@@ -77,7 +78,7 @@ def load_cached_data(filename):
 def main():
     parser = argparse.ArgumentParser(description='Analyze Dota 2 player hero statistics.')
     parser.add_argument('players_csv', help='Path to the players CSV file')
-    parser.add_argument('-o', '--output', default='hero_report.html', help='Output HTML file name (default: report.html)')
+    parser.add_argument('-o', '--output', default='hero_report.html', help='Output HTML file name (default: hero_report.html)')
     parser.add_argument('--refresh', action='store_true', help='Force refresh of cached data')
     args = parser.parse_args()
 
@@ -180,6 +181,9 @@ def main():
             hero_averages[time_frame_name][hero_name_lower] = average_score
             hero_stats[time_frame_name][hero_name_lower].sort(key=lambda x: x['score'], reverse=True)
 
+    # Generate report generated timestamp
+    report_generated_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
     # Generate HTML report
     with open(args.output, 'w', encoding='utf-8') as outfile:
         outfile.write('<html><head><title>PST-SUN Hero Report</title>\n')
@@ -196,15 +200,71 @@ def main():
         outfile.write('tr:nth-child(odd) { background-color: #262626; }\n')
         outfile.write('.hidden { display: none; }\n')
         # New styles for hero selection grid
-        outfile.write('.hero-selection-container { padding: 10px; border: 1px solid #555; margin: 10px; }\n')
+        outfile.write('.hero-selection-container {\n')
+        outfile.write('    text-align: center;\n')
+        outfile.write('    padding: 10px; border: 1px solid #555; margin: 10px;\n')
+        outfile.write('}\n')
+        outfile.write('.hero-selection-buttons {\n')
+        outfile.write('    margin-bottom: 10px;\n')
+        outfile.write('}\n')
+        outfile.write('.hero-selection-buttons button {\n')
+        outfile.write('    margin: 5px;\n')
+        outfile.write('    padding: 5px 10px;\n')
+        outfile.write('    font-size: 14px;\n')
+        outfile.write('}\n')
         outfile.write('.hero-grid { display: flex; flex-wrap: wrap; justify-content: center; }\n')
         outfile.write('.hero-item { position: relative; width: 80px; height: 80px; margin: 5px; cursor: pointer; }\n')
         outfile.write('.hero-select-image { width: 100%; height: 100%; object-fit: cover; }\n')
         outfile.write('.hero-name-overlay { position: absolute; bottom: 0; width: 100%; text-align: center; background: rgba(0, 0, 0, 0.6); color: #fff; font-size: 10px; padding: 2px 0; }\n')
         outfile.write('.hero-item.deselected { filter: grayscale(100%); opacity: 0.5; }\n')
         outfile.write('.hero-item.selected { filter: none; opacity: 1; }\n')
-        # Buttons styling
-        outfile.write('.hero-selection-container button { margin: 5px; padding: 5px 10px; font-size: 14px; }\n')
+        # Time Frame section styling
+        outfile.write('.timeframe-container {\n')
+        outfile.write('    text-align: center;\n')
+        outfile.write('    margin: 20px 0;\n')
+        outfile.write('}\n')
+        outfile.write('.timeframe-container select {\n')
+        outfile.write('    margin-top: 10px;\n')
+        outfile.write('    font-size: 16px;\n')
+        outfile.write('    padding: 5px;\n')
+        outfile.write('}\n')
+        # Totals Table styling
+        outfile.write('.totals-container {\n')
+        outfile.write('    width: 48%;\n')
+        outfile.write('    margin: 1% auto;\n')
+        outfile.write('}\n')
+        outfile.write('.totals-container table {\n')
+        outfile.write('    width: 100%;\n')
+        outfile.write('}\n')
+        # Floating buttons
+        outfile.write('.floating-buttons {\n')
+        outfile.write('    position: fixed;\n')
+        outfile.write('    top: 100px;\n')
+        outfile.write('    right: 20px;\n')
+        outfile.write('    display: flex;\n')
+        outfile.write('    flex-direction: column;\n')
+        outfile.write('}\n')
+        outfile.write('.floating-buttons a {\n')
+        outfile.write('    background-color: #333;\n')
+        outfile.write('    color: #fff;\n')
+        outfile.write('    padding: 10px;\n')
+        outfile.write('    margin: 5px 0;\n')
+        outfile.write('    text-align: center;\n')
+        outfile.write('    text-decoration: none;\n')
+        outfile.write('    border-radius: 5px;\n')
+        outfile.write('    font-size: 14px;\n')
+        outfile.write('}\n')
+        outfile.write('.floating-buttons a:hover {\n')
+        outfile.write('    background-color: #444;\n')
+        outfile.write('}\n')
+        # Report timestamp styling
+        outfile.write('.report-timestamp {\n')
+        outfile.write('    position: absolute;\n')
+        outfile.write('    top: 10px;\n')
+        outfile.write('    left: 20px;\n')
+        outfile.write('    font-size: 14px;\n')
+        outfile.write('    color: #ccc;\n')
+        outfile.write('}\n')
         outfile.write('</style>\n')
         # JavaScript
         outfile.write('<script>\n')
@@ -349,27 +409,25 @@ def main():
         outfile.write('};\n')
         outfile.write('</script>\n')
         outfile.write('</head><body>\n')
+        outfile.write('<a id="top"></a>\n')  # Anchor for "Jump to Top"
+        outfile.write(f'<div class="report-timestamp">Report generated: {report_generated_time}</div>\n')
         outfile.write('<h1 style="text-align:center;">PST-SUN Hero Report</h1>\n')
-        # Link to other report
-        outfile.write('<div style="text-align:center; margin-bottom:20px;">\n')
-        outfile.write('<a href="https://joedobrow.github.io/hero_stats/player_report.html" style="color:#1e90ff;">View Player Metrics Report</a>\n')
-        outfile.write('</div>\n')
         # Time frame selection
-        outfile.write('<div class="hero-selection-container">\n')
-        outfile.write('<div style="width:100%;"><h3>Time Frame:</h3></div>\n')
-        outfile.write('<div style="width:100%; margin-bottom: 10px;">\n')
+        outfile.write('<div class="timeframe-container">\n')
+        outfile.write('<h3>Time Frame:</h3>\n')
         outfile.write('<select id="timeFrameSelect">\n')
         outfile.write('<option value="all_time">All Time</option>\n')
         outfile.write('<option value="last_2_years">Last 2 Years</option>\n')
         outfile.write('<option value="last_9_months">Last 9 Months</option>\n')
         outfile.write('</select>\n')
         outfile.write('</div>\n')
-        outfile.write('</div>\n')
         # Hero selection grid
         outfile.write('<div class="hero-selection-container">\n')
-        outfile.write('<div style="width:100%;"><h3>Select Heroes:</h3></div>\n')
-        outfile.write('<div style="width:100%; margin-bottom: 10px;"><button id="selectAllBtn">Select All</button>\n')
-        outfile.write('<button id="deselectAllBtn">Deselect All</button></div>\n')
+        outfile.write('<h3>Select Heroes:</h3>\n')
+        outfile.write('<div class="hero-selection-buttons">\n')
+        outfile.write('<button id="selectAllBtn">Select All</button>\n')
+        outfile.write('<button id="deselectAllBtn">Deselect All</button>\n')
+        outfile.write('</div>\n')
         outfile.write('<div class="hero-grid">\n')
         for hero_name, hero_id in hero_names_and_ids:
             hero_dota_name = hero_id_to_name[hero_id]  # e.g., 'npc_dota_hero_antimage'
@@ -436,6 +494,7 @@ def main():
                 outfile.write('<br/>\n')
             outfile.write('</div>\n')
         outfile.write('</div>\n')  # Close container
+        outfile.write('<a id="totals"></a>\n')  # Anchor for "Jump to Totals"
         for time_frame_name in TIME_FRAMES.keys():
             table_class = f'{time_frame_name} player-totals'
             caption = f'Total Scores per Player ({time_frame_name.replace("_", " ").title()})'
@@ -443,8 +502,9 @@ def main():
             # Get the list of all player names
             all_player_names = [player['name'] for player in players]
 
+            outfile.write(f'<div class="totals-container">\n')
             outfile.write(f'<h2 class="{time_frame_name}" style="text-align:center;">{caption}</h2>\n')
-            outfile.write(f'<table class="{table_class}" style="margin: 0 auto;">\n')
+            outfile.write(f'<table class="{table_class}">\n')
             outfile.write('<thead>\n')
             outfile.write('<tr><th>Player</th><th>Total Score</th></tr>\n')
             outfile.write('</thead>\n')
@@ -452,6 +512,12 @@ def main():
             # The tbody will be populated dynamically by JavaScript
             outfile.write('</tbody>\n')
             outfile.write('</table>\n')
+            outfile.write('</div>\n')
+        # Floating navigation buttons
+        outfile.write('<div class="floating-buttons">\n')
+        outfile.write('<a href="#top">Jump to Top</a>\n')
+        outfile.write('<a href="#totals">Jump to Totals</a>\n')
+        outfile.write('</div>\n')
         outfile.write('</body></html>')
 
     print(f"\nHTML report has been generated: {args.output}")
