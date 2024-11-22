@@ -330,6 +330,7 @@ def main():
         outfile.write('</div>\n')
         outfile.write('</div>\n')
         # Hero Table
+        outfile.write('<div><h2 style="margin-top:20px; text-align: center;">Combined Hero Scores</h2></div>\n')
         outfile.write('<table>\n')
         outfile.write('<thead>\n')
         outfile.write('<tr><th>Hero Name</th><th>Combined Score</th></tr>\n')
