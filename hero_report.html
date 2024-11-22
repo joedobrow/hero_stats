@@ -18,6 +18,124 @@ tr:nth-child(odd) { background-color: #262626; }
 .hero-section.hidden { display: none; }
 </style>
 <script>
+function sortTable(table, col, reverse) {
+    let tb = table.tBodies[0],
+        tr = Array.prototype.slice.call(tb.rows, 0),
+        i;
+    reverse = -((+reverse) || -1);
+    tr = tr.sort(function (a, b) {
+        let aText = a.cells[col].textContent.trim(),
+            bText = b.cells[col].textContent.trim();
+        let aNum = parseFloat(aText) || aText;
+        let bNum = parseFloat(bText) || bText;
+        return reverse * ((aNum > bNum) - (bNum > aNum));
+    });
+    for(i = 0; i < tr.length; ++i) tb.appendChild(tr[i]);
+}
+function makeSortable(table) {
+    let th = table.tHead.rows[0].cells;
+    for(let i = 0; i < th.length; i++) {
+        (function(i){
+            let dir = 1;
+            th[i].addEventListener("click", function() {
+                sortTable(table, i, (dir = 1 - dir));
+            });
+        }(i));
+    }
+}
+function toggleTimeFrame() {
+    let select = document.getElementById("timeFrameSelect");
+    let timeFrames = ["all_time", "last_2_years", "last_9_months"];
+    let selectedTimeFrame = select.value;
+    for (let tf of timeFrames) {
+        let elements = document.getElementsByClassName(tf);
+        for (let elem of elements) {
+            if (tf === selectedTimeFrame) {
+                elem.classList.remove("hidden");
+            } else {
+                elem.classList.add("hidden");
+            }
+        }
+    }
+    updateTotals();
+}
+function toggleHero(heroId) {
+    let heroSection = document.getElementById("hero_" + heroId);
+    let checkbox = document.getElementById("checkbox_" + heroId);
+    if (checkbox.checked) {
+        heroSection.classList.remove("hidden");
+    } else {
+        heroSection.classList.add("hidden");
+    }
+    updateTotals();
+}
+function selectAllHeroes() {
+    let checkboxes = document.getElementsByClassName("hero-checkbox");
+    for (let checkbox of checkboxes) {
+        checkbox.checked = true;
+        let heroId = checkbox.dataset.heroId;
+        document.getElementById("hero_" + heroId).classList.remove("hidden");
+    }
+    updateTotals();
+}
+function deselectAllHeroes() {
+    let checkboxes = document.getElementsByClassName("hero-checkbox");
+    for (let checkbox of checkboxes) {
+        checkbox.checked = false;
+        let heroId = checkbox.dataset.heroId;
+        document.getElementById("hero_" + heroId).classList.add("hidden");
+    }
+    updateTotals();
+}
+function updateTotals() {
+    let playerTotals = {};
+    let heroSections = document.getElementsByClassName("hero-section");
+    let select = document.getElementById("timeFrameSelect");
+    let selectedTimeFrame = select.value;
+    for (let section of heroSections) {
+        if (section.classList.contains("hidden")) continue;
+        let tables = section.getElementsByClassName(selectedTimeFrame);
+        for (let table of tables) {
+            let rows = table.tBodies[0].rows;
+            for (let row of rows) {
+                let playerName = row.cells[0].textContent;
+                let score = parseFloat(row.cells[4].textContent);
+                if (!playerTotals[playerName]) playerTotals[playerName] = 0;
+                playerTotals[playerName] += score;
+            }
+        }
+    }
+    let totalTables = document.getElementsByClassName("player-totals");
+    for (let table of totalTables) {
+        if (table.classList.contains(selectedTimeFrame)) {
+            table.classList.remove("hidden");
+            let tbody = table.tBodies[0];
+            let rows = tbody.rows;
+            for (let row of rows) {
+                let playerName = row.cells[0].textContent;
+                let totalScore = playerTotals[playerName] || 0;
+                row.cells[1].textContent = totalScore.toFixed(4);
+            }
+        } else {
+            table.classList.add("hidden");
+        }
+    }
+}
+window.onload = function() {
+    let tables = document.getElementsByTagName("table");
+    for(let i = 0; i < tables.length; i++) {
+        makeSortable(tables[i]);
+    }
+    document.getElementById("timeFrameSelect").addEventListener("change", toggleTimeFrame);
+    let heroCheckboxes = document.getElementsByClassName("hero-checkbox");
+    for (let checkbox of heroCheckboxes) {
+        checkbox.addEventListener("change", function() { toggleHero(this.dataset.heroId); });
+    }
+    document.getElementById("selectAllBtn").addEventListener("click", selectAllHeroes);
+    document.getElementById("deselectAllBtn").addEventListener("click", deselectAllHeroes);
+    toggleTimeFrame();
+    updateTotals();
+};
 </script>
 </head><body>
 <h1 style="text-align:center;">PST-SUN Hero Report</h1>

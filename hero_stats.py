@@ -194,6 +194,8 @@ def main():
         outfile.write('.checkbox-item { width: 25%; }\n')
         outfile.write('.hero-section.hidden { display: none; }\n')
         outfile.write('</style>\n')
+        #JS
+        outfile.write('<script>\n') 
         outfile.write('function sortTable(table, col, reverse) {\n')
         outfile.write('    let tb = table.tBodies[0],\n')
         outfile.write('        tr = Array.prototype.slice.call(tb.rows, 0),\n')
@@ -312,8 +314,6 @@ def main():
         outfile.write('    toggleTimeFrame();\n')  # Initialize with selected time frame
         outfile.write('    updateTotals();\n')
         outfile.write('};\n')
-        outfile.write('<script>\n')
-        # [Insert JavaScript code here, as in your original script]
         outfile.write('</script>\n')
         outfile.write('</head><body>\n')
         outfile.write('<h1 style="text-align:center;">PST-SUN Hero Report</h1>\n')
