@@ -422,12 +422,11 @@ def generate_html_report(players_data, output_html):
         outfile.write('};\n')
         outfile.write('</script>\n')
         outfile.write('</head><body>\n')
-        outfile.write('<h1 style="text-align:center;">PST-SUN Player Report</h1>\n')  # Changed title here
-        outfile.write('<p style="text-align:center;"><a href="https://joedobrow.github.io/hero_stats/hero_report.html">View Hero Report</a></p>\n')  # Added link here
+        outfile.write('<h1 style="text-align:center;">PST-SUN Player Report</h1>\n')
 
         # Time frame selection
         outfile.write('<div style="text-align:center; margin-bottom:20px;">\n')
-        outfile.write('<label for="timeFrameSelect">Select Time Frame: </label>\n')
+        outfile.write('<label for="timeFrameSelect">Time Frame: </label>\n')
         outfile.write('<select id="timeFrameSelect">\n')
         outfile.write('<option value="all_time">All Time</option>\n')
         outfile.write('<option value="last_2_years">Last 2 Years</option>\n')
