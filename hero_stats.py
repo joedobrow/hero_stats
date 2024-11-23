@@ -1,15 +1,49 @@
-import csv
-import time
 import requests
-import argparse
-import math
+import csv
 import os
+import time
+import shutil
+import argparse
+import re
 import json
-import datetime  # Added for timestamp
+from datetime import datetime, timedelta
+import math  # Import math module for entropy calculation
 
 CACHE_DIR = 'cache'
 REQUEST_DELAY = 1  # seconds
 API_KEY = None  # Will be loaded from opendota.properties
+
+TIME_FRAMES = {
+    'all_time': None,
+    'last_2_years': (datetime.now() - timedelta(days=730)).strftime('%Y-%m-%d'),
+    'last_9_months': (datetime.now() - timedelta(days=270)).strftime('%Y-%m-%d'),
+}
+
+# Mapping of rank_tier to medal names
+RANK_TIER_MAP = {
+    1: 'Herald I',
+    2: 'Herald II',
+    3: 'Herald III',
+    4: 'Guardian I',
+    5: 'Guardian II',
+    6: 'Guardian III',
+    7: 'Crusader I',
+    8: 'Crusader II',
+    9: 'Crusader III',
+    10: 'Archon I',
+    11: 'Archon II',
+    12: 'Archon III',
+    13: 'Legend I',
+    14: 'Legend II',
+    15: 'Legend III',
+    16: 'Ancient I',
+    17: 'Ancient II',
+    18: 'Ancient III',
+    19: 'Divine I',
+    20: 'Divine II',
+    21: 'Divine III',
+    22: 'Immortal'
+}
 
 def load_api_key():
     global API_KEY
@@ -36,229 +70,358 @@ def make_api_request(url, params=None):
             print("Rate limit exceeded. Sleeping for 60 seconds.")
             time.sleep(60)
             return make_api_request(url, params)
-        elif response.status_code == 200:
-            time.sleep(REQUEST_DELAY)
-            return response.json()
         else:
-            print(f"Error {response.status_code} for URL: {url}")
-            return None
+            return response
     except requests.exceptions.RequestException as e:
         print(f"Request failed: {e}")
         return None
 
-def adjusted_score(wins, games, gamma=0.69):
-    if games == 0:
-        return 0
-    winrate = wins / games
-    score = winrate * (math.log(games + 1) ** gamma)
-    return score
+def fetch_player_data(account_id, date_range, refresh=False):
+    cache_filename = os.path.join(CACHE_DIR, f"{account_id}_{date_range if date_range else 'all'}.json")
 
-def cache_data(filename, data):
-    try:
-        if not os.path.exists(CACHE_DIR):
-            os.makedirs(CACHE_DIR)
-        with open(os.path.join(CACHE_DIR, filename), 'w', encoding='utf-8') as f:
-            json.dump(data, f)
-        print(f"Cached data to {filename}")
-    except Exception as e:
-        print(f"Error caching data to {filename}: {e}")
+    if not os.path.exists(CACHE_DIR):
+        os.makedirs(CACHE_DIR)
 
-def load_cached_data(filename):
-    try:
-        with open(os.path.join(CACHE_DIR, filename), 'r', encoding='utf-8') as f:
-            print(f"Loaded cached data from {filename}")
-            return json.load(f)
-    except FileNotFoundError:
-        print(f"Cache file {filename} not found.")
+    if not refresh and os.path.exists(cache_filename):
+        with open(cache_filename, 'r', encoding='utf-8') as cache_file:
+            print(f"Using cached data for account ID {account_id} and date range {date_range if date_range else 'all'}")
+            return json.load(cache_file)
+
+    params = {}
+    if date_range:
+        days = (datetime.now() - datetime.strptime(date_range, '%Y-%m-%d')).days
+        params['date'] = days
+
+    # Fetch win/loss data
+    wl_url = f'https://api.opendota.com/api/players/{account_id}/wl'
+    time.sleep(REQUEST_DELAY)
+    wl_response = make_api_request(wl_url, params)
+    if not wl_response or wl_response.status_code != 200:
+        print(f"Failed to fetch win/loss data for account ID {account_id}.")
         return None
-    except Exception as e:
-        print(f"Error loading cache file {filename}: {e}")
+    wl_data = wl_response.json()
+
+    # Fetch hero stats
+    heroes_url = f'https://api.opendota.com/api/players/{account_id}/heroes'
+    time.sleep(REQUEST_DELAY)
+    heroes_response = make_api_request(heroes_url, params)
+    if not heroes_response or heroes_response.status_code != 200:
+        print(f"Failed to fetch hero stats for account ID {account_id}.")
         return None
+    heroes_data = heroes_response.json()
 
-def main():
-    parser = argparse.ArgumentParser(description='Analyze Dota 2 player hero statistics.')
-    parser.add_argument('players_csv', help='Path to the players CSV file')
-    parser.add_argument('-o', '--output', default='hero_report.html', help='Output HTML file name (default: hero_report.html)')
-    parser.add_argument('--refresh', action='store_true', help='Force refresh of cached data')
-    args = parser.parse_args()
+    # Fetch role counts
+    counts_url = f'https://api.opendota.com/api/players/{account_id}/counts'
+    time.sleep(REQUEST_DELAY)
+    counts_response = make_api_request(counts_url, params)
+    if not counts_response or counts_response.status_code != 200:
+        print(f"Failed to fetch counts data for account ID {account_id}.")
+        return None
+    counts_data = counts_response.json()
 
-    load_api_key()
-
-    players = []
-    with open(args.players_csv, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            name = row['name']
-            dotabuff_link = row['dotabuff']
-            player_id = dotabuff_link.strip().split('/')[-1]
-            players.append({'name': name, 'player_id': player_id})
-
-    # Fetch all heroes
-    print("Fetching hero list...")
-    heroes_response = load_cached_data('heroStats.json') if not args.refresh else None
-    if heroes_response is None:
-        heroes_response = make_api_request('https://api.opendota.com/api/heroStats')
-        if heroes_response is not None:
-            cache_data('heroStats.json', heroes_response)
+    # Fetch player info for medal
+    player_url = f'https://api.opendota.com/api/players/{account_id}'
+    time.sleep(REQUEST_DELAY)
+    player_response = make_api_request(player_url)
+    if not player_response or player_response.status_code != 200:
+        print(f"Failed to fetch player info for account ID {account_id}.")
+        player_info = {}
     else:
-        print("Loaded hero stats from cache.")
+        player_info = player_response.json()
 
-    hero_name_to_id = {hero['localized_name'].lower(): hero['id'] for hero in heroes_response}
-    hero_id_to_name = {hero['id']: hero['name'] for hero in heroes_response}  # 'name' is like 'npc_dota_hero_antimage'
-    hero_id_to_localized_name = {hero['id']: hero['localized_name'] for hero in heroes_response}
-    hero_ids = list(hero_id_to_name.keys())
-
-    # Create a sorted list of (hero_name, hero_id) tuples for alphabetical ordering
-    hero_names_and_ids = sorted([(hero_id_to_localized_name[hero_id], hero_id) for hero_id in hero_ids])
-
-    player_hero_stats = {}
-    hero_stats = {}
-    player_totals = {}
-    hero_averages = {}
-
-    TIME_FRAMES = {
-        'all_time': None,
-        'last_2_years': 730,
-        'last_9_months': 270,
+    player_data = {
+        'wl': wl_data,
+        'heroes': heroes_data,
+        'counts': counts_data,
+        'player_info': player_info,
     }
 
-    for player in players:
-        account_id = player['player_id']
-        print(f"Processing player {player['name']} (ID: {account_id})...")
+    with open(cache_filename, 'w', encoding='utf-8') as cache_file:
+        json.dump(player_data, cache_file)
 
-        for time_frame_name, days in TIME_FRAMES.items():
-            # Fetch hero stats
-            filename = f"{account_id}_heroes_{time_frame_name}.json"
-            data = load_cached_data(filename) if not args.refresh else None
-            if data is None:
-                print(f"Fetching hero stats for {time_frame_name} for player {player['name']}...")
-                params = {}
-                if days is not None:
-                    params['date'] = days
-                url = f'https://api.opendota.com/api/players/{account_id}/heroes'
-                data = make_api_request(url, params)
-                if data is not None:
-                    cache_data(filename, data)
-            else:
-                print(f"Loaded hero stats for {time_frame_name} for player {player['name']} from cache.")
-            player_hero_stats.setdefault(time_frame_name, {})[account_id] = data if data is not None else []
+    return player_data
 
-    for time_frame_name, days in TIME_FRAMES.items():
-        player_totals[time_frame_name] = {}
-        hero_averages[time_frame_name] = {}
-        hero_stats[time_frame_name] = {}
+def calculate_overall_winrate(wl_data):
+    wins = wl_data.get('win', 0)
+    losses = wl_data.get('lose', 0)
+    total_games = wins + losses
+    if total_games == 0:
+        return 0.0
+    return (wins / total_games) * 100
 
-        for hero_name, hero_id in hero_names_and_ids:
-            hero_name_lower = hero_name.lower()
-            hero_stats[time_frame_name][hero_name_lower] = []
-            hero_scores = []  # For calculating average score per hero
-            for player in players:
-                account_id = player['player_id']
-                name = player['name']
-                stats = player_hero_stats[time_frame_name].get(account_id, [])
-                hero_stat = next((s for s in stats if s['hero_id'] == hero_id), None)
-                if hero_stat:
-                    games = hero_stat['games']
-                    wins = hero_stat['win']
-                else:
-                    games = 0
-                    wins = 0
-                winrate = wins / games if games > 0 else 0
-                score = adjusted_score(wins, games, gamma=0.69)
-                player_totals[time_frame_name][name] = player_totals[time_frame_name].get(name, 0) + score
-                hero_scores.append(score)
-                hero_stats[time_frame_name][hero_name_lower].append({
+def calculate_winrate_excluding_top_20(hero_stats):
+    top_20_heroes = hero_stats[:20]
+    games_in_top_20 = sum(hero['games'] for hero in top_20_heroes)
+    wins_in_top_20 = sum(hero['win'] for hero in top_20_heroes)
+
+    total_games = sum(hero['games'] for hero in hero_stats)
+    total_wins = sum(hero['win'] for hero in hero_stats)
+
+    games_excl_top_20 = total_games - games_in_top_20
+    wins_excl_top_20 = total_wins - wins_in_top_20
+
+    if games_excl_top_20 == 0:
+        return 'N/A'  # Cannot calculate winrate if no games outside top 20 heroes
+    else:
+        return (wins_excl_top_20 / games_excl_top_20) * 100
+
+def calculate_discomfort_factor(hero_stats, time_frame_name):
+    # Get the threshold for the time frame
+    if time_frame_name == 'all_time':
+        threshold = 40
+    elif time_frame_name == 'last_2_years':
+        threshold = 24
+    elif time_frame_name == 'last_9_months':
+        threshold = 9
+    else:
+        threshold = 0  # Should not occur
+
+    # Separate heroes into comfy and uncomfy
+    comfy_heroes = [hero for hero in hero_stats if hero['games'] >= threshold]
+    uncomfy_heroes = [hero for hero in hero_stats if 0 < hero['games'] < threshold]
+
+    # Calculate comfy winrate
+    comfy_games = sum(hero['games'] for hero in comfy_heroes)
+    comfy_wins = sum(hero['win'] for hero in comfy_heroes)
+    comfy_winrate = (comfy_wins / comfy_games) if comfy_games > 0 else None
+
+    # Calculate uncomfy winrate
+    uncomfy_games = sum(hero['games'] for hero in uncomfy_heroes)
+    uncomfy_wins = sum(hero['win'] for hero in uncomfy_heroes)
+    uncomfy_winrate = (uncomfy_wins / uncomfy_games) if uncomfy_games > 0 else None
+
+    # Handle cases where we cannot compute the discomfort factor
+    if comfy_winrate is None or comfy_winrate == 0 or uncomfy_winrate is None:
+        discomfort_factor = 0
+    else:
+        discomfort_factor = (uncomfy_winrate / comfy_winrate) * 100
+
+    # If the discomfort factor is 0, set it to 50
+    if discomfort_factor == 0:
+        discomfort_factor = 50
+
+    discomfort_factor = round(discomfort_factor, 2)
+
+    return discomfort_factor
+
+def calculate_versatility_factor(hero_stats):
+    num_heroes_played = len([hero for hero in hero_stats if hero['games'] > 0])
+    versatility_factor = (num_heroes_played / 123) * 100  # Assuming 123 heroes in Dota 2
+    return versatility_factor
+
+def calculate_role_diversity(counts_data):
+    # Roles are represented by integers 1 to 5 in OpenDota API
+    role_counts = counts_data.get('lane_role', {})
+    total_games = 0
+    role_game_counts = {}
+    for role_id in ['1', '2', '3', '4', '5']:
+        role_data = role_counts.get(role_id, {})
+        games_played = role_data.get('games', 0) if isinstance(role_data, dict) else role_data if isinstance(role_data, int) else 0
+        role_game_counts[role_id] = games_played
+        total_games += games_played
+
+    if total_games == 0:
+        return 0.0
+
+    entropy = 0.0
+    for games_played in role_game_counts.values():
+        if games_played > 0:
+            p_i = games_played / total_games
+            entropy -= p_i * math.log2(p_i)
+
+    max_entropy = math.log2(5)  # There are 5 roles
+
+    # Normalize entropy to a percentage
+    role_diversity_factor = (entropy / max_entropy) * 100
+
+    return round(role_diversity_factor, 2)
+
+def calculate_aggregated_value(data):
+    try:
+        overall_winrate = float(data['overall_winrate'])
+        winrate_excl_top20 = float(data['winrate_excl_top20']) if data['winrate_excl_top20'] != 'N/A' else 0
+        discomfort_factor = float(data['discomfort_factor'])
+        versatility_factor = float(data['versatility_factor'])
+        role_diversity_factor = float(data['role_diversity_factor'])
+
+        aggregated_value = (
+            overall_winrate +
+            winrate_excl_top20 * 2 +
+            discomfort_factor * 2 +
+            versatility_factor * 2 +
+            role_diversity_factor
+        ) / 8
+
+        aggregated_value = round(aggregated_value, 2)
+        return aggregated_value
+    except (ValueError, ZeroDivisionError):
+        return 'N/A'
+
+def extract_player_id(dotabuff_url):
+    match = re.search(r'/players/(\d+)', dotabuff_url)
+    if match:
+        return match.group(1)
+    else:
+        print(f"Error: Could not extract player ID from URL '{dotabuff_url}'. Please ensure it is a valid Dotabuff player URL.")
+        return None
+
+def process_players(input_csv, output_html, refresh=False):
+    with open(input_csv, 'r', newline='', encoding='utf-8') as csv_in:
+
+        reader = csv.DictReader(csv_in)
+        players_data = {}
+
+        for row in reader:
+            name = row['name']
+            dotabuff_url = row['dotabuff']
+
+            player_id = extract_player_id(dotabuff_url)
+            if player_id is None:
+                # If player ID couldn't be extracted, write 'N/A' and continue
+                player_info = {
                     'name': name,
-                    'wins': wins,
-                    'games': games,
-                    'winrate': winrate,
-                    'score': score
-                })
-            if hero_scores:
-                average_score = sum(hero_scores) / len(hero_scores)
-            else:
-                average_score = 0
-            hero_averages[time_frame_name][hero_name_lower] = average_score
-            hero_stats[time_frame_name][hero_name_lower].sort(key=lambda x: x['score'], reverse=True)
+                    'dotabuff_url': dotabuff_url,
+                    'data': {}
+                }
+                for time_frame in TIME_FRAMES.keys():
+                    player_info['data'][time_frame] = {
+                        'games_played': 'N/A',
+                        'overall_winrate': 'N/A',
+                        'winrate_excl_top20': 'N/A',
+                        'discomfort_factor': 'N/A',
+                        'versatility_factor': 'N/A',
+                        'role_diversity_factor': 'N/A',
+                        'aggregated_value': 'N/A',
+                        'medal': 'N/A'  # Added medal as N/A
+                    }
+                players_data[name] = player_info
+                continue
 
-    # Generate report generated timestamp
-    report_generated_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            print(f"Processing player: {name} (ID: {player_id})")
 
-    # Generate HTML report
-    with open(args.output, 'w', encoding='utf-8') as outfile:
-        outfile.write('<html><head><title>PST-SUN Hero Report</title>\n')
+            player_info = {
+                'name': name,
+                'dotabuff_url': dotabuff_url,
+                'data': {}
+            }
+
+            for time_frame_name, date_range in TIME_FRAMES.items():
+                print(f"  Time frame: {time_frame_name}")
+                player_data = fetch_player_data(player_id, date_range, refresh=refresh)
+                if player_data is not None:
+                    wl_data = player_data['wl']
+                    hero_stats = player_data['heroes']
+                    counts_data = player_data['counts']
+                    player_info_api = player_data.get('player_info', {})
+                    rank_tier = player_info_api.get('rank_tier')
+                    medal = RANK_TIER_MAP.get(rank_tier, 'Unranked') if rank_tier else 'N/A'
+
+                    total_games_played = sum(hero['games'] for hero in hero_stats)
+
+                    overall_winrate = calculate_overall_winrate(wl_data)
+                    winrate_excl_top20 = calculate_winrate_excluding_top_20(hero_stats)
+                    discomfort_factor = calculate_discomfort_factor(hero_stats, time_frame_name)
+                    versatility_factor = calculate_versatility_factor(hero_stats)
+                    role_diversity_factor = calculate_role_diversity(counts_data)
+
+                    data_dict = {
+                        'games_played': total_games_played,
+                        'overall_winrate': f"{overall_winrate:.2f}",
+                        'winrate_excl_top20': f"{winrate_excl_top20:.2f}" if winrate_excl_top20 != 'N/A' else 'N/A',
+                        'discomfort_factor': f"{discomfort_factor:.2f}",
+                        'versatility_factor': f"{versatility_factor:.2f}",
+                        'role_diversity_factor': f"{role_diversity_factor:.2f}",
+                        'aggregated_value': 'N/A'  # Placeholder, will be calculated below
+                    }
+
+                    aggregated_value = calculate_aggregated_value(data_dict)
+                    data_dict['aggregated_value'] = aggregated_value
+                    data_dict['medal'] = medal  # Add medal to data_dict
+
+                    player_info['data'][time_frame_name] = data_dict
+                else:
+                    player_info['data'][time_frame_name] = {
+                        'games_played': 'N/A',
+                        'overall_winrate': 'N/A',
+                        'winrate_excl_top20': 'N/A',
+                        'discomfort_factor': 'N/A',
+                        'versatility_factor': 'N/A',
+                        'role_diversity_factor': 'N/A',
+                        'aggregated_value': 'N/A',
+                        'medal': 'N/A'  # Added medal as N/A
+                    }
+            players_data[name] = player_info
+
+    generate_html_report(players_data, output_html)
+    print(f"HTML report generated at {output_html}")
+
+def generate_html_report(players_data, output_html):
+    # Collect metrics across all players and time frames for normalization
+    metrics = ['games_played', 'overall_winrate', 'winrate_excl_top20', 'discomfort_factor', 'versatility_factor', 'role_diversity_factor', 'aggregated_value']
+    metric_values = {tf: {metric: [] for metric in metrics} for tf in TIME_FRAMES.keys()}
+
+    for player_info in players_data.values():
+        for time_frame, data in player_info['data'].items():
+            for metric in metrics:
+                value = data[metric]
+                if value != 'N/A':
+                    metric_values[time_frame][metric].append(float(value))
+
+    metric_min_max = {}
+    for time_frame in TIME_FRAMES.keys():
+        metric_min_max[time_frame] = {}
+        for metric in metrics:
+            values = metric_values[time_frame][metric]
+            metric_min_max[time_frame][metric] = (min(values) if values else 0, max(values) if values else 100)
+
+    # Get report generation time
+    report_generated_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    # Generate HTML
+    with open(output_html, 'w', encoding='utf-8') as outfile:
+        outfile.write('<html><head><title>PST-SUN Player Report</title>\n')  # Changed title here
         outfile.write('<style>\n')
-        # CSS
-        outfile.write('body { font-family: Arial, sans-serif; margin: 0; padding: 0 20px; background-color: #1e1e1e; color: #f0f0f0; }\n')
-        outfile.write('.container { display: flex; flex-wrap: wrap; padding: 20px; }\n')
-        outfile.write('.hero-section { width: 48%; box-sizing: border-box; padding: 10px; margin: 1%; }\n')
-        outfile.write('.hero-image { width: 80%; height: auto; margin: 0 auto; display: block; }\n')
-        outfile.write('table { border-collapse: collapse; width: 100%; }\n')
+        outfile.write('body { font-family: Arial, sans-serif; background-color: #1e1e1e; color: #f0f0f0; position: relative; }\n')  # Added position relative for timestamp
+        outfile.write('table { border-collapse: collapse; width: 80%; margin: 20px auto; }\n')
         outfile.write('th, td { border: 1px solid #555; padding: 8px; text-align: center; }\n')
-        outfile.write('th { background-color: #333; color: #f0f0f0; cursor: pointer; }\n')
+        outfile.write('th { background-color: #333; color: #f0f0f0; cursor: pointer; position: relative; }\n')
         outfile.write('tr:nth-child(even) { background-color: #2e2e2e; }\n')
         outfile.write('tr:nth-child(odd) { background-color: #262626; }\n')
-        outfile.write('.hidden { display: none; }\n')
-        # New styles for hero selection grid
-        outfile.write('.hero-selection-container {\n')
-        outfile.write('    text-align: center;\n')
-        outfile.write('    padding: 10px; border: 1px solid #555; margin: 10px;\n')
+        outfile.write('td.name-column {\n')
+        outfile.write('  background-color: #dcdcdc;\n')  # Slightly darker eggshell greyish color
         outfile.write('}\n')
-        outfile.write('.hero-selection-buttons {\n')
-        outfile.write('    margin-bottom: 10px;\n')
+        outfile.write('td.name-column a {\n')
+        outfile.write('  color: #1e90ff;\n')  # Dark blue color
+        outfile.write('  text-decoration: none;\n')
         outfile.write('}\n')
-        outfile.write('.hero-selection-buttons button {\n')
-        outfile.write('    margin: 5px;\n')
-        outfile.write('    padding: 5px 10px;\n')
-        outfile.write('    font-size: 14px;\n')
+        outfile.write('td.name-column a:hover {\n')
+        outfile.write('  text-decoration: underline;\n')
         outfile.write('}\n')
-        outfile.write('.hero-grid { display: flex; flex-wrap: wrap; justify-content: center; }\n')
-        outfile.write('.hero-item { position: relative; width: 80px; height: 80px; margin: 5px; cursor: pointer; }\n')
-        outfile.write('.hero-select-image { width: 100%; height: 100%; object-fit: cover; }\n')
-        outfile.write('.hero-name-overlay { position: absolute; bottom: 0; width: 100%; text-align: center; background: rgba(0, 0, 0, 0.6); color: #fff; font-size: 10px; padding: 2px 0; }\n')
-        outfile.write('.hero-item.deselected { filter: grayscale(100%); opacity: 0.5; }\n')
-        outfile.write('.hero-item.selected { filter: none; opacity: 1; }\n')
-        # Time Frame section styling
-        outfile.write('.timeframe-container {\n')
-        outfile.write('    text-align: center;\n')
-        outfile.write('    margin: 20px 0;\n')
+        outfile.write('.tooltip {\n')
+        outfile.write('  position: relative;\n')
+        outfile.write('  display: inline-block;\n')
         outfile.write('}\n')
-        outfile.write('.timeframe-container select {\n')
-        outfile.write('    margin-top: 10px;\n')
-        outfile.write('    font-size: 16px;\n')
-        outfile.write('    padding: 5px;\n')
+        outfile.write('.tooltip .tooltiptext {\n')
+        outfile.write('  visibility: hidden;\n')
+        outfile.write('  width: 250px;\n')
+        outfile.write('  background-color: #555;\n')
+        outfile.write('  color: #fff;\n')
+        outfile.write('  text-align: center;\n')
+        outfile.write('  border-radius: 6px;\n')
+        outfile.write('  padding: 5px;\n')
+        outfile.write('  position: absolute;\n')
+        outfile.write('  z-index: 1;\n')
+        outfile.write('  bottom: 125%;\n')
+        outfile.write('  left: 50%;\n')
+        outfile.write('  margin-left: -125px;\n')
+        outfile.write('  opacity: 0;\n')
+        outfile.write('  transition: opacity 0.3s;\n')
         outfile.write('}\n')
-        # Totals Table styling
-        outfile.write('.totals-container {\n')
-        outfile.write('    width: 48%;\n')
-        outfile.write('    margin: 1% auto;\n')
+        outfile.write('.tooltip:hover .tooltiptext {\n')
+        outfile.write('  visibility: visible;\n')
+        outfile.write('  opacity: 1;\n')
         outfile.write('}\n')
-        outfile.write('.totals-container table {\n')
-        outfile.write('    width: 100%;\n')
-        outfile.write('}\n')
-        # Floating buttons
-        outfile.write('.floating-buttons {\n')
-        outfile.write('    position: fixed;\n')
-        outfile.write('    top: 100px;\n')
-        outfile.write('    right: 20px;\n')
-        outfile.write('    display: flex;\n')
-        outfile.write('    flex-direction: column;\n')
-        outfile.write('}\n')
-        outfile.write('.floating-buttons a {\n')
-        outfile.write('    background-color: #333;\n')
-        outfile.write('    color: #fff;\n')
-        outfile.write('    padding: 10px;\n')
-        outfile.write('    margin: 5px 0;\n')
-        outfile.write('    text-align: center;\n')
-        outfile.write('    text-decoration: none;\n')
-        outfile.write('    border-radius: 5px;\n')
-        outfile.write('    font-size: 14px;\n')
-        outfile.write('}\n')
-        outfile.write('.floating-buttons a:hover {\n')
-        outfile.write('    background-color: #444;\n')
-        outfile.write('}\n')
-        # Report timestamp styling
-        outfile.write('.report-timestamp {\n')
+        outfile.write('.report-timestamp {\n')  # Added report-timestamp styles
         outfile.write('    position: absolute;\n')
         outfile.write('    top: 10px;\n')
         outfile.write('    left: 20px;\n')
@@ -266,7 +429,6 @@ def main():
         outfile.write('    color: #ccc;\n')
         outfile.write('}\n')
         outfile.write('</style>\n')
-        # JavaScript
         outfile.write('<script>\n')
         outfile.write('function sortTable(table, col, reverse) {\n')
         outfile.write('    let tb = table.tBodies[0],\n')
@@ -276,8 +438,8 @@ def main():
         outfile.write('    tr = tr.sort(function (a, b) {\n')
         outfile.write('        let aText = a.cells[col].textContent.trim(),\n')
         outfile.write('            bText = b.cells[col].textContent.trim();\n')
-        outfile.write('        let aNum = parseFloat(aText) || aText;\n')
-        outfile.write('        let bNum = parseFloat(bText) || bText;\n')
+        outfile.write('        let aNum = parseFloat(aText) || 0;\n')
+        outfile.write('        let bNum = parseFloat(bText) || 0;\n')
         outfile.write('        return reverse * ((aNum > bNum) - (bNum > aNum));\n')
         outfile.write('    });\n')
         outfile.write('    for(i = 0; i < tr.length; ++i) tb.appendChild(tr[i]);\n')
@@ -293,234 +455,130 @@ def main():
         outfile.write('        }(i));\n')
         outfile.write('    }\n')
         outfile.write('}\n')
-        outfile.write('function toggleTimeFrame() {\n')
-        outfile.write('    let select = document.getElementById("timeFrameSelect");\n')
-        outfile.write('    let timeFrames = ["all_time", "last_2_years", "last_9_months"];\n')
-        outfile.write('    let selectedTimeFrame = select.value;\n')
-        outfile.write('    for (let tf of timeFrames) {\n')
-        outfile.write('        let elements = document.getElementsByClassName(tf);\n')
-        outfile.write('        for (let elem of elements) {\n')
-        outfile.write('            if (tf === selectedTimeFrame) {\n')
-        outfile.write('                elem.classList.remove("hidden");\n')
-        outfile.write('            } else {\n')
-        outfile.write('                elem.classList.add("hidden");\n')
-        outfile.write('            }\n')
-        outfile.write('        }\n')
+        outfile.write('function showTimeFrame(timeFrame) {\n')
+        outfile.write('    let tables = document.getElementsByClassName("data-table");\n')
+        outfile.write('    for(let i = 0; i < tables.length; i++) {\n')
+        outfile.write('        tables[i].style.display = "none";\n')
         outfile.write('    }\n')
-        outfile.write('    updateTotals();\n')
-        outfile.write('}\n')
-        outfile.write('function toggleHeroSelection(heroId) {\n')
-        outfile.write('    let heroItem = document.getElementById("hero_select_" + heroId);\n')
-        outfile.write('    let heroSection = document.getElementById("hero_" + heroId);\n')
-        outfile.write('    if (heroItem.classList.contains("selected")) {\n')
-        outfile.write('        heroItem.classList.remove("selected");\n')
-        outfile.write('        heroItem.classList.add("deselected");\n')
-        outfile.write('        heroSection.classList.add("hidden");\n')
-        outfile.write('    } else {\n')
-        outfile.write('        heroItem.classList.remove("deselected");\n')
-        outfile.write('        heroItem.classList.add("selected");\n')
-        outfile.write('        heroSection.classList.remove("hidden");\n')
-        outfile.write('    }\n')
-        outfile.write('    updateTotals();\n')
-        outfile.write('}\n')
-        outfile.write('function selectAllHeroes() {\n')
-        outfile.write('    let heroItems = document.getElementsByClassName("hero-item");\n')
-        outfile.write('    for (let heroItem of heroItems) {\n')
-        outfile.write('        heroItem.classList.add("selected");\n')
-        outfile.write('        heroItem.classList.remove("deselected");\n')
-        outfile.write('        let heroId = heroItem.dataset.heroId;\n')
-        outfile.write('        document.getElementById("hero_" + heroId).classList.remove("hidden");\n')
-        outfile.write('    }\n')
-        outfile.write('    updateTotals();\n')
-        outfile.write('}\n')
-        outfile.write('function deselectAllHeroes() {\n')
-        outfile.write('    let heroItems = document.getElementsByClassName("hero-item");\n')
-        outfile.write('    for (let heroItem of heroItems) {\n')
-        outfile.write('        heroItem.classList.remove("selected");\n')
-        outfile.write('        heroItem.classList.add("deselected");\n')
-        outfile.write('        let heroId = heroItem.dataset.heroId;\n')
-        outfile.write('        document.getElementById("hero_" + heroId).classList.add("hidden");\n')
-        outfile.write('    }\n')
-        outfile.write('    updateTotals();\n')
-        outfile.write('}\n')
-        outfile.write('function updateTotals() {\n')
-        outfile.write('    let playerTotals = {};\n')
-        outfile.write('    let heroSections = document.getElementsByClassName("hero-section");\n')
-        outfile.write('    let select = document.getElementById("timeFrameSelect");\n')
-        outfile.write('    let selectedTimeFrame = select.value;\n')
-        outfile.write('    for (let section of heroSections) {\n')
-        outfile.write('        if (section.classList.contains("hidden")) continue;\n')
-        outfile.write('        let tables = section.getElementsByClassName(selectedTimeFrame);\n')
-        outfile.write('        for (let table of tables) {\n')
-        outfile.write('            let rows = table.tBodies[0].rows;\n')
-        outfile.write('            for (let row of rows) {\n')
-        outfile.write('                let playerName = row.cells[0].textContent;\n')
-        outfile.write('                let score = parseFloat(row.cells[4].textContent);\n')
-        outfile.write('                if (!playerTotals[playerName]) playerTotals[playerName] = 0;\n')
-        outfile.write('                playerTotals[playerName] += score;\n')
-        outfile.write('            }\n')
-        outfile.write('        }\n')
-        outfile.write('    }\n')
-        outfile.write('    let totalTables = document.getElementsByClassName("player-totals");\n')
-        outfile.write('    for (let table of totalTables) {\n')
-        outfile.write('        if (table.classList.contains(selectedTimeFrame)) {\n')
-        outfile.write('            table.classList.remove("hidden");\n')
-        outfile.write('            let tbody = table.tBodies[0];\n')
-        outfile.write('            // Remove existing rows\n')
-        outfile.write('            while (tbody.firstChild) {\n')
-        outfile.write('                tbody.removeChild(tbody.firstChild);\n')
-        outfile.write('            }\n')
-        outfile.write('            // Create new rows\n')
-        outfile.write('            let players = [];\n')
-        outfile.write('            for (let playerName in playerTotals) {\n')
-        outfile.write('                players.push({ name: playerName, totalScore: playerTotals[playerName] });\n')
-        outfile.write('            }\n')
-        outfile.write('            // Sort players by totalScore in descending order\n')
-        outfile.write('            players.sort(function(a, b) {\n')
-        outfile.write('                return b.totalScore - a.totalScore;\n')
-        outfile.write('            });\n')
-        outfile.write('            // Add rows to table\n')
-        outfile.write('            for (let player of players) {\n')
-        outfile.write('                let row = tbody.insertRow();\n')
-        outfile.write('                let cellName = row.insertCell(0);\n')
-        outfile.write('                let cellTotalScore = row.insertCell(1);\n')
-        outfile.write('                cellName.textContent = player.name;\n')
-        outfile.write('                cellTotalScore.textContent = player.totalScore.toFixed(4);\n')
-        outfile.write('            }\n')
-        outfile.write('        } else {\n')
-        outfile.write('            table.classList.add("hidden");\n')
-        outfile.write('        }\n')
-        outfile.write('    }\n')
+        outfile.write('    document.getElementById("table_" + timeFrame).style.display = "table";\n')
         outfile.write('}\n')
         outfile.write('window.onload = function() {\n')
-        outfile.write('    let tables = document.getElementsByTagName("table");\n')
+        outfile.write('    let timeFrameSelect = document.getElementById("timeFrameSelect");\n')
+        outfile.write('    timeFrameSelect.addEventListener("change", function() {\n')
+        outfile.write('        showTimeFrame(this.value);\n')
+        outfile.write('    });\n')
+        outfile.write('    let tables = document.getElementsByClassName("data-table");\n')
         outfile.write('    for(let i = 0; i < tables.length; i++) {\n')
         outfile.write('        makeSortable(tables[i]);\n')
         outfile.write('    }\n')
-        outfile.write('    document.getElementById("timeFrameSelect").addEventListener("change", toggleTimeFrame);\n')
-        outfile.write('    let heroItems = document.getElementsByClassName("hero-item");\n')
-        outfile.write('    for (let heroItem of heroItems) {\n')
-        outfile.write('        heroItem.addEventListener("click", function() { toggleHeroSelection(this.dataset.heroId); });\n')
-        outfile.write('    }\n')
-        outfile.write('    document.getElementById("selectAllBtn").addEventListener("click", selectAllHeroes);\n')
-        outfile.write('    document.getElementById("deselectAllBtn").addEventListener("click", deselectAllHeroes);\n')
-        outfile.write('    toggleTimeFrame();\n')  # Initialize with selected time frame
-        outfile.write('    updateTotals();\n')
+        # Set initial display state
+        outfile.write('    showTimeFrame(timeFrameSelect.value);\n')
         outfile.write('};\n')
         outfile.write('</script>\n')
         outfile.write('</head><body>\n')
-        outfile.write('<a id="top"></a>\n')  # Anchor for "Jump to Top"
+
+        # Report generated timestamp
         outfile.write(f'<div class="report-timestamp">Report generated: {report_generated_time}</div>\n')
-        outfile.write('<h1 style="text-align:center;">PST-SUN Hero Report</h1>\n')
+
+        outfile.write('<h1 style="text-align:center;">PST-SUN Player Report</h1>\n')
+
         # Time frame selection
-        outfile.write('<div class="timeframe-container">\n')
-        outfile.write('<h3>Time Frame:</h3>\n')
+        outfile.write('<div style="text-align:center; margin-bottom:20px;">\n')
+        outfile.write('<label for="timeFrameSelect">Time Frame: </label>\n')
         outfile.write('<select id="timeFrameSelect">\n')
         outfile.write('<option value="all_time">All Time</option>\n')
         outfile.write('<option value="last_2_years">Last 2 Years</option>\n')
         outfile.write('<option value="last_9_months">Last 9 Months</option>\n')
         outfile.write('</select>\n')
         outfile.write('</div>\n')
-        # Hero selection grid
-        outfile.write('<div class="hero-selection-container">\n')
-        outfile.write('<h3>Select Heroes:</h3>\n')
-        outfile.write('<div class="hero-selection-buttons">\n')
-        outfile.write('<button id="selectAllBtn">Select All</button>\n')
-        outfile.write('<button id="deselectAllBtn">Deselect All</button>\n')
-        outfile.write('</div>\n')
-        outfile.write('<div class="hero-grid">\n')
-        for hero_name, hero_id in hero_names_and_ids:
-            hero_dota_name = hero_id_to_name[hero_id]  # e.g., 'npc_dota_hero_antimage'
-            hero_image_name = hero_dota_name.replace('npc_dota_hero_', '')  # e.g., 'antimage'
-            hero_image_url = f'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/{hero_image_name}.png'
-            outfile.write(f'<div class="hero-item selected" data-hero-id="{hero_id}" id="hero_select_{hero_id}">\n')
-            outfile.write(f'<img src="{hero_image_url}" alt="{hero_name}" class="hero-select-image">\n')
-            outfile.write(f'<div class="hero-name-overlay">{hero_name}</div>\n')
-            outfile.write('</div>\n')
-        outfile.write('</div>\n')
-        outfile.write('</div>\n')
-        outfile.write('<div class="container">\n')
-        for hero_name, hero_id in hero_names_and_ids:
-            hero_name_lower = hero_name.lower()
-            display_hero_name = hero_name  # Already properly capitalized
-            hero_dota_name = hero_id_to_name[hero_id]  # e.g., 'npc_dota_hero_antimage'
-            hero_image_name = hero_dota_name.replace('npc_dota_hero_', '')  # e.g., 'antimage'
-            hero_image_url = f'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/{hero_image_name}.png'
-            outfile.write(f'<div class="hero-section" id="hero_{hero_id}">\n')
-            outfile.write(f'<h2 style="text-align:center;">{display_hero_name}</h2>\n')
-            outfile.write(f'<img src="{hero_image_url}" alt="{display_hero_name}" class="hero-image">\n')
-            for time_frame_name in TIME_FRAMES.keys():
-                hero_stats_tf = hero_stats[time_frame_name]
-                table_class = time_frame_name
-                caption = time_frame_name.replace('_', ' ').title() + ' Stats'
-                outfile.write(f'<table class="{table_class}">\n')
-                outfile.write(f'<caption style="caption-side:top; text-align:left; color:#f0f0f0;">{caption}</caption>\n')
-                outfile.write('<thead>\n')
-                outfile.write('<tr><th>Player</th><th>Games</th><th>Wins</th><th>Win Rate (%)</th><th>Score</th></tr>\n')
-                outfile.write('</thead>\n')
-                outfile.write('<tbody>\n')
 
-                scores = [player['score'] for player in hero_stats_tf[hero_name_lower]]
-                max_score = max(scores) if scores else 0
-                min_score = min(scores) if scores else 0
+        # Generate tables for each time frame
+        for time_frame in TIME_FRAMES.keys():
+            # Sort players by aggregated value for display purposes
+            players_data_sorted = sorted(players_data.values(), key=lambda x: float(x['data'][time_frame]['aggregated_value']) if x['data'][time_frame]['aggregated_value'] != 'N/A' else 0, reverse=True)
 
-                for player in hero_stats_tf[hero_name_lower]:
-                    name = player['name']
-                    wins = player['wins']
-                    games = player['games']
-                    winrate = wins / games * 100 if games > 0 else 0
-                    score = player['score']
-
-                    if max_score > min_score:
-                        score_normalized = (score - min_score) / (max_score - min_score)
-                    else:
-                        score_normalized = 0.5
-
-                    hue = 30 + 90 * score_normalized  # From 30 (reddish brown) to 120 (dark green)
-                    saturation = 50 + 10 * score_normalized  # From 50% to 60%
-                    lightness = 25 + 10 * score_normalized  # From 25% to 35%
-                    color = f'hsl({hue:.0f}, {saturation:.0f}%, {lightness:.0f}%)'
-
-                    outfile.write(f'<tr style="background-color:{color}; color: #f0f0f0;">')
-                    outfile.write(f'<td>{name}</td>')
-                    outfile.write(f'<td>{games}</td>')
-                    outfile.write(f'<td>{wins}</td>')
-                    outfile.write(f'<td>{winrate:.2f}</td>')
-                    outfile.write(f'<td>{score:.4f}</td>')
-                    outfile.write('</tr>\n')
-
-                outfile.write('</tbody>\n')
-                outfile.write('</table>\n')
-                outfile.write('<br/>\n')
-            outfile.write('</div>\n')
-        outfile.write('</div>\n')  # Close container
-        outfile.write('<a id="totals"></a>\n')  # Anchor for "Jump to Totals"
-        for time_frame_name in TIME_FRAMES.keys():
-            table_class = f'{time_frame_name} player-totals'
-            caption = f'Total Scores per Player ({time_frame_name.replace("_", " ").title()})'
-
-            # Get the list of all player names
-            all_player_names = [player['name'] for player in players]
-
-            outfile.write(f'<div class="totals-container">\n')
-            outfile.write(f'<h2 class="{time_frame_name}" style="text-align:center;">{caption}</h2>\n')
-            outfile.write(f'<table class="{table_class}">\n')
+            # Set initial display style
+            display_style = "display: table;" if time_frame == 'all_time' else "display: none;"
+            outfile.write(f'<table id="table_{time_frame}" class="data-table" style="{display_style}">\n')
             outfile.write('<thead>\n')
-            outfile.write('<tr><th>Player</th><th>Total Score</th></tr>\n')
+            outfile.write('<tr>')
+            outfile.write('<th>Player Name</th>')
+            outfile.write('<th>Medal</th>')  # Added Medal column
+            outfile.write('<th>Games Played</th>')
+            outfile.write('<th>Overall Winrate (%)</th>')
+            outfile.write('<th>Winrate Excl. Top 20 Heroes (%)</th>')
+            outfile.write('<th><span class="tooltip">Discomfort Factor<span class="tooltiptext">Calculated as (Uncomfy Winrate / Comfy Winrate) x 100. If zero, set to 50.</span></span></th>')
+            outfile.write('<th><span class="tooltip">Versatility Factor<span class="tooltiptext">The variety of different heroes a player has played.</span></span></th>')
+            outfile.write('<th><span class="tooltip">Role Diversity Factor<span class="tooltiptext">Based on the entropy of roles played across all games.</span></span></th>')
+            outfile.write('<th><span class="tooltip">Aggregated Value<span class="tooltiptext">Calculated as: (Overall Winrate + (Winrate Excl. Top 20 x 2) + (Discomfort Factor x 2) + (Versatility Factor x 2) + Role Diversity Factor) divided by 8.</span></span></th>')
+            outfile.write('</tr>\n')
             outfile.write('</thead>\n')
             outfile.write('<tbody>\n')
-            # The tbody will be populated dynamically by JavaScript
+
+            for player_info in players_data_sorted:
+                data = player_info['data'][time_frame]
+                dotabuff_url = player_info.get('dotabuff_url', '#')
+                outfile.write('<tr>')
+                outfile.write(f"<td class='name-column'><a href='{dotabuff_url}' target='_blank'>{player_info['name']}</a></td>")
+                # Medal Column (No color gradient)
+                medal = data.get('medal', 'N/A')
+                outfile.write(f'<td>{medal}</td>')
+                # Apply color gradient to 'Games Played'
+                value = data['games_played']
+                if value != 'N/A':
+                    val_float = float(value)
+                    min_val, max_val = metric_min_max[time_frame]['games_played']
+                    if max_val > min_val:
+                        normalized = (val_float - min_val) / (max_val - min_val)
+                    else:
+                        normalized = 0.5
+                    hue = 30 + 90 * normalized  # From red to green
+                    saturation = 50 + 10 * normalized
+                    lightness = 25 + 10 * normalized
+                    color = f'hsl({hue:.0f}, {saturation:.0f}%, {lightness:.0f}%)'
+                    outfile.write(f'<td style="background-color:{color};">{value}</td>')
+                else:
+                    outfile.write('<td>N/A</td>')
+                for metric in metrics[1:]:
+                    value = data[metric]
+                    if value != 'N/A':
+                        val_float = float(value)
+                        min_val, max_val = metric_min_max[time_frame][metric]
+                        if max_val > min_val:
+                            normalized = (val_float - min_val) / (max_val - min_val)
+                        else:
+                            normalized = 0.5
+                        hue = 30 + 90 * normalized  # From red to green
+                        saturation = 50 + 10 * normalized
+                        lightness = 25 + 10 * normalized
+                        color = f'hsl({hue:.0f}, {saturation:.0f}%, {lightness:.0f}%)'
+                        outfile.write(f'<td style="background-color:{color};">{value}</td>')
+                    else:
+                        outfile.write('<td>N/A</td>')
+                outfile.write('</tr>\n')
+
             outfile.write('</tbody>\n')
             outfile.write('</table>\n')
-            outfile.write('</div>\n')
-        # Floating navigation buttons
-        outfile.write('<div class="floating-buttons">\n')
-        outfile.write('<a href="#top">Jump to Top</a>\n')
-        outfile.write('<a href="#totals">Jump to Totals</a>\n')
-        outfile.write('</div>\n')
+
         outfile.write('</body></html>')
 
-    print(f"\nHTML report has been generated: {args.output}")
+def main():
+    parser = argparse.ArgumentParser(description='Generate Dota 2 Player Metrics Report')
+    parser.add_argument('input_csv', help='Input CSV file with player data')
+    parser.add_argument('output_html', nargs='?', default='player_report.html', help='Output HTML file name')
+    parser.add_argument('--refresh', action='store_true', help='Force refresh of cached data')
+
+    args = parser.parse_args()
+
+    load_api_key()  # Load the API key before making any requests
+
+    if args.refresh:
+        # Delete the cache directory or specific cache files
+        if os.path.exists(CACHE_DIR):
+            shutil.rmtree(CACHE_DIR)
+            print("Cache cleared.")
+
+    process_players(args.input_csv, args.output_html, refresh=args.refresh)
 
 if __name__ == '__main__':
     main()

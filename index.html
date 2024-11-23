@@ -12,26 +12,45 @@
             color: #f0f0f0;
             margin: 0;
             padding: 0 20px;
+            position: relative; /* For positioning the timestamp */
+        }
+        .report-timestamp {
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-size: 14px;
+            color: #ccc;
         }
         .container {
             max-width: 800px;
-            margin: 0 auto;
+            margin: 60px auto 40px; /* Added top margin to accommodate timestamp */
             padding: 40px 0;
             text-align: center;
         }
         h1 {
             margin-bottom: 40px;
         }
+        .report-box {
+            background-color: #2e2e2e;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px auto;
+            width: 80%;
+            max-width: 500px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .report-box:hover {
+            background-color: #3e3e3e;
+            transform: scale(1.02);
+        }
         .report-link {
             display: block;
             background-color: #333;
             color: #1e90ff;
             text-decoration: none;
-            padding: 20px;
-            margin: 20px auto;
-            border-radius: 8px;
-            width: 80%;
-            max-width: 400px;
+            padding: 15px;
+            border-radius: 6px;
             transition: background-color 0.3s;
         }
         .report-link:hover {
@@ -43,34 +62,86 @@
             margin-top: 10px;
         }
         @media (max-width: 600px) {
-            .report-link {
+            .report-box {
                 width: 100%;
+                padding: 15px;
             }
+            .report-link {
+                padding: 10px;
+            }
+            .report-description {
+                font-size: 14px;
+            }
+        }
+        /* Changelog Styling */
+        .changelog {
+            background-color: #2e2e2e;
+            padding: 20px;
+            margin-top: 40px;
+            border-radius: 8px;
+            text-align: left;
+        }
+        .changelog h2 {
+            color: #1e90ff;
+            text-align: center;
+        }
+        .changelog ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .changelog li {
+            margin-bottom: 10px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
         }
     </style>
 </head>
 <body>
+    <div class="report-timestamp">Last Updated: 2024-11-23 07:37:32</div>
     <div class="container">
         <h1>PST-SUN Dota 2 Reports</h1>
-        <a href="hero_report.html" class="report-link">
-            Hero Report
-        </a>
-        <p class="report-description">
-            Player hero statistics, performance, and rankings.
-        </p>
-        <a href="player_report.html" class="report-link">
-            Player Metrics Report
-        </a>
-        <p class="report-description">
-            Comprehensive player metrics and performance over time.
-        </p>
-        <a href="team_analyzer.html" class="report-link">
-            Team Analyzer
-        </a>
-        <p class="report-description">
-            Choose the players in a team and see their best heroes and suggested bans.
-        </p>
+        
+        <div class="report-box">
+            <a href="hero_report.html" class="report-link">
+                Hero Report
+            </a>
+            <p class="report-description">
+                Player hero statistics, performance, and rankings.
+            </p>
+        </div>
+        
+        <div class="report-box">
+            <a href="player_report.html" class="report-link">
+                Player Metrics Report
+            </a>
+            <p class="report-description">
+                Comprehensive player metrics and performance over time.
+            </p>
+        </div>
+        
+        <div class="report-box">
+            <a href="team_analyzer.html" class="report-link">
+                Team Analyzer
+            </a>
+            <p class="report-description">
+                Choose the players in a team and see their best heroes and suggested bans.
+            </p>
+        </div>
+        
+        <div class="changelog">
+            <h2>Changelog</h2>
+            <ul>
+                    <li><strong>2024-11-22 22:06:20</strong> - <em>Joe Dobrow</em>: dont cut off names in suggestd bans area</li>
+    <li><strong>2024-11-22 21:59:43</strong> - <em>Joe Dobrow</em>: alpha sorting and tooltips</li>
+    <li><strong>2024-11-22 16:43:52</strong> - <em>Joe Dobrow</em>: tweaks</li>
+    <li><strong>2024-11-22 16:38:17</strong> - <em>Joe Dobrow</em>: new team analyzer report</li>
+    <li><strong>2024-11-22 16:18:24</strong> - <em>Joe Dobrow</em>: tweaks</li>
+    <li><strong>2024-11-22 16:10:03</strong> - <em>Joe Dobrow</em>: bunch of little tweaks</li>
+    <li><strong>2024-11-22 15:51:30</strong> - <em>Joe Dobrow</em>: better checkboxes for hero selection</li>
+    <li><strong>2024-11-22 15:35:26</strong> - <em>Joe Dobrow</em>: whoopsies fixed</li>
+
+            </ul>
+        </div>
     </div>
 </body>
 </html>
-
