@@ -169,8 +169,8 @@ def main():
         outfile.write('.suggested-bans { margin: 20px 0; }\n')  # Added margin to top and bottom
         outfile.write('.suggested-bans h2 { text-align: center; }\n')
         outfile.write('.suggested-bans-grid { display: flex; flex-wrap: wrap; justify-content: center; }\n')
-        outfile.write('.hero-item { position: relative; width: 80px; height: 80px; margin: 5px; }\n')
-        outfile.write('.hero-image { width: 100%; height: 100%; object-fit: cover; }\n')
+        outfile.write('.hero-item { position: relative; width: 80px; margin: 5px; }\n')
+        outfile.write('.hero-image { width: 100%; object-fit: cover; height: 80px; }\n')
         outfile.write('.hero-name { text-align: center; margin-top: 5px; color: #ccc; font-size: 12px; }\n')
         
         # **New CSS for Custom Tooltips**
