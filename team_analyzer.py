@@ -88,10 +88,13 @@ def main():
     with open(args.players_csv, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            name = row['name']
+            name = row['name'].strip()  # Trim whitespaces
             dotabuff_link = row['dotabuff']
             player_id = dotabuff_link.strip().split('/')[-1]
             players.append({'name': name, 'player_id': player_id})
+
+    # Alphabetize players by name
+    players.sort(key=lambda x: x['name'].lower())
 
     # Fetch all heroes
     print("Fetching hero list...")
@@ -169,21 +172,56 @@ def main():
         outfile.write('.hero-item { position: relative; width: 80px; height: 80px; margin: 5px; }\n')
         outfile.write('.hero-image { width: 100%; height: 100%; object-fit: cover; }\n')
         outfile.write('.hero-name { text-align: center; margin-top: 5px; color: #ccc; font-size: 12px; }\n')
+        
+        # **New CSS for Custom Tooltips**
+        outfile.write('''
+/* Custom Tooltip Styles */
+.hero-item .tooltip {
+    visibility: hidden;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    text-align: left;
+    padding: 8px;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 10;
+    bottom: 100%; /* Position above the hero image */
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: pre-line; /* Allow newline characters */
+    width: max-content;
+    max-width: 200px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
+}
+
+.hero-item:hover .tooltip {
+    visibility: visible;
+}
+''')
         outfile.write('</style>\n')
         # JavaScript Code
         outfile.write('<script>\n')
         # Data variables
-        outfile.write('let players = {};\n')
+
+        # Pass players as an array to preserve order
+        outfile.write('let players = [\n')
         for player in players:
-            outfile.write(f'players["{player["player_id"]}"] = "{player["name"]}";\n')
+            # Escape double quotes in player names
+            escaped_name = player["name"].replace('"', '\\"')
+            outfile.write(f'    {{ id: "{player["player_id"]}", name: "{escaped_name}" }},\n')
+        outfile.write('];\n')
+
         outfile.write('let heroNames = {};\n')
         outfile.write('let heroNameToId = {};\n')
         outfile.write('let heroIdToDotaName = {};\n')
         for hero_name, hero_id in hero_names_and_ids:
-            outfile.write(f'heroNames[{hero_id}] = "{hero_name}";\n')
-            outfile.write(f'heroNameToId["{hero_name}"] = {hero_id};\n')
-            hero_dota_name = hero_id_to_name[hero_id]
-            outfile.write(f'heroIdToDotaName[{hero_id}] = "{hero_dota_name}";\n')
+            # Escape double quotes in hero names
+            escaped_hero_name = hero_name.replace('"', '\\"')
+            escaped_dota_name = hero_id_to_name[hero_id].replace('"', '\\"')
+            outfile.write(f'heroNames[{hero_id}] = "{escaped_hero_name}";\n')
+            outfile.write(f'heroNameToId["{escaped_hero_name}"] = {hero_id};\n')
+            outfile.write(f'heroIdToDotaName[{hero_id}] = "{escaped_dota_name}";\n')
+        # Modify playerHeroStats to include games, wins, winrate, and score
         outfile.write('let playerHeroStats = {};\n')
         for time_frame_name in TIME_FRAMES.keys():
             outfile.write(f'playerHeroStats["{time_frame_name}"] = {{}};\n')
@@ -196,35 +234,46 @@ def main():
                     games = stat['games']
                     wins = stat['win']
                     score = adjusted_score(wins, games, gamma=0.69)
-                    outfile.write(f'playerHeroStats["{time_frame_name}"]["{account_id}"][{hero_id}] = {score};\n')
+                    winrate = wins / games if games > 0 else 0
+                    # Ensure winrate is rounded to 4 decimal places
+                    outfile.write(f'playerHeroStats["{time_frame_name}"]["{account_id}"][{hero_id}] = {{ "score": {score:.4f}, "games": {games}, "wins": {wins}, "winrate": {winrate:.4f} }};\n')
         # Thresholds
         outfile.write('let thresholds = {\n')
-        outfile.write('    "all_time": 2.0,\n')
-        outfile.write('    "last_2_years": 1.8,\n')
-        outfile.write('    "last_9_months": 1.6\n')
+        outfile.write('    "all_time": 1.9,\n')
+        outfile.write('    "last_2_years": 1.7,\n')
+        outfile.write('    "last_9_months": 1.5\n')
         outfile.write('};\n')
         # Function to update the report
         outfile.write('function updateReport() {\n')
         outfile.write('    let selectedPlayers = [];\n')
-        outfile.write('    let playerItems = document.getElementsByClassName("player-item");\n')
-        outfile.write('    for (let playerItem of playerItems) {\n')
-        outfile.write('        if (playerItem.classList.contains("selected")) {\n')
-        outfile.write('            selectedPlayers.push(playerItem.getAttribute("data-player-id"));\n')
+        outfile.write('    for (let player of players) {\n')
+        outfile.write('        let playerDiv = document.getElementById(`player-${player.id}`);\n')
+        outfile.write('        if (playerDiv.classList.contains("selected")) {\n')
+        outfile.write('            selectedPlayers.push(player.id);\n')
         outfile.write('        }\n')
         outfile.write('    }\n')
         outfile.write('    let timeFrameSelect = document.getElementById("timeFrameSelect");\n')
         outfile.write('    let selectedTimeFrame = timeFrameSelect.value;\n')
         outfile.write('    let combinedScores = {};\n')
-        outfile.write('    let suggestedBans = new Set();\n')
+        outfile.write('    let suggestedBans = {};\n')  # Changed from Set to Object
         outfile.write('    for (let heroId in heroNames) {\n')
         outfile.write('        let totalScore = 0;\n')
         outfile.write('        for (let playerId of selectedPlayers) {\n')
-        outfile.write('            let playerStats = playerHeroStats[selectedTimeFrame][playerId];\n')
-        outfile.write('            if (playerStats && playerStats[heroId]) {\n')
-        outfile.write('                let score = playerStats[heroId];\n')
+        outfile.write('            let playerStats = playerHeroStats[selectedTimeFrame][playerId][heroId];\n')
+        outfile.write('            if (playerStats && playerStats.score) {\n')
+        outfile.write('                let score = playerStats.score;\n')
         outfile.write('                totalScore += score;\n')
         outfile.write('                if (score >= thresholds[selectedTimeFrame]) {\n')
-        outfile.write('                    suggestedBans.add(heroNames[heroId]);\n')
+        outfile.write('                    if (!suggestedBans[heroId]) {\n')
+        outfile.write('                        suggestedBans[heroId] = [];\n')
+        outfile.write('                    }\n')
+        outfile.write('                    suggestedBans[heroId].push({\n')
+        outfile.write('                        playerId: playerId,\n')
+        outfile.write('                        playerName: players.find(p => p.id === playerId).name,\n')
+        outfile.write('                        games: playerStats.games,\n')
+        outfile.write('                        wins: playerStats.wins,\n')
+        outfile.write('                        winrate: (playerStats.winrate * 100).toFixed(2)\n')
+        outfile.write('                    });\n')
         outfile.write('                }\n')
         outfile.write('            }\n')
         outfile.write('        }\n')
@@ -235,9 +284,9 @@ def main():
         # Update Suggested Bans
         outfile.write('    let bansGrid = document.getElementById("bansGrid");\n')
         outfile.write('    bansGrid.innerHTML = "";\n')
-        outfile.write('    let bansArray = Array.from(suggestedBans).sort();\n')
-        outfile.write('    for (let heroName of bansArray) {\n')
-        outfile.write('        let heroId = heroNameToId[heroName];\n')
+        outfile.write('    let bansArray = Object.keys(suggestedBans).sort(function(a, b) { return heroNames[a].localeCompare(heroNames[b]); });\n')
+        outfile.write('    for (let heroId of bansArray) {\n')
+        outfile.write('        let heroName = heroNames[heroId];\n')
         outfile.write('        let heroDotaName = heroIdToDotaName[heroId];\n')
         outfile.write('        let heroImageName = heroDotaName.replace("npc_dota_hero_", "");\n')
         outfile.write('        let heroImageUrl = `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${heroImageName}.png`;\n')
@@ -247,10 +296,23 @@ def main():
         outfile.write('        img.src = heroImageUrl;\n')
         outfile.write('        img.alt = heroName;\n')
         outfile.write('        img.classList.add("hero-image");\n')
+        # Remove setting the title attribute
+        # Instead, create a tooltip div
+        outfile.write('        let tooltipDiv = document.createElement("div");\n')
+        outfile.write('        tooltipDiv.classList.add("tooltip");\n')
+        outfile.write('        let tooltipText = "";\n')
+        outfile.write('        for (let playerStats of suggestedBans[heroId]) {\n')
+        outfile.write('            let playerName = playerStats.playerName;\n')
+        outfile.write('            let games = playerStats.games;\n')
+        outfile.write('            let winrate = playerStats.winrate;\n')
+        outfile.write('            tooltipText += `${playerName}: ${games} games, ${winrate}% winrate\\n`;\n')
+        outfile.write('        }\n')
+        outfile.write('        tooltipDiv.textContent = tooltipText.trim();\n')
         outfile.write('        let nameDiv = document.createElement("div");\n')
         outfile.write('        nameDiv.classList.add("hero-name");\n')
         outfile.write('        nameDiv.textContent = heroName;\n')
         outfile.write('        heroDiv.appendChild(img);\n')
+        outfile.write('        heroDiv.appendChild(tooltipDiv);\n')  # Append tooltipDiv
         outfile.write('        heroDiv.appendChild(nameDiv);\n')
         outfile.write('        bansGrid.appendChild(heroDiv);\n')
         outfile.write('    }\n')
@@ -284,12 +346,12 @@ def main():
         outfile.write('}\n')
         outfile.write('window.onload = function() {\n')
         outfile.write('    let playerGrid = document.querySelector(".player-grid");\n')
-        outfile.write('    for (let playerId in players) {\n')
+        outfile.write('    for (let player of players) {\n')
         outfile.write('        let playerDiv = document.createElement("div");\n')
         outfile.write('        playerDiv.classList.add("player-item", "unselected");\n')
-        outfile.write('        playerDiv.setAttribute("data-player-id", playerId);\n')
+        outfile.write('        playerDiv.id = `player-${player.id}`;\n')  # Assign unique ID for each player
         outfile.write('        // Limit player name to 15 characters\n')
-        outfile.write('        let playerName = players[playerId];\n')
+        outfile.write('        let playerName = player.name;\n')
         outfile.write('        if (playerName.length > 15) {\n')
         outfile.write('            playerName = playerName.substring(0, 15) + "...";\n')
         outfile.write('        }\n')
