@@ -220,6 +220,14 @@ def calculate_aggregated_value(data):
     except (ValueError, ZeroDivisionError):
         return 'N/A'
 
+def calculate_suggested_bid(data):
+    try:
+        mmr = float(data['mmr'])
+        value = float(data['aggregated_value'])
+        return round(max((0.16 * mmr - 610) * (value / 100) ** 2, 0), 2)
+    except:
+        return 'N/A'
+
 def extract_player_id(dotabuff_url):
     match = re.search(r'/players/(\d+)', dotabuff_url)
     if match:
@@ -237,6 +245,7 @@ def process_players(input_csv, output_html, refresh=False):
         for row in reader:
             name = row['name']
             dotabuff_url = row['dotabuff']
+            mmr = row['mmr']
 
             player_id = extract_player_id(dotabuff_url)
             if player_id is None:
@@ -249,6 +258,7 @@ def process_players(input_csv, output_html, refresh=False):
                 for time_frame in TIME_FRAMES.keys():
                     player_info['data'][time_frame] = {
                         'games_played': 'N/A',
+                        'mmr': 'N/A',
                         'overall_winrate': 'N/A',
                         'winrate_excl_top20': 'N/A',
                         'discomfort_factor': 'N/A',
@@ -264,6 +274,7 @@ def process_players(input_csv, output_html, refresh=False):
             player_info = {
                 'name': name,
                 'dotabuff_url': dotabuff_url,
+                'mmr': mmr,
                 'data': {}
             }
 
@@ -285,6 +296,7 @@ def process_players(input_csv, output_html, refresh=False):
 
                     data_dict = {
                         'games_played': total_games_played,
+                        'mmr': mmr,
                         'overall_winrate': f"{overall_winrate:.2f}",
                         'winrate_excl_top20': f"{winrate_excl_top20:.2f}" if winrate_excl_top20 != 'N/A' else 'N/A',
                         'discomfort_factor': f"{discomfort_factor:.2f}",
@@ -295,16 +307,21 @@ def process_players(input_csv, output_html, refresh=False):
                     aggregated_value = calculate_aggregated_value(data_dict)
                     data_dict['aggregated_value'] = aggregated_value
 
+                    suggested_bid = calculate_suggested_bid(data_dict)
+                    data_dict['suggested_bid'] = suggested_bid
+
                     player_info['data'][time_frame_name] = data_dict
                 else:
                     player_info['data'][time_frame_name] = {
                         'games_played': 'N/A',
+                        'mmr': 'N/A',
                         'overall_winrate': 'N/A',
                         'winrate_excl_top20': 'N/A',
                         'discomfort_factor': 'N/A',
                         'versatility_factor': 'N/A',
                         'role_diversity_factor': 'N/A',
-                        'aggregated_value': 'N/A'
+                        'aggregated_value': 'N/A',
+                        'suggested_bid': 'N/A',
                     }
             players_data[name] = player_info
 
@@ -313,7 +330,7 @@ def process_players(input_csv, output_html, refresh=False):
 
 def generate_html_report(players_data, output_html):
     # Collect metrics across all players and time frames for normalization
-    metrics = ['games_played', 'overall_winrate', 'winrate_excl_top20', 'discomfort_factor', 'versatility_factor', 'role_diversity_factor', 'aggregated_value']
+    metrics = ['games_played', 'mmr', 'overall_winrate', 'winrate_excl_top20', 'discomfort_factor', 'versatility_factor', 'role_diversity_factor', 'aggregated_value', 'suggested_bid']
     metric_values = {tf: {metric: [] for metric in metrics} for tf in TIME_FRAMES.keys()}
 
     for player_info in players_data.values():
@@ -446,12 +463,14 @@ def generate_html_report(players_data, output_html):
             outfile.write('<tr>')
             outfile.write('<th>Player Name</th>')
             outfile.write('<th>Games Played</th>')
+            outfile.write('<th>MMR</th>')
             outfile.write('<th>Overall Winrate (%)</th>')
             outfile.write('<th>Winrate Excl. Top 20 Heroes (%)</th>')
             outfile.write('<th><span class="tooltip">Discomfort Factor<span class="tooltiptext">Calculated as (Uncomfy Winrate / Comfy Winrate) x 100. If zero, set to 50.</span></span></th>')
             outfile.write('<th><span class="tooltip">Versatility Factor<span class="tooltiptext">The variety of different heroes a player has played.</span></span></th>')
             outfile.write('<th><span class="tooltip">Role Diversity Factor<span class="tooltiptext">Based on the entropy of roles played across all games.</span></span></th>')
             outfile.write('<th><span class="tooltip">Aggregated Value<span class="tooltiptext">Calculated as: (Overall Winrate + (Winrate Excl. Top 20 x 2) + (Discomfort Factor x 2) + (Versatility Factor x 2) + Role Diversity Factor) divided by 8.</span></span></th>')
+            outfile.write('<th><span class="tooltip">Suggested Bid<span class="tooltiptext">Calculated as..."wouldnt u like to know"</span></span></th>')
             outfile.write('</tr>\n')
             outfile.write('</thead>\n')
             outfile.write('<tbody>\n')
