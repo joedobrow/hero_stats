@@ -78,11 +78,20 @@ def load_cached_data(filename):
 def main():
     parser = argparse.ArgumentParser(description='Team Analyzer: Analyze Dota 2 team hero statistics.')
     parser.add_argument('players_csv', help='Path to the players CSV file')
+    parser.add_argument('hero_pools', help='Path to the hero_pools JSON file')
     parser.add_argument('-o', '--output', default='team_analyzer.html', help='Output HTML file name (default: team_analyzer.html)')
     parser.add_argument('--refresh', action='store_true', help='Force refresh of cached data')
     args = parser.parse_args()
 
     load_api_key()
+
+    # Load hero pools
+    if not os.path.exists(args.hero_pools):
+        print(f"Hero pools file {args.hero_pools} does not exist.")
+        return
+
+    with open(args.hero_pools, 'r', encoding='utf-8') as f:
+        hero_pools = json.load(f)
 
     players = []
     with open(args.players_csv, 'r', encoding='utf-8') as f:
@@ -106,10 +115,21 @@ def main():
     else:
         print("Loaded hero stats from cache.")
 
-    hero_name_to_id = {hero['localized_name']: hero['id'] for hero in heroes_response}
+    if heroes_response is None:
+        print("Failed to fetch hero stats. Exiting.")
+        return
+
+    # Create mappings
+    hero_name_to_id = {hero['localized_name'].lower().replace(' ', '-'): hero['id'] for hero in heroes_response}
     hero_id_to_name = {hero['id']: hero['name'] for hero in heroes_response}  # 'name' is like 'npc_dota_hero_antimage'
     hero_id_to_localized_name = {hero['id']: hero['localized_name'] for hero in heroes_response}
     hero_ids = list(hero_id_to_name.keys())
+
+    # Verify hero pools against fetched heroes
+    for pool_name, hero_list in hero_pools.items():
+        for hero in hero_list:
+            if hero.lower().replace(' ', '-') not in hero_name_to_id:
+                print(f"Warning: Hero '{hero}' in pool '{pool_name}' does not match any fetched heroes.")
 
     # Create a sorted list of (hero_name, hero_id) tuples for alphabetical ordering
     hero_names_and_ids = sorted([(hero_id_to_localized_name[hero_id], hero_id) for hero_id in hero_ids])
@@ -150,31 +170,164 @@ def main():
         outfile.write('<html><head><title>Team Analyzer</title>\n')
         outfile.write('<style>\n')
         # CSS Styles
-        outfile.write('body { font-family: Arial, sans-serif; background-color: #1e1e1e; color: #f0f0f0; }\n')
-        outfile.write('.container { width: 80%; margin: 0 auto; }\n')
-        outfile.write('.player-selection { margin: 20px 0; }\n')
-        outfile.write('.player-selection h3 { text-align: center; }\n')
-        outfile.write('.player-grid { display: flex; flex-wrap: wrap; justify-content: center; }\n')
-        outfile.write('.player-item { width: 120px; height: 50px; margin: 5px; line-height: 50px; text-align: center; background-color: #555; color: #ccc; cursor: pointer; border-radius: 5px; user-select: none; font-size: 14px; }\n')
-        outfile.write('.player-item.selected { background-color: #4a7a4a; color: #fff; }\n')
-        outfile.write('.player-item.unselected { background-color: #555; color: #ccc; }\n')
-        outfile.write('.timeframe-selection { text-align: center; margin: 20px 0; }\n')
-        outfile.write('.timeframe-selection select { font-size: 16px; padding: 5px; }\n')
-        outfile.write('table { width: 80%; border-collapse: collapse; margin: 20px auto; }\n')
-        outfile.write('th, td { border: 1px solid #555; padding: 8px; text-align: center; }\n')
-        outfile.write('th { background-color: #333; color: #f0f0f0; cursor: pointer; }\n')
-        outfile.write('tr:nth-child(even) { background-color: #2e2e2e; }\n')
-        outfile.write('tr:nth-child(odd) { background-color: #262626; }\n')
-        outfile.write('.report-timestamp { text-align: left; font-size: 14px; color: #ccc; margin: 10px 0; }\n')
-        outfile.write('.suggested-bans { margin: 20px 0; }\n')  # Added margin to top and bottom
-        outfile.write('.suggested-bans h2 { text-align: center; }\n')
-        outfile.write('.suggested-bans-grid { display: flex; flex-wrap: wrap; justify-content: center; }\n')
-        outfile.write('.hero-item { position: relative; width: 80px; margin: 5px; }\n')
-        outfile.write('.hero-image { width: 100%; object-fit: cover; height: 80px; }\n')
-        outfile.write('.hero-name { text-align: center; margin-top: 5px; color: #ccc; font-size: 12px; }\n')
-        
-        # **New CSS for Custom Tooltips**
         outfile.write('''
+body {
+    font-family: Arial, sans-serif;
+    background-color: #1e1e1e;
+    color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 90%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.selection-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 20px; /* Space between the select elements */
+    margin: 20px 0;
+}
+
+.selection-row .selection-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.selection-row .selection-group h3 {
+    margin-bottom: 5px;
+}
+
+.player-selection {
+    margin: 20px 0;
+}
+
+.player-selection h3 {
+    text-align: center;
+}
+
+.player-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.player-item {
+    width: 120px;
+    height: 50px;
+    margin: 5px;
+    line-height: 50px;
+    text-align: center;
+    background-color: #555;
+    color: #ccc;
+    cursor: pointer;
+    border-radius: 5px;
+    user-select: none;
+    font-size: 14px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.player-item.selected {
+    background-color: #4a7a4a;
+    color: #fff;
+}
+
+.player-item.unselected {
+    background-color: #555;
+    color: #ccc;
+}
+
+.timeframe-selection select,
+.hero-pool-selection select {
+    font-size: 16px;
+    padding: 5px;
+    border: none;
+    border-radius: 4px;
+    background-color: #333;
+    color: #f0f0f0;
+    cursor: pointer;
+    width: 200px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.timeframe-selection select:hover,
+.hero-pool-selection select:hover {
+    background-color: #444;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px auto;
+}
+
+th, td {
+    border: 1px solid #555;
+    padding: 8px;
+    text-align: center;
+}
+
+th {
+    background-color: #333;
+    color: #f0f0f0;
+    cursor: pointer;
+}
+
+tr:nth-child(even) {
+    background-color: #2e2e2e;
+}
+
+tr:nth-child(odd) {
+    background-color: #262626;
+}
+
+.report-timestamp {
+    text-align: left;
+    font-size: 14px;
+    color: #ccc;
+    margin: 10px 0;
+}
+
+.suggested-bans {
+    margin: 20px 0;
+}
+
+.suggested-bans h2 {
+    text-align: center;
+}
+
+.suggested-bans-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.hero-item {
+    position: relative;
+    width: 80px;
+    margin: 5px;
+}
+
+.hero-image {
+    width: 100%;
+    object-fit: cover;
+    height: 80px;
+    border-radius: 4px;
+}
+
+.hero-name {
+    text-align: center;
+    margin-top: 5px;
+    color: #ccc;
+    font-size: 12px;
+}
+
 /* Custom Tooltip Styles */
 .hero-item .tooltip {
     visibility: hidden;
@@ -197,7 +350,39 @@ def main():
 .hero-item:hover .tooltip {
     visibility: visible;
 }
-''')
+
+@media (max-width: 600px) {
+    .selection-row {
+        flex-direction: column;
+    }
+
+    .timeframe-selection select,
+    .hero-pool-selection select {
+        width: 100%;
+    }
+}
+
+.download-button {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.download-button button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #333;
+    color: #f0f0f0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.download-button button:hover {
+    background-color: #444;
+}
+        ''')
         outfile.write('</style>\n')
         # JavaScript Code
         outfile.write('<script>\n')
@@ -219,7 +404,7 @@ def main():
             escaped_hero_name = hero_name.replace('"', '\\"')
             escaped_dota_name = hero_id_to_name[hero_id].replace('"', '\\"')
             outfile.write(f'heroNames[{hero_id}] = "{escaped_hero_name}";\n')
-            outfile.write(f'heroNameToId["{escaped_hero_name}"] = {hero_id};\n')
+            outfile.write(f'heroNameToId["{escaped_hero_name.lower().replace(" ", "-")}"] = {hero_id};\n')
             outfile.write(f'heroIdToDotaName[{hero_id}] = "{escaped_dota_name}";\n')
         # Modify playerHeroStats to include games, wins, winrate, and score
         outfile.write('let playerHeroStats = {};\n')
@@ -243,6 +428,22 @@ def main():
         outfile.write('    "last_2_years": 1.7,\n')
         outfile.write('    "last_9_months": 1.5\n')
         outfile.write('};\n')
+
+        # Pass hero pools to JavaScript
+        outfile.write('let heroPools = {};\n')
+        for pool_name, hero_list in hero_pools.items():
+            outfile.write(f'heroPools["{pool_name}"] = [\n')
+            for hero in hero_list:
+                # Ensure hero names match the mapping (lowercase with dashes)
+                escaped_hero = hero.replace('"', '\\"')
+                outfile.write(f'    "{escaped_hero}",\n')
+            outfile.write('];\n')
+        # Function to convert hero pool names to hero IDs
+        outfile.write('let heroPoolsIds = {};\n')
+        outfile.write('for (let pool in heroPools) {\n')
+        outfile.write('    heroPoolsIds[pool] = heroPools[pool].map(heroName => heroNameToId[heroName]);\n')
+        outfile.write('}\n')
+
         # Function to update the report
         outfile.write('function updateReport() {\n')
         outfile.write('    let selectedPlayers = [];\n')
@@ -254,9 +455,17 @@ def main():
         outfile.write('    }\n')
         outfile.write('    let timeFrameSelect = document.getElementById("timeFrameSelect");\n')
         outfile.write('    let selectedTimeFrame = timeFrameSelect.value;\n')
+        outfile.write('    let heroPoolSelect = document.getElementById("heroPoolSelect");\n')
+        outfile.write('    let selectedHeroPool = heroPoolSelect.value;\n')
+        outfile.write('    let heroIdsToConsider = [];\n')
+        outfile.write('    if (selectedHeroPool === "all_heroes") {\n')
+        outfile.write('        heroIdsToConsider = Object.keys(heroNames);\n')
+        outfile.write('    } else {\n')
+        outfile.write('        heroIdsToConsider = heroPoolsIds[selectedHeroPool];\n')
+        outfile.write('    }\n')
         outfile.write('    let combinedScores = {};\n')
         outfile.write('    let suggestedBans = {};\n')  # Changed from Set to Object
-        outfile.write('    for (let heroId in heroNames) {\n')
+        outfile.write('    for (let heroId of heroIdsToConsider) {\n')
         outfile.write('        let totalScore = 0;\n')
         outfile.write('        for (let playerId of selectedPlayers) {\n')
         outfile.write('            let playerStats = playerHeroStats[selectedTimeFrame][playerId][heroId];\n')
@@ -331,7 +540,50 @@ def main():
         outfile.write('        cellHero.textContent = heroNames[entry.heroId];\n')
         outfile.write('        cellScore.textContent = entry.score.toFixed(4);\n')
         outfile.write('    }\n')
+        # Remove call to generateDownloadJSON() here
         outfile.write('}\n')
+
+        # Function to generate and download JSON
+        outfile.write('function generateDownloadJSON() {\n')
+        outfile.write('    let heroTableBody = document.getElementById("heroTableBody");\n')
+        outfile.write('    let heroRows = heroTableBody.getElementsByTagName("tr");\n')
+        outfile.write('    let orderedHeroIds = [];\n')
+        outfile.write('    for (let row of heroRows) {\n')
+        outfile.write('        let heroName = row.cells[0].textContent;\n')
+        outfile.write('        let heroId = Object.keys(heroNames).find(id => heroNames[id] === heroName);\n')
+        outfile.write('        if (heroId) {\n')
+        outfile.write('            orderedHeroIds.push(parseInt(heroId));\n')
+        outfile.write('        }\n')
+        outfile.write('    }\n')
+        outfile.write('    let categoryConfig = {\n')
+        outfile.write('        "category_name": "All Heroes",\n')
+        outfile.write('        "x_position": 0.0,\n')
+        outfile.write('        "y_position": 0.0,\n')
+        outfile.write('        "width": 1000.0,\n')
+        outfile.write('        "height": 1000.0,\n')
+        outfile.write('        "hero_ids": orderedHeroIds\n')
+        outfile.write('    };\n')
+        outfile.write('    let gridJSON = {\n')
+        outfile.write('        "version": 3,\n')
+        outfile.write('        "configs": [\n')
+        outfile.write('            {\n')
+        outfile.write('                "config_name": "team_analyzer_grid",\n')
+        outfile.write('                "categories": [categoryConfig]\n')
+        outfile.write('            }\n')
+        outfile.write('        ]\n')
+        outfile.write('    };\n')
+        outfile.write('    let jsonString = JSON.stringify(gridJSON, null, 4);\n')
+        outfile.write('    let blob = new Blob([jsonString], {type: "application/json"});\n')
+        outfile.write('    let url = URL.createObjectURL(blob);\n')
+        outfile.write('    let a = document.createElement("a");\n')
+        outfile.write('    a.href = url;\n')
+        outfile.write('    a.download = "hero_grid.json";\n')
+        outfile.write('    document.body.appendChild(a);\n')
+        outfile.write('    a.click();\n')
+        outfile.write('    document.body.removeChild(a);\n')
+        outfile.write('    URL.revokeObjectURL(url);\n')
+        outfile.write('}\n')
+
         # Event Listeners
         outfile.write('function togglePlayerSelection(event) {\n')
         outfile.write('    let playerDiv = event.currentTarget;\n')
@@ -350,7 +602,6 @@ def main():
         outfile.write('        let playerDiv = document.createElement("div");\n')
         outfile.write('        playerDiv.classList.add("player-item", "unselected");\n')
         outfile.write('        playerDiv.id = `player-${player.id}`;\n')  # Assign unique ID for each player
-        outfile.write('        // Limit player name to 15 characters\n')
         outfile.write('        let playerName = player.name;\n')
         outfile.write('        if (playerName.length > 15) {\n')
         outfile.write('            playerName = playerName.substring(0, 15) + "...";\n')
@@ -359,8 +610,30 @@ def main():
         outfile.write('        playerDiv.addEventListener("click", togglePlayerSelection);\n')
         outfile.write('        playerGrid.appendChild(playerDiv);\n')
         outfile.write('    }\n')
+        # Create Hero Pool Dropdown
+        outfile.write('    let heroPoolSelect = document.getElementById("heroPoolSelect");\n')
+        outfile.write('    for (let pool in heroPools) {\n')
+        outfile.write('        let option = document.createElement("option");\n')
+        outfile.write('        option.value = pool;\n')
+        outfile.write('        option.textContent = pool;\n')
+        outfile.write('        heroPoolSelect.appendChild(option);\n')
+        outfile.write('    }\n')
+        outfile.write('    let allOption = document.createElement("option");\n')
+        outfile.write('    allOption.value = "all_heroes";\n')
+        outfile.write('    allOption.textContent = "All Heroes";\n')
+        outfile.write('    heroPoolSelect.insertBefore(allOption, heroPoolSelect.firstChild);\n')
+        outfile.write('    heroPoolSelect.value = "all_heroes";\n')
+        outfile.write('    heroPoolSelect.addEventListener("change", updateReport);\n')
         outfile.write('    let timeFrameSelect = document.getElementById("timeFrameSelect");\n')
         outfile.write('    timeFrameSelect.addEventListener("change", updateReport);\n')
+        # Add Download Button
+        outfile.write('    let downloadDiv = document.createElement("div");\n')
+        outfile.write('    downloadDiv.classList.add("download-button");\n')
+        outfile.write('    let downloadButton = document.createElement("button");\n')
+        outfile.write('    downloadButton.textContent = "Download Hero Grid JSON";\n')
+        outfile.write('    downloadButton.addEventListener("click", generateDownloadJSON);\n')
+        outfile.write('    downloadDiv.appendChild(downloadButton);\n')
+        outfile.write('    document.querySelector(".container").appendChild(downloadDiv);\n')
         outfile.write('    updateReport();\n')
         outfile.write('};\n')
         outfile.write('</script>\n')
@@ -368,14 +641,24 @@ def main():
         outfile.write('<div class="container">\n')
         outfile.write(f'<div class="report-timestamp">Report generated: {report_generated_time}</div>\n')
         outfile.write('<h1 style="text-align:center;">Team Analyzer</h1>\n')
+        # Selection Row: Time Frame and Hero Pool
+        outfile.write('<div class="selection-row">\n')
         # Time Frame Selection
-        outfile.write('<div class="timeframe-selection">\n')
-        outfile.write('<h3>Time Frame:</h3>\n')
-        outfile.write('<select id="timeFrameSelect">\n')
-        outfile.write('<option value="all_time">All Time</option>\n')
-        outfile.write('<option value="last_2_years">Last 2 Years</option>\n')
-        outfile.write('<option value="last_9_months">Last 9 Months</option>\n')
-        outfile.write('</select>\n')
+        outfile.write('    <div class="selection-group timeframe-selection">\n')
+        outfile.write('        <h3>Time Frame:</h3>\n')
+        outfile.write('        <select id="timeFrameSelect">\n')
+        outfile.write('            <option value="all_time">All Time</option>\n')
+        outfile.write('            <option value="last_2_years">Last 2 Years</option>\n')
+        outfile.write('            <option value="last_9_months">Last 9 Months</option>\n')
+        outfile.write('        </select>\n')
+        outfile.write('    </div>\n')
+        # Hero Pool Selection
+        outfile.write('    <div class="selection-group hero-pool-selection">\n')
+        outfile.write('        <h3>Select Hero Pool:</h3>\n')
+        outfile.write('        <select id="heroPoolSelect">\n')
+        outfile.write('            <!-- Options will be populated by JavaScript -->\n')
+        outfile.write('        </select>\n')
+        outfile.write('    </div>\n')
         outfile.write('</div>\n')
         # Player Selection
         outfile.write('<div class="player-selection">\n')
