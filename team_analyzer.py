@@ -449,7 +449,7 @@ tr:nth-child(odd) {
         outfile.write('}\n')
         # Time frame weights for 'combined'
         outfile.write('let timeFrameWeights = {\n')
-        outfile.write('    "1_month": 5,\n')
+        outfile.write('    "1_month": 2,\n')
         outfile.write('    "6_months": 4,\n')
         outfile.write('    "1_year": 3,\n')
         outfile.write('    "2_years": 2,\n')
@@ -505,11 +505,10 @@ tr:nth-child(odd) {
         outfile.write('                        }\n')
         outfile.write('                    }\n')
         outfile.write('                }\n')
-        outfile.write('                totalScore += (playerTotalScore / totalWeight);\n')
+        outfile.write('                totalScore += Math.pow((playerTotalScore / totalWeight), 5) / 6;\n')
         outfile.write('            }\n')
         # Adjust totalScore as per point 3
         outfile.write('            if (totalScore > 0) {\n')
-        outfile.write('                totalScore = Math.pow(totalScore, 3) / 3;\n')
         outfile.write('                combinedScores[heroId] = totalScore;\n')
         outfile.write('            }\n')
         outfile.write('        }\n')

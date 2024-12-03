@@ -34448,7 +34448,7 @@ for (let pool in heroPools) {
     heroPoolsIds[pool] = heroPools[pool].map(heroName => heroNameToId[heroName]);
 }
 let timeFrameWeights = {
-    "1_month": 5,
+    "1_month": 2,
     "6_months": 4,
     "1_year": 3,
     "2_years": 2,
@@ -34501,10 +34501,9 @@ function updateReport() {
                         }
                     }
                 }
-                totalScore += (playerTotalScore / totalWeight);
+                totalScore += Math.pow((playerTotalScore / totalWeight), 5) / 6;
             }
             if (totalScore > 0) {
-                totalScore = Math.pow(totalScore, 3) / 3;
                 combinedScores[heroId] = totalScore;
             }
         }
@@ -34686,7 +34685,7 @@ window.onload = function() {
 </script>
 </head><body>
 <div class="container">
-<div class="report-timestamp">Report generated: 2024-12-03 10:09:37</div>
+<div class="report-timestamp">Report generated: 2024-12-03 10:34:54</div>
 <h1 style="text-align:center;">Team Analyzer</h1>
 <div class="selection-row">
     <div class="selection-group timeframe-selection">
