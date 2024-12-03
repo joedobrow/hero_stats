@@ -137,8 +137,10 @@ def main():
     player_hero_stats = {}
     TIME_FRAMES = {
         'all_time': None,
-        'last_2_years': 730,
-        'last_9_months': 270,
+        '2_years': 730,
+        '1_year': 365,
+        '6_months': 180,
+        '1_month': 30,
     }
 
     for player in players:
@@ -425,8 +427,10 @@ tr:nth-child(odd) {
         # Thresholds
         outfile.write('let thresholds = {\n')
         outfile.write('    "all_time": 1.9,\n')
-        outfile.write('    "last_2_years": 1.7,\n')
-        outfile.write('    "last_9_months": 1.5\n')
+        outfile.write('    "2_years": 1.7,\n')
+        outfile.write('    "1_year": 1.6,\n')
+        outfile.write('    "6_months": 1.5,\n')
+        outfile.write('    "1_month": 1.4\n')
         outfile.write('};\n')
 
         # Pass hero pools to JavaScript
@@ -443,6 +447,14 @@ tr:nth-child(odd) {
         outfile.write('for (let pool in heroPools) {\n')
         outfile.write('    heroPoolsIds[pool] = heroPools[pool].map(heroName => heroNameToId[heroName]);\n')
         outfile.write('}\n')
+        # Time frame weights for 'combined'
+        outfile.write('let timeFrameWeights = {\n')
+        outfile.write('    "1_month": 5,\n')
+        outfile.write('    "6_months": 4,\n')
+        outfile.write('    "1_year": 3,\n')
+        outfile.write('    "2_years": 2,\n')
+        outfile.write('    "all_time": 1\n')
+        outfile.write('};\n')
 
         # Function to update the report
         outfile.write('function updateReport() {\n')
@@ -464,29 +476,67 @@ tr:nth-child(odd) {
         outfile.write('        heroIdsToConsider = heroPoolsIds[selectedHeroPool];\n')
         outfile.write('    }\n')
         outfile.write('    let combinedScores = {};\n')
-        outfile.write('    let suggestedBans = {};\n')  # Changed from Set to Object
-        outfile.write('    for (let heroId of heroIdsToConsider) {\n')
-        outfile.write('        let totalScore = 0;\n')
-        outfile.write('        for (let playerId of selectedPlayers) {\n')
-        outfile.write('            let playerStats = playerHeroStats[selectedTimeFrame][playerId][heroId];\n')
-        outfile.write('            if (playerStats && playerStats.score) {\n')
-        outfile.write('                let score = playerStats.score;\n')
-        outfile.write('                totalScore += score;\n')
-        outfile.write('                if (score >= thresholds[selectedTimeFrame]) {\n')
-        outfile.write('                    if (!suggestedBans[heroId]) {\n')
-        outfile.write('                        suggestedBans[heroId] = [];\n')
+        outfile.write('    let suggestedBans = {};\n')
+        outfile.write('    if (selectedTimeFrame === "combined") {\n')
+        # Combined time frame logic
+        outfile.write('        for (let heroId of heroIdsToConsider) {\n')
+        outfile.write('            let totalScore = 0;\n')
+        outfile.write('            for (let playerId of selectedPlayers) {\n')
+        outfile.write('                let playerTotalScore = 0;\n')
+        outfile.write('                let totalWeight = 0;\n')
+        outfile.write('                for (let tf in timeFrameWeights) {\n')
+        outfile.write('                    let weight = timeFrameWeights[tf];\n')
+        outfile.write('                    totalWeight += weight;\n')
+        outfile.write('                    let playerStats = playerHeroStats[tf][playerId][heroId];\n')
+        outfile.write('                    if (playerStats && playerStats.score) {\n')
+        outfile.write('                        let score = playerStats.score;\n')
+        outfile.write('                        playerTotalScore += weight * score;\n')
+        outfile.write('                        if (score >= thresholds[tf]) {\n')
+        outfile.write('                            if (!suggestedBans[heroId]) {\n')
+        outfile.write('                                suggestedBans[heroId] = [];\n')
+        outfile.write('                            }\n')
+        outfile.write('                            suggestedBans[heroId].push({\n')
+        outfile.write('                                playerId: playerId,\n')
+        outfile.write('                                playerName: players.find(p => p.id === playerId).name,\n')
+        outfile.write('                                games: playerStats.games,\n')
+        outfile.write('                                wins: playerStats.wins,\n')
+        outfile.write('                                winrate: (playerStats.winrate * 100).toFixed(2)\n')
+        outfile.write('                            });\n')
+        outfile.write('                        }\n')
         outfile.write('                    }\n')
-        outfile.write('                    suggestedBans[heroId].push({\n')
-        outfile.write('                        playerId: playerId,\n')
-        outfile.write('                        playerName: players.find(p => p.id === playerId).name,\n')
-        outfile.write('                        games: playerStats.games,\n')
-        outfile.write('                        wins: playerStats.wins,\n')
-        outfile.write('                        winrate: (playerStats.winrate * 100).toFixed(2)\n')
-        outfile.write('                    });\n')
         outfile.write('                }\n')
+        outfile.write('                totalScore += (playerTotalScore / totalWeight);\n')
+        outfile.write('            }\n')
+        # Adjust totalScore as per point 3
+        outfile.write('            if (totalScore > 0) {\n')
+        outfile.write('                totalScore = Math.pow(totalScore, 3) / 3;\n')
+        outfile.write('                combinedScores[heroId] = totalScore;\n')
         outfile.write('            }\n')
         outfile.write('        }\n')
-        outfile.write('        if (totalScore > 0) {\n')
+        outfile.write('    } else {\n')
+        # Existing logic for other time frames
+        outfile.write('        for (let heroId of heroIdsToConsider) {\n')
+        outfile.write('            let totalScore = 0;\n')
+        outfile.write('            for (let playerId of selectedPlayers) {\n')
+        outfile.write('                let playerStats = playerHeroStats[selectedTimeFrame][playerId][heroId];\n')
+        outfile.write('                if (playerStats && playerStats.score) {\n')
+        outfile.write('                    let score = playerStats.score;\n')
+        outfile.write('                    totalScore += score;\n')
+        outfile.write('                    if (score >= thresholds[selectedTimeFrame]) {\n')
+        outfile.write('                        if (!suggestedBans[heroId]) {\n')
+        outfile.write('                            suggestedBans[heroId] = [];\n')
+        outfile.write('                        }\n')
+        outfile.write('                        suggestedBans[heroId].push({\n')
+        outfile.write('                            playerId: playerId,\n')
+        outfile.write('                            playerName: players.find(p => p.id === playerId).name,\n')
+        outfile.write('                            games: playerStats.games,\n')
+        outfile.write('                            wins: playerStats.wins,\n')
+        outfile.write('                            winrate: (playerStats.winrate * 100).toFixed(2)\n')
+        outfile.write('                        });\n')
+        outfile.write('                    }\n')
+        outfile.write('                }\n')
+        outfile.write('            }\n')
+        # Adjust totalScore as per point 3
         outfile.write('            combinedScores[heroId] = totalScore;\n')
         outfile.write('        }\n')
         outfile.write('    }\n')
@@ -540,7 +590,6 @@ tr:nth-child(odd) {
         outfile.write('        cellHero.textContent = heroNames[entry.heroId];\n')
         outfile.write('        cellScore.textContent = entry.score.toFixed(4);\n')
         outfile.write('    }\n')
-        # Remove call to generateDownloadJSON() here
         outfile.write('}\n')
 
         # Function to generate and download JSON
@@ -625,6 +674,22 @@ tr:nth-child(odd) {
         outfile.write('    heroPoolSelect.value = "all_heroes";\n')
         outfile.write('    heroPoolSelect.addEventListener("change", updateReport);\n')
         outfile.write('    let timeFrameSelect = document.getElementById("timeFrameSelect");\n')
+        # Update time frame options
+        outfile.write('    let timeFrames = ["all_time", "2_years", "1_year", "6_months", "1_month", "combined"];\n')
+        outfile.write('    let timeFrameNames = {\n')
+        outfile.write('        "all_time": "All Time",\n')
+        outfile.write('        "2_years": "Last 2 Years",\n')
+        outfile.write('        "1_year": "Last 1 Year",\n')
+        outfile.write('        "6_months": "Last 6 Months",\n')
+        outfile.write('        "1_month": "Last 1 Month",\n')
+        outfile.write('        "combined": "Combined"\n')
+        outfile.write('    };\n')
+        outfile.write('    for (let tf of timeFrames) {\n')
+        outfile.write('        let option = document.createElement("option");\n')
+        outfile.write('        option.value = tf;\n')
+        outfile.write('        option.textContent = timeFrameNames[tf];\n')
+        outfile.write('        timeFrameSelect.appendChild(option);\n')
+        outfile.write('    }\n')
         outfile.write('    timeFrameSelect.addEventListener("change", updateReport);\n')
         # Add Download Button
         outfile.write('    let downloadDiv = document.createElement("div");\n')
@@ -647,9 +712,7 @@ tr:nth-child(odd) {
         outfile.write('    <div class="selection-group timeframe-selection">\n')
         outfile.write('        <h3>Time Frame:</h3>\n')
         outfile.write('        <select id="timeFrameSelect">\n')
-        outfile.write('            <option value="all_time">All Time</option>\n')
-        outfile.write('            <option value="last_2_years">Last 2 Years</option>\n')
-        outfile.write('            <option value="last_9_months">Last 9 Months</option>\n')
+        outfile.write('            <!-- Options will be populated by JavaScript -->\n')
         outfile.write('        </select>\n')
         outfile.write('    </div>\n')
         # Hero Pool Selection
