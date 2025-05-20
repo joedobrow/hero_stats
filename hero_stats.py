@@ -19,32 +19,6 @@ TIME_FRAMES = {
     'last_9_months': (datetime.now() - timedelta(days=270)).strftime('%Y-%m-%d'),
 }
 
-# Mapping of rank_tier to medal names
-RANK_TIER_MAP = {
-    1: 'Herald I',
-    2: 'Herald II',
-    3: 'Herald III',
-    4: 'Guardian I',
-    5: 'Guardian II',
-    6: 'Guardian III',
-    7: 'Crusader I',
-    8: 'Crusader II',
-    9: 'Crusader III',
-    10: 'Archon I',
-    11: 'Archon II',
-    12: 'Archon III',
-    13: 'Legend I',
-    14: 'Legend II',
-    15: 'Legend III',
-    16: 'Ancient I',
-    17: 'Ancient II',
-    18: 'Ancient III',
-    19: 'Divine I',
-    20: 'Divine II',
-    21: 'Divine III',
-    22: 'Immortal'
-}
-
 def load_api_key():
     global API_KEY
     properties_file = 'opendota.properties'
@@ -291,8 +265,7 @@ def process_players(input_csv, output_html, refresh=False):
                         'discomfort_factor': 'N/A',
                         'versatility_factor': 'N/A',
                         'role_diversity_factor': 'N/A',
-                        'aggregated_value': 'N/A',
-                        'medal': 'N/A'  # Added medal as N/A
+                        'aggregated_value': 'N/A'
                     }
                 players_data[name] = player_info
                 continue
@@ -314,7 +287,6 @@ def process_players(input_csv, output_html, refresh=False):
                     counts_data = player_data['counts']
                     player_info_api = player_data.get('player_info', {})
                     rank_tier = player_info_api.get('rank_tier')
-                    medal = RANK_TIER_MAP.get(rank_tier, 'Unranked') if rank_tier else 'N/A'
 
                     total_games_played = sum(hero['games'] for hero in hero_stats)
 
@@ -336,7 +308,6 @@ def process_players(input_csv, output_html, refresh=False):
 
                     aggregated_value = calculate_aggregated_value(data_dict)
                     data_dict['aggregated_value'] = aggregated_value
-                    data_dict['medal'] = medal  # Add medal to data_dict
 
                     player_info['data'][time_frame_name] = data_dict
                 else:
@@ -347,8 +318,7 @@ def process_players(input_csv, output_html, refresh=False):
                         'discomfort_factor': 'N/A',
                         'versatility_factor': 'N/A',
                         'role_diversity_factor': 'N/A',
-                        'aggregated_value': 'N/A',
-                        'medal': 'N/A'  # Added medal as N/A
+                        'aggregated_value': 'N/A'
                     }
             players_data[name] = player_info
 
@@ -379,7 +349,7 @@ def generate_html_report(players_data, output_html):
 
     # Generate HTML
     with open(output_html, 'w', encoding='utf-8') as outfile:
-        outfile.write('<html><head><title>PST-SUN Player Report</title>\n')  # Changed title here
+        outfile.write('<html><head><title>League of Lads Season 18 Player Report</title>\n')  # Changed title here
         outfile.write('<style>\n')
         outfile.write('body { font-family: Arial, sans-serif; background-color: #1e1e1e; color: #f0f0f0; position: relative; }\n')  # Added position relative for timestamp
         outfile.write('table { border-collapse: collapse; width: 80%; margin: 20px auto; }\n')
@@ -480,7 +450,7 @@ def generate_html_report(players_data, output_html):
         # Report generated timestamp
         outfile.write(f'<div class="report-timestamp">Report generated: {report_generated_time}</div>\n')
 
-        outfile.write('<h1 style="text-align:center;">PST-SUN Player Report</h1>\n')
+        outfile.write('<h1 style="text-align:center;">League of Lads Season 18 Player Report</h1>\n')
 
         # Time frame selection
         outfile.write('<div style="text-align:center; margin-bottom:20px;">\n')
@@ -503,7 +473,6 @@ def generate_html_report(players_data, output_html):
             outfile.write('<thead>\n')
             outfile.write('<tr>')
             outfile.write('<th>Player Name</th>')
-            outfile.write('<th>Medal</th>')  # Added Medal column
             outfile.write('<th>Games Played</th>')
             outfile.write('<th>Overall Winrate (%)</th>')
             outfile.write('<th>Winrate Excl. Top 20 Heroes (%)</th>')
@@ -520,10 +489,6 @@ def generate_html_report(players_data, output_html):
                 dotabuff_url = player_info.get('dotabuff_url', '#')
                 outfile.write('<tr>')
                 outfile.write(f"<td class='name-column'><a href='{dotabuff_url}' target='_blank'>{player_info['name']}</a></td>")
-                # Medal Column (No color gradient)
-                medal = data.get('medal', 'N/A')
-                outfile.write(f'<td>{medal}</td>')
-                # Apply color gradient to 'Games Played'
                 value = data['games_played']
                 if value != 'N/A':
                     val_float = float(value)

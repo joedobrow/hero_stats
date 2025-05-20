@@ -78,20 +78,11 @@ def load_cached_data(filename):
 def main():
     parser = argparse.ArgumentParser(description='Team Analyzer: Analyze Dota 2 team hero statistics.')
     parser.add_argument('players_csv', help='Path to the players CSV file')
-    parser.add_argument('hero_pools', help='Path to the hero_pools JSON file')
     parser.add_argument('-o', '--output', default='team_analyzer.html', help='Output HTML file name (default: team_analyzer.html)')
     parser.add_argument('--refresh', action='store_true', help='Force refresh of cached data')
     args = parser.parse_args()
 
     load_api_key()
-
-    # Load hero pools
-    if not os.path.exists(args.hero_pools):
-        print(f"Hero pools file {args.hero_pools} does not exist.")
-        return
-
-    with open(args.hero_pools, 'r', encoding='utf-8') as f:
-        hero_pools = json.load(f)
 
     players = []
     with open(args.players_csv, 'r', encoding='utf-8') as f:
@@ -124,12 +115,6 @@ def main():
     hero_id_to_name = {hero['id']: hero['name'] for hero in heroes_response}  # 'name' is like 'npc_dota_hero_antimage'
     hero_id_to_localized_name = {hero['id']: hero['localized_name'] for hero in heroes_response}
     hero_ids = list(hero_id_to_name.keys())
-
-    # Verify hero pools against fetched heroes
-    for pool_name, hero_list in hero_pools.items():
-        for hero in hero_list:
-            if hero.lower().replace(' ', '-') not in hero_name_to_id:
-                print(f"Warning: Hero '{hero}' in pool '{pool_name}' does not match any fetched heroes.")
 
     # Create a sorted list of (hero_name, hero_id) tuples for alphabetical ordering
     hero_names_and_ids = sorted([(hero_id_to_localized_name[hero_id], hero_id) for hero_id in hero_ids])
@@ -384,6 +369,11 @@ tr:nth-child(odd) {
 .download-button button:hover {
     background-color: #444;
 }
+
+.break {
+  flex-basis: 100%;
+  height: 0;
+}
         ''')
         outfile.write('</style>\n')
         # JavaScript Code
@@ -433,20 +423,6 @@ tr:nth-child(odd) {
         outfile.write('    "1_month": 1.4\n')
         outfile.write('};\n')
 
-        # Pass hero pools to JavaScript
-        outfile.write('let heroPools = {};\n')
-        for pool_name, hero_list in hero_pools.items():
-            outfile.write(f'heroPools["{pool_name}"] = [\n')
-            for hero in hero_list:
-                # Ensure hero names match the mapping (lowercase with dashes)
-                escaped_hero = hero.replace('"', '\\"')
-                outfile.write(f'    "{escaped_hero}",\n')
-            outfile.write('];\n')
-        # Function to convert hero pool names to hero IDs
-        outfile.write('let heroPoolsIds = {};\n')
-        outfile.write('for (let pool in heroPools) {\n')
-        outfile.write('    heroPoolsIds[pool] = heroPools[pool].map(heroName => heroNameToId[heroName]);\n')
-        outfile.write('}\n')
         # Time frame weights for 'combined'
         outfile.write('let timeFrameWeights = {\n')
         outfile.write('    "1_month": 2,\n')
@@ -467,14 +443,8 @@ tr:nth-child(odd) {
         outfile.write('    }\n')
         outfile.write('    let timeFrameSelect = document.getElementById("timeFrameSelect");\n')
         outfile.write('    let selectedTimeFrame = timeFrameSelect.value;\n')
-        outfile.write('    let heroPoolSelect = document.getElementById("heroPoolSelect");\n')
-        outfile.write('    let selectedHeroPool = heroPoolSelect.value;\n')
         outfile.write('    let heroIdsToConsider = [];\n')
-        outfile.write('    if (selectedHeroPool === "all_heroes") {\n')
-        outfile.write('        heroIdsToConsider = Object.keys(heroNames);\n')
-        outfile.write('    } else {\n')
-        outfile.write('        heroIdsToConsider = heroPoolsIds[selectedHeroPool];\n')
-        outfile.write('    }\n')
+        outfile.write('    heroIdsToConsider = Object.keys(heroNames);\n')
         outfile.write('    let combinedScores = {};\n')
         outfile.write('    let suggestedBans = {};\n')
         outfile.write('    if (selectedTimeFrame === "combined") {\n')
@@ -644,6 +614,38 @@ tr:nth-child(odd) {
         outfile.write('    }\n')
         outfile.write('    updateReport();\n')
         outfile.write('}\n')
+        with open('teams.json', 'r', encoding='utf-8') as tf:
+          teams_data = json.load(tf)
+
+        outfile.write(f"""
+        document.addEventListener('DOMContentLoaded', () => {{
+          let teams = {json.dumps(teams_data)};
+
+          const teamSelect = document.getElementById('teamSelect');
+          // populate dropdown
+          Object.keys(teams).forEach(teamName => {{
+            const opt = document.createElement('option');
+            opt.value = teamName;
+            opt.textContent = teamName;
+            teamSelect.appendChild(opt);
+          }});
+          // when the user picks a team, toggle those 5 players
+          teamSelect.addEventListener('change', () => {{
+            const selectedIds = teams[teamSelect.value] || [];
+            players.forEach(p => {{
+              const div = document.getElementById(`player-${{p.id}}`);
+              if (selectedIds.includes(p.name.toLowerCase())) {{
+                div.classList.add('selected');
+                div.classList.remove('unselected');
+              }} else {{
+                div.classList.remove('selected');
+                div.classList.add('unselected');
+              }}
+            }});
+            updateReport();
+          }});
+        }});
+        """)
         outfile.write('window.onload = function() {\n')
         outfile.write('    let playerGrid = document.querySelector(".player-grid");\n')
         outfile.write('    for (let player of players) {\n')
@@ -658,21 +660,6 @@ tr:nth-child(odd) {
         outfile.write('        playerDiv.addEventListener("click", togglePlayerSelection);\n')
         outfile.write('        playerGrid.appendChild(playerDiv);\n')
         outfile.write('    }\n')
-        # Create Hero Pool Dropdown
-        outfile.write('    let heroPoolSelect = document.getElementById("heroPoolSelect");\n')
-        outfile.write('    for (let pool in heroPools) {\n')
-        outfile.write('        let option = document.createElement("option");\n')
-        outfile.write('        option.value = pool;\n')
-        outfile.write('        option.textContent = pool;\n')
-        outfile.write('        heroPoolSelect.appendChild(option);\n')
-        outfile.write('    }\n')
-        outfile.write('    let allOption = document.createElement("option");\n')
-        outfile.write('    allOption.value = "all_heroes";\n')
-        outfile.write('    allOption.textContent = "All Heroes";\n')
-        outfile.write('    heroPoolSelect.insertBefore(allOption, heroPoolSelect.firstChild);\n')
-        outfile.write('    heroPoolSelect.value = "all_heroes";\n')
-        outfile.write('    heroPoolSelect.addEventListener("change", updateReport);\n')
-        outfile.write('    let timeFrameSelect = document.getElementById("timeFrameSelect");\n')
         # Update time frame options
         outfile.write('    let timeFrames = ["all_time", "2_years", "1_year", "6_months", "1_month", "combined"];\n')
         outfile.write('    let timeFrameNames = {\n')
@@ -707,6 +694,12 @@ tr:nth-child(odd) {
         outfile.write('<h1 style="text-align:center;">Team Analyzer</h1>\n')
         # Selection Row: Time Frame and Hero Pool
         outfile.write('<div class="selection-row">\n')
+        outfile.write('    <div class="selection-group timeframe-selection">\n')
+        outfile.write('        <h3>Team:</h3>\n')
+        outfile.write('        <select id="teamSelect">\n')
+        outfile.write('            <option value="">-- Select Team --</option>\n')
+        outfile.write('        </select>\n')
+        outfile.write('    </div>\n')
         # Time Frame Selection
         outfile.write('    <div class="selection-group timeframe-selection">\n')
         outfile.write('        <h3>Time Frame:</h3>\n')
@@ -714,14 +707,6 @@ tr:nth-child(odd) {
         outfile.write('            <!-- Options will be populated by JavaScript -->\n')
         outfile.write('        </select>\n')
         outfile.write('    </div>\n')
-        # Hero Pool Selection
-        outfile.write('    <div class="selection-group hero-pool-selection">\n')
-        outfile.write('        <h3>Select Hero Pool:</h3>\n')
-        outfile.write('        <select id="heroPoolSelect">\n')
-        outfile.write('            <!-- Options will be populated by JavaScript -->\n')
-        outfile.write('        </select>\n')
-        outfile.write('    </div>\n')
-        outfile.write('</div>\n')
         # Player Selection
         outfile.write('<div class="player-selection">\n')
         outfile.write('<h3>Select Players:</h3>\n')
@@ -731,11 +716,12 @@ tr:nth-child(odd) {
         outfile.write('</div>\n')
         # Suggested Bans (Moved above the hero table)
         outfile.write('<div class="suggested-bans">\n')
-        outfile.write('<h2>Suggested Bans</h2>\n')
+        outfile.write('<h2>Possible Bans</h2>\n')
         outfile.write('<div class="suggested-bans-grid" id="bansGrid">\n')
         # Bans will be populated by JavaScript
         outfile.write('</div>\n')
         outfile.write('</div>\n')
+        outfile.write('<div class="break"></div>')
         # Hero Table
         outfile.write('<div><h2 style="margin-top:20px; text-align: center;">Combined Hero Scores</h2></div>\n')
         outfile.write('<table>\n')
