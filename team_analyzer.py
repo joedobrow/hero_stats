@@ -617,6 +617,11 @@ tr:nth-child(odd) {
         with open('teams.json', 'r', encoding='utf-8') as tf:
           teams_data = json.load(tf)
 
+        teams_data = {
+          team: [ name.lower() for name in names ]
+          for team, names in teams_data.items()
+        }
+
         outfile.write(f"""
         document.addEventListener('DOMContentLoaded', () => {{
           let teams = {json.dumps(teams_data)};
