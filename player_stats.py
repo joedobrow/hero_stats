@@ -332,7 +332,7 @@ def generate_html_report(players_data, output_html):
 
     # Generate HTML
     with open(output_html, 'w', encoding='utf-8') as outfile:
-        outfile.write('<html><head><title>League of Lads Player Report</title>\n')  # Changed title here
+        outfile.write('<html><head><title>SEAL Player Report</title>\n')  # Changed title here
         outfile.write('<style>\n')
         outfile.write('body { font-family: Arial, sans-serif; background-color: #1e1e1e; color: #f0f0f0; }\n')
         outfile.write('table { border-collapse: collapse; width: 80%; margin: 20px auto; }\n')
@@ -422,7 +422,7 @@ def generate_html_report(players_data, output_html):
         outfile.write('};\n')
         outfile.write('</script>\n')
         outfile.write('</head><body>\n')
-        outfile.write('<h1 style="text-align:center;">League of Lads Player Report</h1>\n')
+        outfile.write('<h1 style="text-align:center;">SEAL Player Report</h1>\n')
 
         # Time frame selection
         outfile.write('<div style="text-align:center; margin-bottom:20px;">\n')

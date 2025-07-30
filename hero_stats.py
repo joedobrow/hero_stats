@@ -149,7 +149,7 @@ def main():
         out.write('<!DOCTYPE html>\n<html lang="en">\n<head>\n')
         out.write('  <meta charset="UTF-8">\n')
         out.write('  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n')
-        out.write('  <title>Lads Hero Report</title>\n')
+        out.write('  <title>Sealson Hero Report</title>\n')
         # Styles
         out.write('<style>\n')
         out.write('body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #1e1e1e; color: #f0f0f0; }\n')
@@ -190,7 +190,7 @@ def main():
         out.write('});\n')
         out.write('</script>\n')
         out.write('</head>\n<body>\n')
-        out.write(f'<h1>League of Lads Season 18 Hero Report</h1><p>Generated: {report_time}</p>\n')
+        out.write(f'<h1>Sealson 0 Hero Report</h1><p>Generated: {report_time}</p>\n')
         # Timeframe selector
         out.write('<div class="timeframe-container"><label for="timeFrameSelect">Time Frame:</label>')
         out.write('<select id="timeFrameSelect">\n')

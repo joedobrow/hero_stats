@@ -15,7 +15,7 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>League of Lads Season 18 Reports</title>
+    <title>Sealson 0 Reports</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Basic CSS Styling -->
     <style>
@@ -112,7 +112,7 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
 <body>
     <div class="report-timestamp">Last Updated: {last_updated}</div>
     <div class="container">
-        <h1>League of Lads Season 18 Reports</h1>
+        <h1>Sealson 0 Reports</h1>
         
         <div class="report-box">
             <a href="hero_report.html" class="report-link">
