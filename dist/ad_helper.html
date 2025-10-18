@@ -116,20 +116,112 @@ const countP = $("countPairs");
 
 const sel = new Set();
 
-// --- Autocomplete (names only)
+// --- Canonicalize names (normalize punctuation/spacing)
+function canon(s) {
+  return String(s || "")
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2013\u2014]/g, "-")
+    .replace(/[._]/g, " ")
+    .replace(/[^\w\s'-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Ability owners for current selection: canon(ability) -> Set(canon(hero))
+let abilityOwners = new Map();
+
+// --- Autocomplete (names only) with prefix matching + proper arrow selection
 let ddItems = [], ddIndex = -1;
-function filterHeroes(q) { q=q.trim().toLowerCase(); if(!q) return HEROES.slice(0,50); return HEROES.filter(h=>h.toLowerCase().includes(q)).slice(0,50); }
-function openDD(items) { dd.innerHTML = items.map((h,i)=>`<div class="opt${i===ddIndex?' active':''}" data-v="${escapeAttr(h)}">${escapeHtml(h)}</div>`).join(""); dd.style.display = items.length ? "block":"none"; ddItems=items; ddIndex=items.length?0:-1; }
-function closeDD() { dd.style.display="none"; ddItems=[]; ddIndex=-1; }
-dd.addEventListener("mousedown", (e)=>{ const opt=e.target.closest(".opt"); if(!opt) return; heroInput.value=opt.dataset.v; addBtn.click(); closeDD(); });
+
+function filterHeroes(q) {
+  q = q.trim().toLowerCase();
+  if (!q) return HEROES.slice(0, 50);
+  return HEROES.filter(h => h.toLowerCase().startsWith(q)).slice(0, 50);
+}
+
+function renderDD() {
+  dd.innerHTML = ddItems.map((h,i)=>`<div class="opt${i===ddIndex?' active':''}" data-v="${escapeAttr(h)}">${escapeHtml(h)}</div>`).join("");
+  dd.style.display = ddItems.length ? "block" : "none";
+}
+
+function openDD(items) {
+  ddItems = items || [];
+  if (!ddItems.length) {
+    ddIndex = -1;
+  } else if (ddIndex < 0) {
+    ddIndex = 0;
+  } else if (ddIndex >= ddItems.length) {
+    ddIndex = ddItems.length - 1;
+  }
+  renderDD();
+}
+
+function closeDD() {
+  dd.style.display = "none";
+  ddItems = [];
+  ddIndex = -1;
+}
+
+dd.addEventListener("mousedown", (e)=>{ 
+  const opt = e.target.closest(".opt"); 
+  if (!opt) return; 
+  heroInput.value = opt.dataset.v; 
+  addBtn.click(); 
+  closeDD(); 
+});
+
+dd.addEventListener("mousemove", (e)=>{
+  const opt = e.target.closest(".opt"); 
+  if (!opt) return;
+  const idx = Array.prototype.indexOf.call(dd.children, opt);
+  if (idx >= 0 && idx !== ddIndex) { ddIndex = idx; renderDD(); }
+});
+
 heroInput.addEventListener("input", ()=>openDD(filterHeroes(heroInput.value)));
-heroInput.addEventListener("keydown", (e)=>{ if(dd.style.display!=="block") return; if(e.key==="ArrowDown"){e.preventDefault(); ddIndex=Math.min(ddIndex+1,ddItems.length-1); openDD(ddItems);} else if(e.key==="ArrowUp"){e.preventDefault(); ddIndex=Math.max(ddIndex-1,0); openDD(ddItems);} else if(e.key==="Enter"){e.preventDefault(); if(ddIndex>=0){heroInput.value=ddItems[ddIndex]; addBtn.click(); closeDD();}} else if(e.key==="Escape"){closeDD();} });
+
+heroInput.addEventListener("keydown", (e)=>{
+  if (dd.style.display === "block") {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (ddItems.length) { ddIndex = Math.min(ddIndex + 1, ddItems.length - 1); renderDD(); }
+      return;
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (ddItems.length) { ddIndex = Math.max(ddIndex - 1, 0); renderDD(); }
+      return;
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (ddIndex >= 0) { heroInput.value = ddItems[ddIndex]; addBtn.click(); closeDD(); }
+      return;
+    } else if (e.key === "Escape") {
+      closeDD();
+      return;
+    }
+  }
+  // Enter with dropdown closed = add current text if exact hero
+  if (e.key === "Enter" && dd.style.display !== "block") {
+    addBtn.click();
+  }
+});
+
 document.addEventListener("click",(e)=>{ if(!e.target.closest(".control")) closeDD(); });
 
 // --- Selection
-addBtn.onclick = () => { const name = heroInput.value.trim(); if(!name) return; if(!DATA[name]){alert("Unknown hero.");return;} if(sel.has(name)){heroInput.value="";return;} if(sel.size>=MAX){alert("You already picked 12 heroes.");return;} sel.add(name); heroInput.value=""; closeDD(); render(); };
+addBtn.onclick = () => { 
+  const name = heroInput.value.trim(); 
+  if (!name) return; 
+  if (!DATA[name]) { alert("Unknown hero."); return; } 
+  if (sel.has(name)) { heroInput.value=""; return; } 
+  if (sel.size >= MAX) { alert("You already picked 12 heroes."); return; } 
+  sel.add(name); 
+  heroInput.value=""; 
+  closeDD(); 
+  render(); 
+};
 clearBtn.onclick = () => { sel.clear(); render(); };
-heroInput.addEventListener("keydown",(e)=>{ if(e.key==="Enter" && dd.style.display!=="block") addBtn.click(); });
 
 // --- Collect Abilities (for selected heroes)
 function collectAbilities() {
@@ -163,25 +255,75 @@ function collectAbilities() {
   return [...map.values()];
 }
 
+// --- Pairs: show cross-hero only (ability↔ability OR hero↔ability across different selected heroes)
 function collectPairs(selectedAbilityNames) {
   if (!PAIRS || !Array.isArray(PAIRS)) return [];
-  const has = new Set(selectedAbilityNames);
+
+  const selectedHeroes = new Set([...sel].map(canon));
+  const selectedAbilities = new Set(selectedAbilityNames.map(canon));
+
   const rows = [];
+
   for (const p of PAIRS) {
-    const a1 = p.a1, a2 = p.a2;
-    if (!a1 || !a2) continue;
-    // skip reflexive pairs
-    if (a1.trim().toLowerCase() === a2.trim().toLowerCase()) continue;
-    // only include combos where BOTH abilities exist in current selection
-    if (has.has(a1) && has.has(a2)) {
-      rows.push({
-        a1, a2,
-        a1_img: p.a1_img || null,
-        a2_img: p.a2_img || null,
-        syn: typeof p.synergy === "number" ? p.synergy : null
-      });
+    const a1raw = p.a1, a2raw = p.a2;
+    if (!a1raw || !a2raw) continue;
+
+    const a1n = canon(a1raw), a2n = canon(a2raw);
+    if (a1n === a2n) continue; // skip reflexive/self
+
+    const o1 = abilityOwners.get(a1n); // Set(canon(hero)) if a1 is an ability name
+    const o2 = abilityOwners.get(a2n); // Set(canon(hero)) if a2 is an ability name
+
+    const a1IsAbility = !!o1;
+    const a2IsAbility = !!o2;
+    const a1IsHero    = selectedHeroes.has(a1n);
+    const a2IsHero    = selectedHeroes.has(a2n);
+
+    let ok = false;
+
+    if (a1IsAbility && a2IsAbility) {
+      // both abilities must be in current selection and owned by DIFFERENT selected heroes
+      if (selectedAbilities.has(a1n) && selectedAbilities.has(a2n)) {
+        outer:
+        for (const h1 of (o1 || [])) {
+          if (!selectedHeroes.has(h1)) continue;
+          for (const h2 of (o2 || [])) {
+            if (!selectedHeroes.has(h2)) continue;
+            if (h1 !== h2) { ok = true; break outer; }
+          }
+        }
+      }
+    } else if (a1IsHero && a2IsAbility) {
+      // hero + ability, require different hero
+      if (selectedAbilities.has(a2n)) {
+        for (const h2 of (o2 || [])) {
+          if (!selectedHeroes.has(h2)) continue;
+          if (h2 !== a1n) { ok = true; break; }
+        }
+      }
+    } else if (a2IsHero && a1IsAbility) {
+      if (selectedAbilities.has(a1n)) {
+        for (const h1 of (o1 || [])) {
+          if (!selectedHeroes.has(h1)) continue;
+          if (h1 !== a2n) { ok = true; break; }
+        }
+      }
+    } else {
+      // hero-hero or tokens not in selection context → ignore
+      ok = false;
     }
+
+    if (!ok) continue;
+
+    rows.push({
+      a1: a1raw,
+      a2: a2raw,
+      a1_img: p.a1_img || null,
+      a2_img: p.a2_img || null,
+      syn: (typeof p.synergy === "number") ? p.synergy : null
+    });
   }
+
   return rows;
 }
 
@@ -236,6 +378,17 @@ function renderAbilities() {
   const rows = collectAbilities();
   cachedAbilities = rows; // keep for pair filtering
 
+  // rebuild owners with canonical keys
+  abilityOwners = new Map();
+  for (const r of rows) {
+    if (r.kind === "ability") {
+      const aKey = canon(r.ability);
+      const owners = new Set();
+      for (const h of (r.from || [])) owners.add(canon(h));
+      abilityOwners.set(aKey, owners);
+    }
+  }
+
   const cmp = (a,b)=>{
     let av=a[sortAKey], bv=b[sortAKey];
     if (sortAKey==="ability") { av=String(av||""); bv=String(bv||""); return sortADir==="asc"? av.localeCompare(bv): bv.localeCompare(av); }
@@ -288,7 +441,7 @@ function rowPairHtml(r) {
 }
 function fmtNum(v) { return (typeof v === "number") ? v.toFixed(2) : "<span class='muted'>—</span>"; }
 function fmtPct(v) { return (typeof v === "number") ? v.toFixed(2) + "%" : "<span class='muted'>—</span>"; }
-function escapeHtml(s) { return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[m]); }
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','&gt;':'&gt;','"':'&quot;',"'":"&#39;"})[m]); }
 function escapeAttr(s) { return String(s).replace(/["']/g, m => (m=='"'?'&quot;':'&#39;')); }
 
 // boot
