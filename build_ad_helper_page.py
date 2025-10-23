@@ -217,7 +217,7 @@ def mk_html(by_hero: dict, hs_raw: dict, roles: dict, pairs: list) -> str:
         <table id="tblCarry">
           <thead><tr>
             <th data-key="ability">Ability</th>
-            <th data-key="good">Goodness</th>
+            <th data-key="good">Goody</th>
             <th data-key="pick">Pick #</th>
             <th data-key="win">Win %</th>
           </tr></thead>
@@ -230,7 +230,7 @@ def mk_html(by_hero: dict, hs_raw: dict, roles: dict, pairs: list) -> str:
         <table id="tblBoth">
           <thead><tr>
             <th data-key="ability">Ability</th>
-            <th data-key="good">Goodness</th>
+            <th data-key="good">Goody</th>
             <th data-key="pick">Pick #</th>
             <th data-key="win">Win %</th>
           </tr></thead>
@@ -243,7 +243,7 @@ def mk_html(by_hero: dict, hs_raw: dict, roles: dict, pairs: list) -> str:
         <table id="tblSupport">
           <thead><tr>
             <th data-key="ability">Ability</th>
-            <th data-key="good">Goodness</th>
+            <th data-key="good">Goody</th>
             <th data-key="pick">Pick #</th>
             <th data-key="win">Win %</th>
           </tr></thead>
@@ -468,7 +468,7 @@ function collectPairs(selectedAbilityNames) {
 
 // --- Sorting helpers
 function makeSortState(defaultKey, defaultDir){ return { key:defaultKey, dir:defaultDir }; }
-// Default sort by Goodness (10 best at top)
+// Default sort by Goody (10 best at top)
 const sortC = makeSortState("good", "desc");
 const sortB = makeSortState("good", "desc");
 const sortS = makeSortState("good", "desc");
@@ -550,7 +550,7 @@ function renderTables(){
     else if (r.role === "support") support.push(r);
   }
 
-  // --- compute Goodness (scale 1..10; 10 best)
+  // --- compute Goody (scale 1..10; 10 best)
   // raw = pick_num * (100 - win_pct); lower raw is better
   function rawScore(row){
     const p = row.pick, w = row.win;
