@@ -5,18 +5,6 @@
 <title>Ability Draft Helper (static)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  .icon-wrap { position: relative; display:inline-block; width:28px; height:28px; vertical-align:middle; margin-right:4px; }
-  .icon-wrap .img { position:absolute; inset:0; width:100%; height:100%; border-radius:6px; }
-  .icon-wrap .delBtn {
-    position:absolute; inset:0; display:none; border:none; border-radius:6px;
-    background: rgba(220,53,69,0); cursor:pointer;
-  }
-  .icon-wrap:hover .delBtn { display:block; background: rgba(220,53,69,0.35); }
-  .icon-wrap .delBtn::before {
-    content: "✕"; display:block; width:100%; height:100%;
-    text-align:center; line-height:28px; font-weight:800; color:#fff;
-    text-shadow: 0 1px 2px rgba(0,0,0,.6);
-  }
   :root { --bg:#0f1115; --card:#151923; --muted:#9aa3b2; --text:#e7ecf3; --accent:#7aa2f7; --pill:#1f2633; }
   html,body { margin:0; padding:0; background:var(--bg); color:var(--text); font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial; }
   .wrap { max-width:1300px; margin:24px auto; padding:0 16px; }
@@ -52,13 +40,11 @@
   th[data-key="pick"], th[data-key="win"], td.k { white-space:nowrap; }
   /* remove overlay button style */
   .cell-ability { position: relative; }
-  .delBtn {
-    position:absolute; left:2px; top:2px;
-    display:none; width:18px; height:18px; line-height:16px;
-    border-radius:50%; background:rgba(220,53,69,.9); border:1px solid #7a1f28;
-    color:#fff; font-weight:700; font-size:12px; cursor:pointer;
-  }
-  tr:hover .delBtn { display:inline-block; }
+  .icon-wrap { position: relative; display:inline-block; width:28px; height:28px; vertical-align:middle; margin-right:4px; }
+  .icon-wrap .img { position:absolute; inset:0; width:100%; height:100%; border-radius:6px; }
+  .icon-wrap .delBtn { position:absolute; inset:0; display:none; border:none; border-radius:6px; background: rgba(220,53,69,0); cursor:pointer; }
+  .icon-wrap:hover .delBtn { display:block; background: rgba(220,53,69,0.35); }
+  .icon-wrap .delBtn::before { content: "✕"; display:block; width:100%; height:100%; text-align:center; line-height:28px; font-weight:800; color:#fff; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
 </style>
 </head>
 <body>
@@ -91,7 +77,7 @@
         <table id="tblCarry">
           <thead><tr>
             <th data-key="ability">Ability</th>
-            <th data-key="from">From Heroes</th>
+            <th data-key="good">Goodness</th>
             <th data-key="pick">Pick #</th>
             <th data-key="win">Win %</th>
           </tr></thead>
@@ -104,7 +90,7 @@
         <table id="tblBoth">
           <thead><tr>
             <th data-key="ability">Ability</th>
-            <th data-key="from">From Heroes</th>
+            <th data-key="good">Goodness</th>
             <th data-key="pick">Pick #</th>
             <th data-key="win">Win %</th>
           </tr></thead>
@@ -117,7 +103,7 @@
         <table id="tblSupport">
           <thead><tr>
             <th data-key="ability">Ability</th>
-            <th data-key="from">From Heroes</th>
+            <th data-key="good">Goodness</th>
             <th data-key="pick">Pick #</th>
             <th data-key="win">Win %</th>
           </tr></thead>
@@ -174,6 +160,7 @@ const tbodyP = tblP.querySelector("tbody");
 const theadP = tblP.querySelector("thead");
 const countP = $("countPairs");
 
+// In-memory hidden abilities (reset on reload)
 try { localStorage.removeItem("ad_hidden_abilities"); } catch (e) {}
 const hidden = new Set();
 function hideAbility(name){ hidden.add(canon(name)); renderTables(); }
@@ -194,7 +181,7 @@ function canon(s) {
     .trim();
 }
 
-// Abbreviate long hero names with tooltip
+// Abbreviate long hero names with tooltip (kept if you later re-add badges)
 function abbreviateHero(h) {
   const s = String(h || "").trim();
   if (s.length <= 12) return s;
@@ -202,7 +189,7 @@ function abbreviateHero(h) {
   if (parts.length === 1) return s.slice(0, 11) + "…";
   const first = parts[0];
   const restInitials = parts.slice(1).map(p => (p ? p[0] + "." : "")).join(" ");
-  let out = `${first} ${restInitials}`; // e.g., "Faceless V."
+  let out = `${first} ${restInitials}`;
   if (out.length <= 12) return out;
   return first.slice(0, 9) + "…";
 }
@@ -339,11 +326,12 @@ function collectPairs(selectedAbilityNames) {
   return rows;
 }
 
-// --- Sorting
+// --- Sorting helpers
 function makeSortState(defaultKey, defaultDir){ return { key:defaultKey, dir:defaultDir }; }
-const sortC = makeSortState("pick", "asc");
-const sortB = makeSortState("pick", "asc");
-const sortS = makeSortState("pick", "asc");
+// Default sort by Goodness (10 best at top)
+const sortC = makeSortState("good", "desc");
+const sortB = makeSortState("good", "desc");
+const sortS = makeSortState("good", "desc");
 let sortPKey = "syn", sortPDir = "desc";
 
 function bindSort(thead, state, renderFn){
@@ -351,7 +339,7 @@ function bindSort(thead, state, renderFn){
     const th=e.target.closest("th"); if(!th) return;
     const k=th.dataset.key; if(!k) return;
     if (state.key===k) state.dir = (state.dir==="asc")?"desc":"asc";
-    else { state.key=k; state.dir=(k==="ability"||k==="from")?"asc":"asc"; }
+    else { state.key=k; state.dir=(k==="ability")?"asc":"desc"; }
     thead.querySelectorAll("th").forEach(el=>el.classList.remove("sort-asc","sort-desc"));
     th.classList.add(state.dir==="asc"?"sort-asc":"sort-desc");
     renderFn();
@@ -410,23 +398,50 @@ function renderTables(){
     }
   }
 
+  // split by role (skip hidden)
+  const all = [];
   const carry = [], both = [], support = [];
   for (const r of rows) {
     if (r.kind !== "ability") continue; // keep models out of the 3 tables
     if (hidden.has(canon(r.ability))) continue;
+    all.push(r);
     if (r.role === "carry") carry.push(r);
     else if (r.role === "both") both.push(r);
     else if (r.role === "support") support.push(r);
   }
 
+  // --- compute Goodness (scale 1..10; 10 best)
+  // raw = pick_num * (100 - win_pct); lower raw is better
+  function rawScore(row){
+    const p = row.pick, w = row.win;
+    if (typeof p !== "number" || typeof w !== "number") return null;
+    return p * (100 - w);
+  }
+  const scores = all.map(rawScore).filter(v=>typeof v==="number" && isFinite(v));
+  const rmin = Math.min(...scores), rmax = Math.max(...scores);
+  function scaled(row){
+    const r = rawScore(row);
+    if (r==null || !isFinite(r)) return null;
+    if (!(scores.length)) return null;
+    if (rmax === rmin) return 10; // everything identical → 10
+    // map raw in [rmin..rmax] to [10..1]
+    const t = 1 + 9 * (rmax - r) / (rmax - rmin);
+    return Math.max(1, Math.min(10, t));
+  }
+  for (const r of all) r.good = scaled(r);
+
+  // sorters
   const cmp = (state)=>(a,b)=>{
     const key = state.key, dir = state.dir;
     let av=a[key], bv=b[key];
     if (key==="ability") { av=String(av||""); bv=String(bv||""); return dir==="asc"? av.localeCompare(bv): bv.localeCompare(av); }
-    if (key==="from") { av=(a.from||[]).length; bv=(b.from||[]).length; return dir==="asc"? av-bv : bv-av; }
-    const na=(typeof av==="number")?av:Infinity, nb=(typeof bv==="number")?bv:Infinity, d=na-nb;
+    // numeric: push nulls to bottom for desc, top for asc accordingly
+    const an = (typeof av==="number" && isFinite(av)) ? av : (dir==="asc" ? Infinity : -Infinity);
+    const bn = (typeof bv==="number" && isFinite(bv)) ? bv : (dir==="asc" ? Infinity : -Infinity);
+    const d = an - bn;
     return dir==="asc"? d : -d;
   };
+
   carry.sort(cmp(sortC)); both.sort(cmp(sortB)); support.sort(cmp(sortS));
 
   tbodyC.innerHTML = carry.map(r=>rowAbilityHtml(r)).join("");
@@ -436,6 +451,13 @@ function renderTables(){
   countC.textContent = `${carry.length} rows`;
   countB.textContent = `${both.length} rows`;
   countS.textContent = `${support.length} rows`;
+
+  // mark header sort defaults
+  [ [theadC, sortC], [theadB, sortB], [theadS, sortS] ].forEach(([th, st])=>{
+    th.querySelectorAll("th").forEach(el=>el.classList.remove("sort-asc","sort-desc"));
+    const el = th.querySelector(`th[data-key="${st.key}"]`);
+    if (el) el.classList.add(st.dir==="asc"?"sort-asc":"sort-desc");
+  });
 }
 
 function renderPairs(){
@@ -457,20 +479,15 @@ function renderPairs(){
 }
 
 function rowAbilityHtml(r){
-  const heroList = (r.from || []).map(h => {
-    const short = abbreviateHero(h);
-    return `<span class="badge" title="${escapeAttr(h)}">${escapeHtml(short)}</span>`;
-  }).join(" ");
-  const del = `<button class="delBtn" title="Remove from view" data-ability="${escapeAttr(r.ability)}">✕</button>`;
   const icon = r.img
-  ? `<span class="icon-wrap">
-       <img class="img" src="${escapeAttr(r.img)}" alt="">
-       <button class="delBtn" title="Remove from view" data-ability="${escapeAttr(r.ability)}"></button>
-     </span>`
-  : `<button class="delBtn" title="Remove from view" data-ability="${escapeAttr(r.ability)}"></button>`;
-return `<tr data-ability="${escapeAttr(r.ability)}">
-  <td class="cell-ability">${icon}<b>${escapeHtml(r.ability)}</b></td>
-    <td>${heroList}</td>
+    ? `<span class="icon-wrap">
+         <img class="img" src="${escapeAttr(r.img)}" alt="">
+         <button class="delBtn" title="Remove from view" data-ability="${escapeAttr(r.ability)}"></button>
+       </span>`
+    : `<button class="delBtn" title="Remove from view" data-ability="${escapeAttr(r.ability)}"></button>`;
+  return `<tr data-ability="${escapeAttr(r.ability)}">
+    <td class="cell-ability">${icon}<b>${escapeHtml(r.ability)}</b></td>
+    <td class="k">${fmtNum(r.good)}</td>
     <td class="k">${fmtNum(r.pick)}</td>
     <td class="k">${fmtPct(r.win)}</td>
   </tr>`;
@@ -484,8 +501,8 @@ function rowPairHtml(r){
     <td class="k">${fmtNum(r.syn)}</td>
   </tr>`;
 }
-function fmtNum(v){ return (typeof v === "number") ? v.toFixed(2) : "<span class='muted'>—</span>"; }
-function fmtPct(v){ return (typeof v === "number") ? v.toFixed(2) + "%" : "<span class='muted'>—</span>"; }
+function fmtNum(v){ return (typeof v === "number" && isFinite(v)) ? v.toFixed(2) : "<span class='muted'>—</span>"; }
+function fmtPct(v){ return (typeof v === "number" && isFinite(v)) ? v.toFixed(2) + "%" : "<span class='muted'>—</span>"; }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[m]); }
 function escapeAttr(s){ return String(s).replace(/["']/g, m => (m=='"'?'&quot;':'&#39;')); }
 
