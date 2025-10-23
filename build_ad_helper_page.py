@@ -3,8 +3,7 @@
 Build static Ability Draft helper page (cross-hero combos only).
 
 Inputs:
-  - cache/hero_abilities_merged.json   (by-hero)
-  - cache/ability_high_skill.json      (HS stats)   [optional]
+  - cache/ability_high_skill.json      (sole source of truth)
   - cache/ability_pairs.json           (combos)     [optional]
 
 Output:
@@ -13,31 +12,37 @@ Output:
 import json
 from pathlib import Path
 
-INFILE_HERO  = Path("cache/hero_abilities_merged.json")
 INFILE_HS    = Path("cache/ability_high_skill.json")
 INFILE_PAIRS = Path("cache/ability_pairs.json")
 
 OUTDIR  = Path("dist")
 OUTFILE = OUTDIR / "ad_helper.html"
 
+
 def _load(path: Path):
     with path.open("r", encoding="utf-8") as f:
         return json.load(f)
 
-def load_by_hero():
-    if not INFILE_HERO.exists():
-        raise SystemExit(f"Missing {INFILE_HERO}. Run your by-hero scraper first.")
-    return _load(INFILE_HERO)["by_hero"]
 
 def load_high_skill_map():
+    """
+    Returns the 'data' dict (best-effort). If the file structure varies,
+    this is resilient and will fall back to the root.
+    Expected shapes supported:
+      { "data": { "<Hero>": { ... } } }
+      { "<Hero>": { ... } }
+    """
     if not INFILE_HS.exists():
-        return {}
+        raise SystemExit(f"Missing {INFILE_HS}. This file is now the only source of truth.")
     try:
         doc = _load(INFILE_HS)
-        data = doc.get("data", {})
-        return data if isinstance(data, dict) else {}
-    except Exception:
-        return {}
+        if isinstance(doc, dict) and "data" in doc and isinstance(doc["data"], dict):
+            return doc["data"]
+        # fallback: maybe the root is already the hero map
+        return doc if isinstance(doc, dict) else {}
+    except Exception as e:
+        raise SystemExit(f"Failed to parse {INFILE_HS}: {e}")
+
 
 def load_pairs():
     if not INFILE_PAIRS.exists():
@@ -49,28 +54,70 @@ def load_pairs():
     except Exception:
         return []
 
-def mk_html(by_hero: dict, hs_map: dict, pairs: list) -> str:
-    heroes = sorted(by_hero.keys(), key=lambda s: s.lower())
 
-    # compact payload
+def _get(d, *keys, default=None):
+    """Safe get that tries multiple keys (first hit wins)."""
+    for k in keys:
+        if isinstance(d, dict) and k in d:
+            return d[k]
+    return default
+
+
+def build_compact_from_hs(hs_map: dict) -> dict:
+    """
+    Transform the HS map into the 'compact' DATA structure expected by the page.
+
+    For each hero (key = hero name), we try to read:
+      hero_id        from any of: hero_id, id
+      hero_img       from any of: hero_img, portrait, img, image
+      body_winrate   from any of: body_winrate, win_pct, hero_win_pct
+      abilities[]: list of entries where we try:
+        id           from: id, ability_id
+        name         from: name, ability_name
+        img          from: img, image, icon
+        win_pct      from: win_pct, hero_win_pct, ability_win_pct
+    """
     compact = {}
-    for h in heroes:
-        hrow = by_hero[h]
-        compact[h] = {
-            "hero_id": hrow.get("hero_id"),
-            "hero_img": hrow.get("hero_img"),
-            "body_winrate": hrow.get("body_winrate"),
-            "abilities": [
-                {
-                    "id": a.get("ability_id"),
-                    "name": a.get("ability_name"),
-                    "img": a.get("img"),
-                    "win_pct": a.get("hero_win_pct"),
-                }
-                for a in hrow.get("abilities", [])
-            ],
+
+    # hs_map is expected: { "Abaddon": { ... }, "Ursa": { ... }, ... }
+    for hero_name in sorted(hs_map.keys(), key=lambda s: s.lower()):
+        hrow = hs_map.get(hero_name) or {}
+
+        hero_id = _get(hrow, "hero_id", "id")
+        hero_img = _get(hrow, "hero_img", "portrait", "img", "image")
+        body_winrate = _get(hrow, "body_winrate", "win_pct", "hero_win_pct")
+
+        # abilities might be under "abilities", "spells", etc.
+        abilities_src = _get(hrow, "abilities", "spells", "skills", default=[]) or []
+        abilities = []
+        if isinstance(abilities_src, dict):
+            # Sometimes keyed by ability name → convert to list
+            abilities_src = list(abilities_src.values())
+        if isinstance(abilities_src, list):
+            for a in abilities_src:
+                if not isinstance(a, dict):
+                    continue
+                ability_name = _get(a, "ability_name", "name")
+                if not ability_name:
+                    continue
+                abilities.append({
+                    "id": _get(a, "ability_id", "id"),
+                    "name": ability_name,
+                    "img": _get(a, "img", "image", "icon"),
+                    "win_pct": _get(a, "win_pct", "hero_win_pct", "ability_win_pct"),
+                })
+
+        compact[hero_name] = {
+            "hero_id": hero_id,
+            "hero_img": hero_img,
+            "body_winrate": body_winrate,
+            "abilities": abilities,
         }
 
+    return compact
+
+
+def mk_html(compact: dict, hs_map: dict, pairs: list) -> str:
     data_json  = json.dumps(compact, ensure_ascii=False)
     hs_json    = json.dumps(hs_map, ensure_ascii=False)
     pairs_json = json.dumps(pairs, ensure_ascii=False)
@@ -184,7 +231,7 @@ const hint = $("selHint");
 
 const tblA = $("tblAbilities");
 const tbodyA = tblA.querySelector("tbody");
-const theadA = tblA.querySelector("thead")a;
+const theadA = tblA.querySelector("thead");
 const countA = $("countAbilities");
 
 const tblP = $("tblPairs");
@@ -529,14 +576,16 @@ render();
 </html>
 """
 
+
 def main():
-    by_hero = load_by_hero()
     hs_map  = load_high_skill_map()
     pairs   = load_pairs()
-    html = mk_html(by_hero, hs_map, pairs)
+    compact = build_compact_from_hs(hs_map)
+    html = mk_html(compact, hs_map, pairs)
     OUTDIR.mkdir(parents=True, exist_ok=True)
     OUTFILE.write_text(html, encoding="utf-8")
     print(f"Wrote {OUTFILE}")
+
 
 if __name__ == "__main__":
     main()

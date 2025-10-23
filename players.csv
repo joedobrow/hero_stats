@@ -1,61 +1,153 @@
-name,dotabuff
-Clare,https://www.dotabuff.com/players/102264839
-MidorChen,https://www.dotabuff.com/players/96634411
-Stonks,https://www.dotabuff.com/players/205436003
-Smacktricks,https://www.dotabuff.com/players/157808123
-Pocket,https://www.dotabuff.com/players/100612995
-Redground,https://www.dotabuff.com/players/362793631
-ruN,https://www.dotabuff.com/players/95813278
-heelies,https://www.dotabuff.com/players/84060273
-MrFishay,https://www.dotabuff.com/players/97079776
-GSKW,https://www.dotabuff.com/players/66532818
-mid_or_courier_adventure,https://www.opendota.com/players/92001890
-sword_knight_hoss,https://www.opendota.com/players/34076914
-rasen,https://www.opendota.com/players/82722557
-i_touch_cats,https://www.opendota.com/players/59724227
-stango,https://www.opendota.com/players/60607408
-JimmyPesto,https://www.dotabuff.com/players/110119494
-Jbird,https://www.dotabuff.com/players/159164400
-HK,https://www.dotabuff.com/players/202993487
-Tokc,https://www.dotabuff.com/players/96895570
-Fathomorg,https://www.dotabuff.com/players/173911834
-h,https://www.dotabuff.com/players/69243302
-DoomCow33,https://www.dotabuff.com/players/172199571
-verryoldman,https://www.dotabuff.com/players/477791331
-MAPPO,https://www.dotabuff.com/players/123919855
-Nameless,https://www.dotabuff.com/players/67028556
-MissSnow,https://www.dotabuff.com/players/98809995
-Bork,https://www.dotabuff.com/players/81433630
-poogie,https://www.dotabuff.com/players/81412825
-viii,https://www.dotabuff.com/players/100999890
-bing_chillingo,https://www.dotabuff.com/players/154364286
-Kami,https://www.dotabuff.com/players/339677118
-mr_bjk,https://www.dotabuff.com/players/36601224
-j_chillin_on_the_cross,https://www.dotabuff.com/players/129944735
-bungus,https://www.dotabuff.com/players/258023441
-wesleyaffair,https://www.dotabuff.com/players/109474102
-Zickity,https://www.dotabuff.com/players/116228062
-Festival,https://www.dotabuff.com/players/93456258
-Psyche,https://www.dotabuff.com/players/141434641
-smile,https://www.dotabuff.com/players/142663308
-rhea,https://www.dotabuff.com/players/112527917
-granola,https://www.dotabuff.com/players/63515864
-emu,https://www.dotabuff.com/players/80581900
-Dmitri,https://www.dotabuff.com/players/93871868
-Seal,https://www.dotabuff.com/players/160063086
-Drabz,https://www.dotabuff.com/players/170080880
-qevehn,https://www.dotabuff.com/players/79686977
-fvckpal,https://www.dotabuff.com/players/866434935
-Jazz,https://www.dotabuff.com/players/240512773
-Rocketlad,https://www.dotabuff.com/players/140675080
-Leaf,https://www.dotabuff.com/players/83859680
-jesus_aka_mohammed,https://www.dotabuff.com/players/121439102
-what,https://www.dotabuff.com/players/168579244
-fuzzy_bear,https://www.dotabuff.com/players/170539030
-Sanguivulpes,https://www.dotabuff.com/players/85659772
-KANEDA_PMA,https://www.dotabuff.com/players/124517308
-gggiiiiirrrllll,https://www.dotabuff.com/players/172724536
--GoldenDragon,https://www.dotabuff.com/players/87164528
-im_high_no_flame_pls,https://www.dotabuff.com/players/396250828
-DanathanDoRight,https://www.dotabuff.com/players/44358933
-rawrsome,https://www.dotabuff.com/players/84369323
+team,name,id
+Proud Papa Seals,AndyBendy,79195806
+Larry Can't Hear The Birds,y`fu,91703580
+Proud Papa Seals,RiceBoi,82546205
+Larry Can't Hear The Birds,zEwqEw,79089948
+Proud Papa Seals,Rook,79192770
+Larry Can't Hear The Birds,Pishtya,88300795
+Proud Papa Seals,Sauce,106248272
+Larry Can't Hear The Birds,Beach Jeans,87336063
+Proud Papa Seals,Mathmagician10,94202887
+Larry Can't Hear The Birds,Patience,119489176
+Five Guys,Sonnegod,49219700
+Rock 'em Guac 'em,Ultragunner,106670947
+Five Guys,Moozy,399373499
+Rock 'em Guac 'em,Lefty,97985854
+Five Guys,Silixx/Asuka,210778825
+Rock 'em Guac 'em,Chrohny,332122164
+Five Guys,Jynx,205315555
+Rock 'em Guac 'em,garda,190248321
+Five Guys,Princess,210590885
+Rock 'em Guac 'em,FOX,177094288
+guh,Purffin,88709767
+AIG,PMA,363849371
+guh,Festival,93456258
+AIG,REN,1013380658
+guh,Enough,61130075
+AIG,Filski,110962575
+guh,For the Pills,108737528
+AIG,fruit punch,179529932
+guh,Sharqosity,122468696
+AIG,Nephilim,149341481
+Silly Squad,karan,449741428
+Toxic Tacos,Tint,62681700
+Silly Squad,breezy,55012505
+Toxic Tacos,MxGuire,173836647
+Silly Squad,Mister Malice,29544285
+Toxic Tacos,ApeGodSnow,107944284
+Silly Squad,Ryrk,40630452
+Toxic Tacos,Artorius,99623012
+Silly Squad,darth pikachu,89772237
+Toxic Tacos,TURTLEKING!,179788562
+Chill Dude Winter,Snlork,360577618
+Lions and Gazelles,J,303331256
+Chill Dude Winter,Brae,55197649
+Lions and Gazelles,Fish,1446668423
+Chill Dude Winter,Jazz,240512773
+Lions and Gazelles,Kaki,23379815
+Chill Dude Winter,Reid,66648223
+Lions and Gazelles,keshi,198514853
+Chill Dude Winter,Yrral,108896499
+Lions and Gazelles,agile,3231124
+Lechuga,dogical,189892277
+Hyper Bedtime,erik,106473979
+Lechuga,allroundgoodguy,167829403
+Hyper Bedtime,tia,68193916
+Lechuga,ruffneck,171007008
+Hyper Bedtime,JinN,315565291
+Lechuga,jamie,156115328
+Hyper Bedtime,Kvothe Sixstring,31126819
+Lechuga,Mipz,300964384
+Please dont leave us AG.Phase,qT,315304140
+Typical Bloosh Boys,Iceyeti,66649891
+Please dont leave us AG.Phase,Pyne,31301930
+Typical Bloosh Boys,Rusy,108203659
+Please dont leave us AG.Phase,Tau,22857857
+Typical Bloosh Boys,Calamity,84696252
+Please dont leave us AG.Phase,Phase,63746063
+Typical Bloosh Boys,Brightside,118394602
+Please dont leave us AG.Phase,DrBonespur,120435357
+Typical Bloosh Boys,Lord Luci,186775996
+TheLadiesLoveCS,Mitchito,91488210
+Chen Yuan,Smack,157808123
+TheLadiesLoveCS,Introspective Lover,174174773
+Chen Yuan,skkip,10675351
+TheLadiesLoveCS,ima_sheep(sux),83625397
+Chen Yuan,diskhat,84447080
+TheLadiesLoveCS,memes (memau prime),101224757
+Chen Yuan,fufu,104492182
+TheLadiesLoveCS,Kalverum Rex,136770428
+Chen Yuan,4thwrldmrshl,56849230
+WAKANDA MADE IN CHYNA,bzeng,143340249
+Wilted Roses,Stanny,125736754
+WAKANDA MADE IN CHYNA,binary boi,889189038
+Wilted Roses,Juggo,162568432
+WAKANDA MADE IN CHYNA,dosiia,298941156
+Wilted Roses,Peter,930087419
+WAKANDA MADE IN CHYNA,Salty,309111464
+Wilted Roses,Gec,78235813
+WAKANDA MADE IN CHYNA,fspoon,138798603
+Wilted Roses,ThiccPoog,127222192
+Five Man Fountain Dive,BigWillyDota,127128208
+Minority Report,bloom,160527310
+Five Man Fountain Dive,AAAAA,199078251
+Minority Report,Mystery,142036603
+Five Man Fountain Dive,Akuma,132246175
+Minority Report,ComplexLua,238059423
+Five Man Fountain Dive,Dragon,132952318
+Minority Report,Tiramisu,182296574
+Five Man Fountain Dive,Leaf,83859680
+Minority Report,Shroomba,22857654
+Dads of Lads,redground,362793631
+fifteen minute shart,Scum Funk,101510521
+Dads of Lads,giant,355514054
+fifteen minute shart,6dog,75532826
+Dads of Lads,ForTheSwarm,64741231
+fifteen minute shart,good2cu,235690073
+Dads of Lads,yolk,112220059
+fifteen minute shart,NTG,9448727
+Dads of Lads,ruN,95813278
+fifteen minute shart,Joanna Sacks,457229304
+Two and a Half Canadians,Cole,115075449
+Hooping For Hope,Knstr,903287846
+Two and a Half Canadians,Roho,79134733
+Hooping For Hope,Pogitivity,102741334
+Two and a Half Canadians,Snow,84157389
+Hooping For Hope,Assassin5009,180884230
+Two and a Half Canadians,Vexare,122672120
+Hooping For Hope,Reaper,897940001
+Two and a Half Canadians,doss,115827611
+Hooping For Hope,Jzar,362604635
+5-15 season,wife,84362769
+Pure Instinct,Fume,19744
+Pure Instinct,meepoman1,138814035
+5-15 season,jae,121537441
+Pure Instinct,Hobbes,52023367
+5-15 season,keva,241370187
+Pure Instinct,Plupo,81036058
+Pure Instinct,Miyushi,117329309
+FreeAgents,Mekansm,177607358
+Royal Nebula,Madior,202200499
+FreeAgents,JM,115129310
+Royal Nebula,Neff,117935373
+FreeAgents,Lovely,376737324
+Royal Nebula,Journey,89222641
+FreeAgents,Pyrosmog,158377840
+Royal Nebula,AcidRain,104011648
+FreeAgents,Raptor458,136878643
+Royal Nebula,BullJaXX,90082776
+PizzaDog,SenseiRaven1,94692091
+for lefty,wee,128709526
+PizzaDog,HullCity07,316284552
+for lefty,vico,121451644
+PizzaDog,Fatalness,109852891
+for lefty,frisb,86788706
+PizzaDog,Cuh,119377295
+for lefty,yami116,110343762
+PizzaDog,Xeriscape,223108191
+for lefty,platinumdota2,361127208
+Ragdoll Enthusiats,Legacy,338100783
+Ragdoll Enthusiats,Mr.Lens,996170963
+Ragdoll Enthusiats,Bungus,258023441
+Ragdoll Enthusiats,NKF,93771421
+Ragdoll Enthusiats,Knivesinmycoffee,238806231
