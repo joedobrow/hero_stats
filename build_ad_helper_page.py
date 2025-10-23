@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-Build static Ability Draft helper page (cross-hero combos only).
+Build static Ability Draft helper page (categorized abilities).
 
 Inputs:
-  - cache/ability_high_skill.json      (sole source of truth)
-  - cache/ability_pairs.json           (combos)     [optional]
+  - cache/ability_high_skill.json  (single source of truth; contains ability + hero entries)
+  - cache/ability_roles.json       (manual labels: carry/support/both)   [optional]
+  - cache/ability_pairs.json       (combos)                              [optional]
 
 Output:
   - dist/ad_helper.html
@@ -12,37 +13,83 @@ Output:
 import json
 from pathlib import Path
 
-INFILE_HS    = Path("cache/ability_high_skill.json")
-INFILE_PAIRS = Path("cache/ability_pairs.json")
+INFILE_HS     = Path("cache/ability_high_skill.json")
+INFILE_ROLES  = Path("cache/ability_roles.json")
+INFILE_PAIRS  = Path("cache/ability_pairs.json")
 
 OUTDIR  = Path("dist")
 OUTFILE = OUTDIR / "ad_helper.html"
 
+# ---------- IO ----------
 
 def _load(path: Path):
     with path.open("r", encoding="utf-8") as f:
         return json.load(f)
 
-
-def load_high_skill_map():
+def load_high_skill():
     """
-    Returns the 'data' dict (best-effort). If the file structure varies,
-    this is resilient and will fall back to the root.
-    Expected shapes supported:
-      { "data": { "<Hero>": { ... } } }
-      { "<Hero>": { ... } }
+    Returns:
+      by_hero_compact: { Hero: {hero_id, hero_img, body_winrate, abilities:[{id,name,img,win_pct, [pick_num]}] } }
+      hs_raw:          raw "data" dict from ability_high_skill.json
     """
     if not INFILE_HS.exists():
-        raise SystemExit(f"Missing {INFILE_HS}. This file is now the only source of truth.")
-    try:
-        doc = _load(INFILE_HS)
-        if isinstance(doc, dict) and "data" in doc and isinstance(doc["data"], dict):
-            return doc["data"]
-        # fallback: maybe the root is already the hero map
-        return doc if isinstance(doc, dict) else {}
-    except Exception as e:
-        raise SystemExit(f"Failed to parse {INFILE_HS}: {e}")
+        raise SystemExit(f"Missing {INFILE_HS}. Run the HS scraper first.")
+    doc = _load(INFILE_HS)
+    data = doc.get("data", {}) if isinstance(doc, dict) else {}
+    if not isinstance(data, dict):
+        data = {}
 
+    # Build by-hero compact block from hero objects inside HS
+    by_hero = {}
+    for k, v in data.items():
+        if isinstance(v, dict) and "abilities" in v:
+            by_hero[k] = v
+
+    # Convert to page-expected shape and also append hero model as a draftable "ability"
+    compact = {}
+    for h, hrow in by_hero.items():
+        abil_list = []
+        for a in hrow.get("abilities", []):
+            abil_list.append({
+                "id": a.get("ability_id"),
+                "name": a.get("ability_name"),
+                "img": a.get("img"),
+                "win_pct": a.get("win_pct"),
+            })
+
+        # Also expose the hero model itself as an "ability" so it can be labeled & shown
+        # Pull pick_num/win_pct for the hero from HS "data" if present
+        hs_entry = data.get(h, {}) if isinstance(data.get(h, {}), dict) else {}
+        model_row = {
+            "id": None,
+            "name": h,
+            "img": hrow.get("hero_img"),
+            "win_pct": hrow.get("win_pct") or hrow.get("body_winrate") or hs_entry.get("win_pct"),
+            "pick_num": hs_entry.get("pick_num"),
+        }
+        # Avoid double if already present for some reason
+        if all(a.get("name") != h for a in abil_list):
+            abil_list.append(model_row)
+
+        compact[h] = {
+            "hero_id": hrow.get("hero_id"),
+            "hero_img": hrow.get("hero_img"),
+            # use HS hero-level win if scraped, else body_winrate if present
+            "body_winrate": hrow.get("win_pct") or hrow.get("body_winrate"),
+            "abilities": abil_list,
+        }
+
+    return compact, data  # by-hero compact, and raw HS "data" dict
+
+def load_roles():
+    if not INFILE_ROLES.exists():
+        return {}
+    try:
+        doc = _load(INFILE_ROLES)
+        labels = doc.get("labels", {})
+        return labels if isinstance(labels, dict) else {}
+    except Exception:
+        return {}
 
 def load_pairs():
     if not INFILE_PAIRS.exists():
@@ -54,112 +101,108 @@ def load_pairs():
     except Exception:
         return []
 
+# ---------- HTML ----------
 
-def _get(d, *keys, default=None):
-    """Safe get that tries multiple keys (first hit wins)."""
-    for k in keys:
-        if isinstance(d, dict) and k in d:
-            return d[k]
-    return default
+def mk_html(by_hero: dict, hs_raw: dict, roles: dict, pairs: list) -> str:
+    # Compact payload (same shape as before for DATA)
+    heroes = sorted(by_hero.keys(), key=lambda s: s.lower())
 
-
-def build_compact_from_hs(hs_map: dict) -> dict:
-    """
-    Transform the HS map into the 'compact' DATA structure expected by the page.
-
-    For each hero (key = hero name), we try to read:
-      hero_id        from any of: hero_id, id
-      hero_img       from any of: hero_img, portrait, img, image
-      body_winrate   from any of: body_winrate, win_pct, hero_win_pct
-      abilities[]: list of entries where we try:
-        id           from: id, ability_id
-        name         from: name, ability_name
-        img          from: img, image, icon
-        win_pct      from: win_pct, hero_win_pct, ability_win_pct
-    """
     compact = {}
-
-    # hs_map is expected: { "Abaddon": { ... }, "Ursa": { ... }, ... }
-    for hero_name in sorted(hs_map.keys(), key=lambda s: s.lower()):
-        hrow = hs_map.get(hero_name) or {}
-
-        hero_id = _get(hrow, "hero_id", "id")
-        hero_img = _get(hrow, "hero_img", "portrait", "img", "image")
-        body_winrate = _get(hrow, "body_winrate", "win_pct", "hero_win_pct")
-
-        # abilities might be under "abilities", "spells", etc.
-        abilities_src = _get(hrow, "abilities", "spells", "skills", default=[]) or []
-        abilities = []
-        if isinstance(abilities_src, dict):
-            # Sometimes keyed by ability name → convert to list
-            abilities_src = list(abilities_src.values())
-        if isinstance(abilities_src, list):
-            for a in abilities_src:
-                if not isinstance(a, dict):
-                    continue
-                ability_name = _get(a, "ability_name", "name")
-                if not ability_name:
-                    continue
-                abilities.append({
-                    "id": _get(a, "ability_id", "id"),
-                    "name": ability_name,
-                    "img": _get(a, "img", "image", "icon"),
-                    "win_pct": _get(a, "win_pct", "hero_win_pct", "ability_win_pct"),
-                })
-
-        compact[hero_name] = {
-            "hero_id": hero_id,
-            "hero_img": hero_img,
-            "body_winrate": body_winrate,
-            "abilities": abilities,
+    for h in heroes:
+        hrow = by_hero[h]
+        compact[h] = {
+            "hero_id": hrow.get("hero_id"),
+            "hero_img": hrow.get("hero_img"),
+            "body_winrate": hrow.get("body_winrate"),
+            "abilities": [
+                {
+                    "id": a.get("id"),
+                    "name": a.get("name"),
+                    "img": a.get("img"),
+                    "win_pct": a.get("win_pct"),
+                    # include pick_num if present (for hero models we added above)
+                    "pick_num": a.get("pick_num"),
+                }
+                for a in hrow.get("abilities", [])
+                if isinstance(a, dict)
+            ],
         }
 
-    return compact
+    # ability -> {win_pct, pick_num} map from HS for ANY entry with pick_num (abilities or hero models)
+    ability_stats = {}
+    for k, v in (hs_raw or {}).items():
+        if isinstance(v, dict) and "pick_num" in v:
+            ability_stats[k] = {
+                "win_pct": v.get("win_pct"),
+                "pick_num": v.get("pick_num"),
+            }
 
+    data_json   = json.dumps(compact, ensure_ascii=False)
+    hs_json     = json.dumps(ability_stats, ensure_ascii=False)
+    roles_json  = json.dumps(roles or {}, ensure_ascii=False)
+    pairs_json  = json.dumps(pairs or [], ensure_ascii=False)
 
-def mk_html(compact: dict, hs_map: dict, pairs: list) -> str:
-    data_json  = json.dumps(compact, ensure_ascii=False)
-    hs_json    = json.dumps(hs_map, ensure_ascii=False)
-    pairs_json = json.dumps(pairs, ensure_ascii=False)
-
-    # NOTE: doubled braces are intentional for f-string safety.
-    return f"""<!doctype html>
+    TEMPLATE = """<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <title>Ability Draft Helper (static)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  :root {{ --bg:#0f1115; --card:#151923; --muted:#9aa3b2; --text:#e7ecf3; --accent:#7aa2f7; --pill:#1f2633; }}
-  html,body {{ margin:0; padding:0; background:var(--bg); color:var(--text); font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial; }}
-  .wrap {{ max-width:1100px; margin:24px auto; padding:0 16px; }}
-  h1 {{ font-size:20px; margin:0 0 12px; }}
-  h2 {{ font-size:16px; margin:14px 0 8px; color:var(--muted); }}
-  .card {{ background:var(--card); border-radius:14px; padding:14px; box-shadow:0 2px 8px rgba(0,0,0,.25); }}
-  .row {{ display:flex; gap:12px; flex-wrap:wrap; }}
-  .col {{ flex:1 1 100%; min-width:300px; }}
-  .control {{ position:relative; }}
-  input[type=text] {{ width:100%; padding:10px 12px; border-radius:10px; border:1px solid #2a3142; background:#0f1320; color:var(--text); }}
-  button {{ padding:8px 12px; border-radius:10px; border:1px solid #2a3142; background:#0f1320; color:var(--text); cursor:pointer; }}
-  .pills {{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }}
-  .pill {{ background:var(--pill); border:1px solid #2a3142; padding:6px 10px; border-radius:100px; display:flex; align-items:center; gap:8px; }}
-  .pill b {{ font-weight:600; }}
-  .pill button {{ border:none; background:transparent; color:var(--muted); padding:0 2px; font-size:16px; line-height:1; }}
-  .muted {{ color:var(--muted); }}
-  table {{ width:100%; border-collapse:collapse; margin-top:10px; }}
-  th, td {{ padding:8px 10px; border-bottom:1px solid #2a3142; text-align:left; vertical-align:middle; }}
-  th {{ position:sticky; top:0; background:var(--card); z-index:1; user-select:none; cursor:pointer; }}
-  th.sort-asc::after {{ content:" \\25B2"; }}
-  th.sort-desc::after {{ content:" \\25BC"; }}
-  .img {{ width:28px; height:28px; border-radius:6px; background:#0f1320; display:inline-block; vertical-align:middle; }}
-  .badge {{ display:inline-block; padding:2px 6px; border:1px solid #2a3142; border-radius:8px; margin-right:4px; }}
-  .k {{ font-variant-numeric: tabular-nums; }}
-  .small {{ font-size:12px; }}
-  .footer {{ margin-top:16px; color:var(--muted); font-size:12px; }}
-  .dropdown {{ position:absolute; left:0; right:0; top:100%; margin-top:6px; background:#0f1320; border:1px solid #2a3142; border-radius:10px; max-height:240px; overflow:auto; z-index:5; display:none; }}
-  .dropdown .opt {{ padding:8px 10px; border-bottom:1px solid #1c2435; }}
-  .dropdown .opt:last-child {{ border-bottom:none; }}
-  .dropdown .opt:hover, .dropdown .opt.active {{ background:#131a2a; }}
+  .icon-wrap { position: relative; display:inline-block; width:28px; height:28px; vertical-align:middle; margin-right:4px; }
+  .icon-wrap .img { position:absolute; inset:0; width:100%; height:100%; border-radius:6px; }
+  .icon-wrap .delBtn {
+    position:absolute; inset:0; display:none; border:none; border-radius:6px;
+    background: rgba(220,53,69,0); cursor:pointer;
+  }
+  .icon-wrap:hover .delBtn { display:block; background: rgba(220,53,69,0.35); }
+  .icon-wrap .delBtn::before {
+    content: "✕"; display:block; width:100%; height:100%;
+    text-align:center; line-height:28px; font-weight:800; color:#fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,.6);
+  }
+  :root { --bg:#0f1115; --card:#151923; --muted:#9aa3b2; --text:#e7ecf3; --accent:#7aa2f7; --pill:#1f2633; }
+  html,body { margin:0; padding:0; background:var(--bg); color:var(--text); font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial; }
+  .wrap { max-width:1300px; margin:24px auto; padding:0 16px; }
+  h1 { font-size:20px; margin:0 0 12px; }
+  h2 { font-size:16px; margin:14px 0 8px; color:var(--muted); }
+  .card { background:var(--card); border-radius:14px; padding:14px; box-shadow:0 2px 8px rgba(0,0,0,.25); }
+  .row { display:flex; gap:12px; flex-wrap:wrap; }
+  .col { flex:1 1 100%; min-width:300px; }
+  .col-third { flex:1 1 calc(33.333% - 8px); min-width:320px; }
+  .control { position:relative; }
+  input[type=text] { width:100%; padding:10px 12px; border-radius:10px; border:1px solid #2a3142; background:#0f1320; color:var(--text); }
+  button { padding:8px 12px; border-radius:10px; border:1px solid #2a3142; background:#0f1320; color:var(--text); cursor:pointer; }
+  .pills { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .pill { background:var(--pill); border:1px solid #2a3142; padding:6px 10px; border-radius:100px; display:flex; align-items:center; gap:8px; }
+  .pill b { font-weight:600; }
+  .pill button { border:none; background:transparent; color:var(--muted); padding:0 2px; font-size:16px; line-height:1; }
+  .muted { color:var(--muted); }
+  table { width:100%; border-collapse:collapse; margin-top:10px; }
+  th, td { padding:8px 10px; border-bottom:1px solid #2a3142; text-align:left; vertical-align:middle; }
+  th { position:sticky; top:0; background:var(--card); z-index:1; user-select:none; cursor:pointer; }
+  th.sort-asc::after { content:" \\25B2"; }
+  th.sort-desc::after { content:" \\25BC"; }
+  .img { width:28px; height:28px; border-radius:6px; background:#0f1320; display:inline-block; vertical-align:middle; }
+  .badge { display:inline-block; padding:2px 6px; border:1px solid #2a3142; border-radius:8px; margin-right:4px; white-space:nowrap; max-width:160px; overflow:hidden; text-overflow:ellipsis; }
+  .k { font-variant-numeric: tabular-nums; }
+  .small { font-size:12px; }
+  .footer { margin-top:8px; color:var(--muted); font-size:12px; }
+  .dropdown { position:absolute; left:0; right:0; top:100%; margin-top:6px; background:#0f1320; border:1px solid #2a3142; border-radius:10px; max-height:240px; overflow:auto; z-index:5; display:none; }
+  .dropdown .opt { padding:8px 10px; border-bottom:1px solid #1c2435; }
+  .dropdown .opt:last-child { border-bottom:none; }
+  .dropdown .opt:hover, .dropdown .opt.active { background:#131a2a; }
+  .triplet { display:flex; gap:12px; flex-wrap:wrap; }
+  th[data-key="pick"], th[data-key="win"], td.k { white-space:nowrap; }
+  /* remove overlay button style */
+  .cell-ability { position: relative; }
+  .delBtn {
+    position:absolute; left:2px; top:2px;
+    display:none; width:18px; height:18px; line-height:16px;
+    border-radius:50%; background:rgba(220,53,69,.9); border:1px solid #7a1f28;
+    color:#fff; font-weight:700; font-size:12px; cursor:pointer;
+  }
+  tr:hover .delBtn { display:inline-block; }
 </style>
 </head>
 <body>
@@ -182,19 +225,51 @@ def mk_html(compact: dict, hs_map: dict, pairs: list) -> str:
   </div>
 
   <div class="card" style="margin-top:12px;">
-    <h2>Abilities</h2>
-    <table id="tblAbilities">
-      <thead>
-        <tr>
-          <th data-key="ability">Ability</th>
-          <th data-key="from">From Heroes</th>
-          <th data-key="pick">Pick #</th>
-          <th data-key="win">Win %</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <div class="footer" id="countAbilities"></div>
+    <h2 style="display:flex; align-items:center; justify-content:space-between;">
+      <span>Abilities</span>
+      <button id="restoreBtn" class="small" title="Show all hidden abilities">Restore removed</button>
+    </h2>
+    <div class="triplet">
+      <div class="col-third">
+        <div class="muted small">Carry</div>
+        <table id="tblCarry">
+          <thead><tr>
+            <th data-key="ability">Ability</th>
+            <th data-key="from">From Heroes</th>
+            <th data-key="pick">Pick #</th>
+            <th data-key="win">Win %</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="footer" id="countCarry"></div>
+      </div>
+      <div class="col-third">
+        <div class="muted small">Both</div>
+        <table id="tblBoth">
+          <thead><tr>
+            <th data-key="ability">Ability</th>
+            <th data-key="from">From Heroes</th>
+            <th data-key="pick">Pick #</th>
+            <th data-key="win">Win %</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="footer" id="countBoth"></div>
+      </div>
+      <div class="col-third">
+        <div class="muted small">Support</div>
+        <table id="tblSupport">
+          <thead><tr>
+            <th data-key="ability">Ability</th>
+            <th data-key="from">From Heroes</th>
+            <th data-key="pick">Pick #</th>
+            <th data-key="win">Win %</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="footer" id="countSupport"></div>
+      </div>
+    </div>
   </div>
 
   <div class="card" style="margin-top:12px;">
@@ -214,9 +289,10 @@ def mk_html(compact: dict, hs_map: dict, pairs: list) -> str:
 </div>
 
 <script>
-const DATA  = {data_json};
-const HS    = {hs_json};
-const PAIRS = {pairs_json};
+const DATA   = <<DATA_JSON>>;   // by-hero compact (from HS)
+const HS     = <<HS_JSON>>;     // ability/hero -> {win_pct, pick_num}
+const ROLES  = <<ROLES_JSON>>;  // ability -> "carry" | "support" | "both"
+const PAIRS  = <<PAIRS_JSON>>;
 
 const HEROES = Object.keys(DATA).sort((a,b)=>a.localeCompare(b));
 const MAX = 12;
@@ -229,345 +305,333 @@ const clearBtn = $("clearBtn");
 const pills = $("selPills");
 const hint = $("selHint");
 
-const tblA = $("tblAbilities");
-const tbodyA = tblA.querySelector("tbody");
-const theadA = tblA.querySelector("thead");
-const countA = $("countAbilities");
+// Carry table
+const tblC = $("tblCarry"), theadC = tblC.querySelector("thead"), tbodyC = tblC.querySelector("tbody"), countC = $("countCarry");
+// Both table
+const tblB = $("tblBoth"),  theadB = tblB.querySelector("thead"), tbodyB = tblB.querySelector("tbody"), countB = $("countBoth");
+// Support table
+const tblS = $("tblSupport"), theadS = tblS.querySelector("thead"), tbodyS = tblS.querySelector("tbody"), countS = $("countSupport");
 
+// Combos
 const tblP = $("tblPairs");
 const tbodyP = tblP.querySelector("tbody");
 const theadP = tblP.querySelector("thead");
 const countP = $("countPairs");
 
-const sel = new Set();
+try { localStorage.removeItem("ad_hidden_abilities"); } catch (e) {}
+const hidden = new Set();
+function hideAbility(name){ hidden.add(canon(name)); renderTables(); }
+function unhideAll(){ hidden.clear(); renderTables(); }
+$("restoreBtn").onclick = unhideAll;
 
-// --- Canonicalize names (normalize punctuation/spacing)
-function canon(s) {{
+// --- Canonicalize names
+function canon(s) {
   return String(s || "")
     .toLowerCase()
     .normalize("NFKD")
-    .replace(/[\\u2018\\u2019]/g, "'")
-    .replace(/[\\u201C\\u201D]/g, '"')
-    .replace(/[\\u2013\\u2014]/g, "-")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2013\u2014]/g, "-")
     .replace(/[._]/g, " ")
-    .replace(/[^\\w\\s'-]/g, " ")
-    .replace(/\\s+/g, " ")
+    .replace(/[^\w\s'-]/g, " ")
+    .replace(/\s+/g, " ")
     .trim();
-}}
+}
+
+// Abbreviate long hero names with tooltip
+function abbreviateHero(h) {
+  const s = String(h || "").trim();
+  if (s.length <= 12) return s;
+  const parts = s.split(/\s+/);
+  if (parts.length === 1) return s.slice(0, 11) + "…";
+  const first = parts[0];
+  const restInitials = parts.slice(1).map(p => (p ? p[0] + "." : "")).join(" ");
+  let out = `${first} ${restInitials}`; // e.g., "Faceless V."
+  if (out.length <= 12) return out;
+  return first.slice(0, 9) + "…";
+}
 
 // Ability owners for current selection: canon(ability) -> Set(canon(hero))
 let abilityOwners = new Map();
 
-// --- Autocomplete (names only) with prefix matching + proper arrow selection
+// --- Autocomplete
 let ddItems = [], ddIndex = -1;
-
-function filterHeroes(q) {{
+function filterHeroes(q) {
   q = q.trim().toLowerCase();
   if (!q) return HEROES.slice(0, 50);
   return HEROES.filter(h => h.toLowerCase().startsWith(q)).slice(0, 50);
-}}
-
-function renderDD() {{
-  dd.innerHTML = ddItems.map((h,i)=>`<div class="opt${{i===ddIndex?' active':''}}" data-v="${{escapeAttr(h)}}">${{escapeHtml(h)}}</div>`).join("");
+}
+function renderDD() {
+  dd.innerHTML = ddItems.map((h,i)=>`<div class="opt${i===ddIndex?' active':''}" data-v="${escapeAttr(h)}">${escapeHtml(h)}</div>`).join("");
   dd.style.display = ddItems.length ? "block" : "none";
-}}
-
-function openDD(items) {{
+}
+function openDD(items) {
   ddItems = items || [];
-  if (!ddItems.length) {{
-    ddIndex = -1;
-  }} else if (ddIndex < 0) {{
-    ddIndex = 0;
-  }} else if (ddIndex >= ddItems.length) {{
-    ddIndex = ddItems.length - 1;
-  }}
+  if (!ddItems.length) ddIndex = -1;
+  else if (ddIndex < 0) ddIndex = 0;
+  else if (ddIndex >= ddItems.length) ddIndex = ddItems.length - 1;
   renderDD();
-}}
+}
+function closeDD(){ dd.style.display = "none"; ddItems = []; ddIndex = -1; }
 
-function closeDD() {{
-  dd.style.display = "none";
-  ddItems = [];
-  ddIndex = -1;
-}}
-
-dd.addEventListener("mousedown", (e)=>{{ 
+dd.addEventListener("mousedown", (e)=>{
   const opt = e.target.closest(".opt"); 
   if (!opt) return; 
   heroInput.value = opt.dataset.v; 
   addBtn.click(); 
   closeDD(); 
-}});
-
-dd.addEventListener("mousemove", (e)=>{{
+});
+dd.addEventListener("mousemove", (e)=>{
   const opt = e.target.closest(".opt"); 
   if (!opt) return;
   const idx = Array.prototype.indexOf.call(dd.children, opt);
-  if (idx >= 0 && idx !== ddIndex) {{ ddIndex = idx; renderDD(); }}
-}});
-
+  if (idx >= 0 && idx !== ddIndex) { ddIndex = idx; renderDD(); }
+});
 heroInput.addEventListener("input", ()=>openDD(filterHeroes(heroInput.value)));
-
-heroInput.addEventListener("keydown", (e)=>{{
-  if (dd.style.display === "block") {{
-    if (e.key === "ArrowDown") {{
-      e.preventDefault();
-      if (ddItems.length) {{ ddIndex = Math.min(ddIndex + 1, ddItems.length - 1); renderDD(); }}
-      return;
-    }} else if (e.key === "ArrowUp") {{
-      e.preventDefault();
-      if (ddItems.length) {{ ddIndex = Math.max(ddIndex - 1, 0); renderDD(); }}
-      return;
-    }} else if (e.key === "Enter") {{
-      e.preventDefault();
-      if (ddIndex >= 0) {{ heroInput.value = ddItems[ddIndex]; addBtn.click(); closeDD(); }}
-      return;
-    }} else if (e.key === "Escape") {{
-      closeDD();
-      return;
-    }}
-  }}
-  // Enter with dropdown closed = add current text if exact hero
-  if (e.key === "Enter" && dd.style.display !== "block") {{
-    addBtn.click();
-  }}
-}});
-
-document.addEventListener("click",(e)=>{{ if(!e.target.closest(".control")) closeDD(); }});
+heroInput.addEventListener("keydown", (e)=>{
+  if (dd.style.display === "block") {
+    if (e.key === "ArrowDown") { e.preventDefault(); if (ddItems.length) { ddIndex = Math.min(ddIndex + 1, ddItems.length - 1); renderDD(); } return; }
+    if (e.key === "ArrowUp")   { e.preventDefault(); if (ddItems.length) { ddIndex = Math.max(ddIndex - 1, 0); renderDD(); } return; }
+    if (e.key === "Enter")     { e.preventDefault(); if (ddIndex >= 0) { heroInput.value = ddItems[ddIndex]; addBtn.click(); closeDD(); } return; }
+    if (e.key === "Escape")    { closeDD(); return; }
+  }
+  if (e.key === "Enter" && dd.style.display !== "block") addBtn.click();
+});
+document.addEventListener("click",(e)=>{ if(!e.target.closest(".control")) closeDD(); });
 
 // --- Selection
-addBtn.onclick = () => {{ 
+const sel = new Set();
+addBtn.onclick = () => { 
   const name = heroInput.value.trim(); 
   if (!name) return; 
-  if (!DATA[name]) {{ alert("Unknown hero."); return; }} 
-  if (sel.has(name)) {{ heroInput.value=""; return; }} 
-  if (sel.size >= MAX) {{ alert("You already picked 12 heroes."); return; }} 
+  if (!DATA[name]) { alert("Unknown hero."); return; } 
+  if (sel.has(name)) { heroInput.value=""; return; } 
+  if (sel.size >= MAX) { alert("You already picked 12 heroes."); return; } 
   sel.add(name); 
   heroInput.value=""; 
   closeDD(); 
   render(); 
-}};
-clearBtn.onclick = () => {{ sel.clear(); render(); }};
+};
+clearBtn.onclick = () => { sel.clear(); render(); };
 
-// --- Collect Abilities (for selected heroes)
-function collectAbilities() {{
+// --- Collect Abilities (for selected heroes), attach roles and pick
+function collectAbilities() {
   const map = new Map();
-  for (const h of sel) {{
+  for (const h of sel) {
     const H = DATA[h];
-    // Model row (with HS if available)
     const hsModel = HS[h] || null;
-    map.set("MODEL::"+h, {{
+
+    // Model row in selection context (not in the 3 tables)
+    map.set("MODEL::"+h, {
       kind: "model",
       ability: "Model — " + h,
       from: [h],
       pick: (hsModel && typeof hsModel.pick_num==="number") ? hsModel.pick_num : null,
-      win:  (hsModel && typeof hsModel.win_pct ==="number") ? hsModel.win_pct
-            : (typeof H.body_winrate==="number" ? H.body_winrate : null),
-      img: H.hero_img || null
-    }});
-    // Abilities
-    for (const a of (H.abilities||[])) {{
+      win:  (typeof H.body_winrate==="number") ? H.body_winrate :
+            (hsModel && typeof hsModel.win_pct==="number" ? hsModel.win_pct : null),
+      img: H.hero_img || null,
+      role: null,
+    });
+
+    // Abilities (including hero model we appended on the Python side)
+    for (const a of (H.abilities||[])) {
       const key = a.name;
-      if (!map.has(key)) map.set(key, {{ kind:"ability", ability:a.name, from:[], pick:null, win:null, img:a.img||null }});
+      if (!map.has(key)) map.set(key, { kind:"ability", ability:a.name, from:[], pick:null, win:null, img:a.img||null, role:null });
       const row = map.get(key);
       row.from.push(h);
       // win% (best across selected heroes)
       if (typeof a.win_pct === "number") row.win = (row.win==null) ? a.win_pct : Math.max(row.win, a.win_pct);
-      // HS Pick #
+      // HS Pick # (prefer HS table, fallback to embedded a.pick_num if present)
       const hs = HS[a.name];
       if (hs && typeof hs.pick_num === "number") row.pick = hs.pick_num;
-    }}
-  }}
+      else if (typeof a.pick_num === "number") row.pick = a.pick_num;
+      // role
+      const r = ROLES[a.name];
+      row.role = (r==="carry"||r==="support"||r==="both") ? r : row.role;
+    }
+  }
   return [...map.values()];
-}}
+}
 
-// --- Pairs: show cross-hero only (ability↔ability OR hero↔ability across different selected heroes)
-function collectPairs(selectedAbilityNames) {{
+// --- Pairs (cross-hero only)
+function collectPairs(selectedAbilityNames) {
   if (!PAIRS || !Array.isArray(PAIRS)) return [];
-
   const selectedHeroes = new Set([...sel].map(canon));
   const selectedAbilities = new Set(selectedAbilityNames.map(canon));
-
   const rows = [];
-
-  for (const p of PAIRS) {{
-    const a1raw = p.a1, a2raw = p.a2;
-    if (!a1raw || !a2raw) continue;
-
-    const a1n = canon(a1raw), a2n = canon(a2raw);
-    if (a1n === a2n) continue; // skip reflexive/self
-
-    const o1 = abilityOwners.get(a1n); // Set(canon(hero)) if a1 is an ability name
-    const o2 = abilityOwners.get(a2n); // Set(canon(hero)) if a2 is an ability name
-
-    const a1IsAbility = !!o1;
-    const a2IsAbility = !!o2;
-    const a1IsHero    = selectedHeroes.has(a1n);
-    const a2IsHero    = selectedHeroes.has(a2n);
-
+  for (const p of PAIRS) {
+    const a1raw = p.a1, a2raw = p.a2; if (!a1raw || !a2raw) continue;
+    const a1n = canon(a1raw), a2n = canon(a2raw); if (a1n === a2n) continue;
+    const o1 = abilityOwners.get(a1n), o2 = abilityOwners.get(a2n);
+    const a1IsAbility = !!o1, a2IsAbility = !!o2;
+    const a1IsHero = selectedHeroes.has(a1n), a2IsHero = selectedHeroes.has(a2n);
     let ok = false;
-
-    if (a1IsAbility && a2IsAbility) {{
-      // both abilities must be in current selection and owned by DIFFERENT selected heroes
-      if (selectedAbilities.has(a1n) && selectedAbilities.has(a2n)) {{
-        outer:
-        for (const h1 of (o1 || [])) {{
-          if (!selectedHeroes.has(h1)) continue;
-          for (const h2 of (o2 || [])) {{
-            if (!selectedHeroes.has(h2)) continue;
-            if (h1 !== h2) {{ ok = true; break outer; }}
-          }}
-        }}
-      }}
-    }} else if (a1IsHero && a2IsAbility) {{
-      // hero + ability, require different hero
-      if (selectedAbilities.has(a2n)) {{
-        for (const h2 of (o2 || [])) {{
-          if (!selectedHeroes.has(h2)) continue;
-          if (h2 !== a1n) {{ ok = true; break; }}
-        }}
-      }}
-    }} else if (a2IsHero && a1IsAbility) {{
-      if (selectedAbilities.has(a1n)) {{
-        for (const h1 of (o1 || [])) {{
-          if (!selectedHeroes.has(h1)) continue;
-          if (h1 !== a2n) {{ ok = true; break; }}
-        }}
-      }}
-    }} else {{
-      // hero-hero or tokens not in selection context → ignore
-      ok = false;
-    }}
-
+    if (a1IsAbility && a2IsAbility) {
+      if (selectedAbilities.has(a1n) && selectedAbilities.has(a2n)) {
+        outer: for (const h1 of (o1 || [])) { if (!selectedHeroes.has(h1)) continue;
+          for (const h2 of (o2 || [])) { if (!selectedHeroes.has(h2)) continue;
+            if (h1 !== h2) { ok = true; break outer; } } }
+      }
+    } else if (a1IsHero && a2IsAbility) {
+      if (selectedAbilities.has(a2n)) { for (const h2 of (o2 || [])) { if (!selectedHeroes.has(h2)) continue; if (h2 !== a1n) { ok = true; break; } } }
+    } else if (a2IsHero && a1IsAbility) {
+      if (selectedAbilities.has(a1n)) { for (const h1 of (o1 || [])) { if (!selectedHeroes.has(h1)) continue; if (h1 !== a2n) { ok = true; break; } } }
+    }
     if (!ok) continue;
-
-    rows.push({{
-      a1: a1raw,
-      a2: a2raw,
-      a1_img: p.a1_img || null,
-      a2_img: p.a2_img || null,
-      syn: (typeof p.synergy === "number") ? p.synergy : null
-    }});
-  }}
-
+    rows.push({ a1:a1raw, a2:a2raw, a1_img:p.a1_img||null, a2_img:p.a2_img||null, syn:(typeof p.synergy==="number")?p.synergy:null });
+  }
   return rows;
-}}
+}
 
-// --- Sorting Abilities
-let sortAKey = "pick";  // default HS Pick #
-let sortADir = "asc";
-function setSortA(th) {{
-  const key = th.dataset.key; if(!key) return;
-  if (sortAKey === key) sortADir = (sortADir==="asc")?"desc":"asc"; else {{ sortAKey=key; sortADir=(key==="ability"||key==="from")?"asc":"asc"; }}
-  theadA.querySelectorAll("th").forEach(el=>el.classList.remove("sort-asc","sort-desc"));
-  th.classList.add(sortADir==="asc"?"sort-asc":"sort-desc");
-  renderAbilities();
-}}
-theadA.addEventListener("click",(e)=>{{ const th=e.target.closest("th"); if(th) setSortA(th); }});
+// --- Sorting
+function makeSortState(defaultKey, defaultDir){ return { key:defaultKey, dir:defaultDir }; }
+const sortC = makeSortState("pick", "asc");
+const sortB = makeSortState("pick", "asc");
+const sortS = makeSortState("pick", "asc");
+let sortPKey = "syn", sortPDir = "desc";
 
-// --- Sorting Pairs
-let sortPKey = "syn"; // default by Synergy
-let sortPDir = "desc";
-function setSortP(th) {{
-  const key = th.dataset.key; if(!key) return;
-  if (sortPKey === key) sortPDir = (sortPDir==="asc")?"desc":"asc"; else {{ sortPKey=key; sortPDir=(key==="a1"||key==="a2")?"asc":"desc"; }}
+function bindSort(thead, state, renderFn){
+  thead.addEventListener("click",(e)=>{
+    const th=e.target.closest("th"); if(!th) return;
+    const k=th.dataset.key; if(!k) return;
+    if (state.key===k) state.dir = (state.dir==="asc")?"desc":"asc";
+    else { state.key=k; state.dir=(k==="ability"||k==="from")?"asc":"asc"; }
+    thead.querySelectorAll("th").forEach(el=>el.classList.remove("sort-asc","sort-desc"));
+    th.classList.add(state.dir==="asc"?"sort-asc":"sort-desc");
+    renderFn();
+  });
+}
+bindSort(tblC.querySelector("thead"), sortC, renderTables);
+bindSort(tblB.querySelector("thead"), sortB, renderTables);
+bindSort(tblS.querySelector("thead"), sortS, renderTables);
+theadP.addEventListener("click",(e)=>{ const th=e.target.closest("th"); if(!th) return;
+  const k=th.dataset.key; if(!k) return;
+  if (sortPKey===k) sortPDir = (sortPDir==="asc")?"desc":"asc";
+  else { sortPKey=k; sortPDir=(k==="a1"||k==="a2")?"asc":"desc"; }
   theadP.querySelectorAll("th").forEach(el=>el.classList.remove("sort-asc","sort-desc"));
   th.classList.add(sortPDir==="asc"?"sort-asc":"sort-desc");
   renderPairs();
-}}
-theadP.addEventListener("click",(e)=>{{ const th=e.target.closest("th"); if(th) setSortP(th); }});
+});
 
 // --- Render
-function render() {{
+function render(){
   // pills
   pills.innerHTML = "";
-  [...sel].sort((a,b)=>a.localeCompare(b)).forEach(h=>{{
+  [...sel].sort((a,b)=>a.localeCompare(b)).forEach(h=>{
     const el=document.createElement("div"); el.className="pill";
-    el.innerHTML=`<b>${{escapeHtml(h)}}</b> <button title="Remove" aria-label="Remove" onclick="removeHero('${{escapeAttr(h)}}')">✕</button>`;
+    el.innerHTML=`<b>${escapeHtml(h)}</b> <button title="Remove" aria-label="Remove" onclick="removeHero('${escapeAttr(h)}')">✕</button>`;
     pills.appendChild(el);
-  }});
-  hint.textContent = `${{sel.size}} / ${{MAX}} selected`;
-
-  // set sort indicators
-  theadA.querySelectorAll("th").forEach(el=>el.classList.remove("sort-asc","sort-desc"));
-  const tha = theadA.querySelector(`th[data-key="${{sortAKey}}"]`); if (tha) tha.classList.add(sortADir==="asc"?"sort-asc":"sort-desc");
-  theadP.querySelectorAll("th").forEach(el=>el.classList.remove("sort-asc","sort-desc"));
-  const thp = theadP.querySelector(`th[data-key="${{sortPKey}}"]`); if (thp) thp.classList.add(sortPDir==="asc"?"sort-asc":"sort-desc");
-
-  renderAbilities();
+  });
+  hint.textContent = `${sel.size} / ${MAX} selected`;
+  renderTables();
   renderPairs();
-}}
-window.removeHero = (h)=>{{ sel.delete(h); render(); }};
+}
+window.removeHero = (h)=>{ sel.delete(h); render(); };
+
+// clicks on overlay delete button
+[tbodyC, tbodyB, tbodyS].forEach(tb=>{
+  tb.addEventListener("click", (e)=>{
+    const btn = e.target.closest(".delBtn");
+    if (!btn) return;
+    const ability = btn.dataset.ability;
+    if (ability) hideAbility(ability);
+  });
+});
 
 let cachedAbilities = [];
-function renderAbilities() {{
+function renderTables(){
   const rows = collectAbilities();
-  cachedAbilities = rows; // keep for pair filtering
+  cachedAbilities = rows;
 
   // rebuild owners with canonical keys
   abilityOwners = new Map();
-  for (const r of rows) {{
-    if (r.kind === "ability") {{
+  for (const r of rows) {
+    if (r.kind === "ability") {
       const aKey = canon(r.ability);
       const owners = new Set();
       for (const h of (r.from || [])) owners.add(canon(h));
       abilityOwners.set(aKey, owners);
-    }}
-  }}
+    }
+  }
 
-  const cmp = (a,b)=>{{
-    let av=a[sortAKey], bv=b[sortAKey];
-    if (sortAKey==="ability") {{ av=String(av||""); bv=String(bv||""); return sortADir==="asc"? av.localeCompare(bv): bv.localeCompare(av); }}
-    if (sortAKey==="from") {{ av=(a.from||[]).length; bv=(b.from||[]).length; return sortADir==="asc"? av-bv : bv-av; }}
+  const carry = [], both = [], support = [];
+  for (const r of rows) {
+    if (r.kind !== "ability") continue; // keep models out of the 3 tables
+    if (hidden.has(canon(r.ability))) continue;
+    if (r.role === "carry") carry.push(r);
+    else if (r.role === "both") both.push(r);
+    else if (r.role === "support") support.push(r);
+  }
+
+  const cmp = (state)=>(a,b)=>{
+    const key = state.key, dir = state.dir;
+    let av=a[key], bv=b[key];
+    if (key==="ability") { av=String(av||""); bv=String(bv||""); return dir==="asc"? av.localeCompare(bv): bv.localeCompare(av); }
+    if (key==="from") { av=(a.from||[]).length; bv=(b.from||[]).length; return dir==="asc"? av-bv : bv-av; }
     const na=(typeof av==="number")?av:Infinity, nb=(typeof bv==="number")?bv:Infinity, d=na-nb;
-    return sortADir==="asc"? d : -d;
-  }};
-  rows.sort(cmp);
+    return dir==="asc"? d : -d;
+  };
+  carry.sort(cmp(sortC)); both.sort(cmp(sortB)); support.sort(cmp(sortS));
 
-  tbodyA.innerHTML = rows.map(r=>rowAbilityHtml(r)).join("");
-  countA.textContent = `${{rows.length}} rows`;
-}}
+  tbodyC.innerHTML = carry.map(r=>rowAbilityHtml(r)).join("");
+  tbodyB.innerHTML = both.map(r=>rowAbilityHtml(r)).join("");
+  tbodyS.innerHTML = support.map(r=>rowAbilityHtml(r)).join("");
 
-function renderPairs() {{
+  countC.textContent = `${carry.length} rows`;
+  countB.textContent = `${both.length} rows`;
+  countS.textContent = `${support.length} rows`;
+}
+
+function renderPairs(){
   const selectedNames = cachedAbilities.filter(r=>r.kind==="ability").map(r=>r.ability);
   const rows = collectPairs(selectedNames);
-
-  const cmp = (a,b)=>{{
-    if (sortPKey==="a1" || sortPKey==="a2") {{
+  const cmp = (a,b)=>{
+    if (sortPKey==="a1" || sortPKey==="a2") {
       const av=String(a[sortPKey]||""), bv=String(b[sortPKey]||"");
       return sortPDir==="asc"? av.localeCompare(bv) : bv.localeCompare(av);
-    }}
+    }
     const na=(typeof a.syn==="number")?a.syn:-Infinity;
     const nb=(typeof b.syn==="number")?b.syn:-Infinity;
     const d=na-nb;
     return sortPDir==="asc"? d : -d;
-  }};
+  };
   rows.sort(cmp);
-
   tbodyP.innerHTML = rows.map(r=>rowPairHtml(r)).join("");
-  countP.textContent = `${{rows.length}} combos`;
-}}
+  countP.textContent = `${rows.length} combos`;
+}
 
-function rowAbilityHtml(r) {{
-  const heroList=(r.from||[]).map(h=>`<span class="badge">${{escapeHtml(h)}}</span>`).join(" ");
-  return `<tr>
-    <td>${{r.img?`<img class="img" src="${{escapeAttr(r.img)}}" alt=""> `:""}}<b>${{escapeHtml(r.ability)}}</b></td>
-    <td>${{heroList}}</td>
-    <td class="k">${{fmtNum(r.pick)}}</td>
-    <td class="k">${{fmtPct(r.win)}}</td>
+function rowAbilityHtml(r){
+  const heroList = (r.from || []).map(h => {
+    const short = abbreviateHero(h);
+    return `<span class="badge" title="${escapeAttr(h)}">${escapeHtml(short)}</span>`;
+  }).join(" ");
+  const del = `<button class="delBtn" title="Remove from view" data-ability="${escapeAttr(r.ability)}">✕</button>`;
+  const icon = r.img
+  ? `<span class="icon-wrap">
+       <img class="img" src="${escapeAttr(r.img)}" alt="">
+       <button class="delBtn" title="Remove from view" data-ability="${escapeAttr(r.ability)}"></button>
+     </span>`
+  : `<button class="delBtn" title="Remove from view" data-ability="${escapeAttr(r.ability)}"></button>`;
+return `<tr data-ability="${escapeAttr(r.ability)}">
+  <td class="cell-ability">${icon}<b>${escapeHtml(r.ability)}</b></td>
+    <td>${heroList}</td>
+    <td class="k">${fmtNum(r.pick)}</td>
+    <td class="k">${fmtPct(r.win)}</td>
   </tr>`;
-}}
-function rowPairHtml(r) {{
-  const img = (src) => src ? `<img class="img" src="${{escapeAttr(src)}}" alt=""> ` : "";
+}
+
+function rowPairHtml(r){
+  const img = (src) => src ? `<img class="img" src="${escapeAttr(src)}" alt=""> ` : "";
   return `<tr>
-    <td>${{img(r.a1_img)}}<b>${{escapeHtml(r.a1)}}</b></td>
-    <td>${{img(r.a2_img)}}<b>${{escapeHtml(r.a2)}}</b></td>
-    <td class="k">${{fmtNum(r.syn)}}</td>
+    <td>${img(r.a1_img)}<b>${escapeHtml(r.a1)}</b></td>
+    <td>${img(r.a2_img)}<b>${escapeHtml(r.a2)}</b></td>
+    <td class="k">${fmtNum(r.syn)}</td>
   </tr>`;
-}}
-function fmtNum(v) {{ return (typeof v === "number") ? v.toFixed(2) : "<span class='muted'>—</span>"; }}
-function fmtPct(v) {{ return (typeof v === "number") ? v.toFixed(2) + "%" : "<span class='muted'>—</span>"; }}
-function escapeHtml(s) {{ return String(s).replace(/[&<>"']/g, m => ({{'&':'&amp;','<':'&lt;','&gt;':'&gt;','"':'&quot;',"'":"&#39;"}})[m]); }}
-function escapeAttr(s) {{ return String(s).replace(/["']/g, m => (m=='"'?'&quot;':'&#39;')); }}
+}
+function fmtNum(v){ return (typeof v === "number") ? v.toFixed(2) : "<span class='muted'>—</span>"; }
+function fmtPct(v){ return (typeof v === "number") ? v.toFixed(2) + "%" : "<span class='muted'>—</span>"; }
+function escapeHtml(s){ return String(s).replace(/[&<>\"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[m]); }
+function escapeAttr(s){ return String(s).replace(/["']/g, m => (m=='"'?'&quot;':'&#39;')); }
 
 // boot
 render();
@@ -575,17 +639,40 @@ render();
 </body>
 </html>
 """
+    return (
+        TEMPLATE
+        .replace("<<DATA_JSON>>", data_json)
+        .replace("<<HS_JSON>>", hs_json)
+        .replace("<<ROLES_JSON>>", roles_json)
+        .replace("<<PAIRS_JSON>>", pairs_json)
+    )
 
+# ---------- MAIN ----------
 
 def main():
-    hs_map  = load_high_skill_map()
-    pairs   = load_pairs()
-    compact = build_compact_from_hs(hs_map)
-    html = mk_html(compact, hs_map, pairs)
+    by_hero, hs_raw = load_high_skill()
+    roles = load_roles()
+    pairs = load_pairs()
+
+    # Terminal warning for unlabeled abilities
+    # (include both ability and hero model names that appear in HS with pick_num)
+    ability_names = {
+        k for k, v in (hs_raw or {}).items()
+        if isinstance(v, dict) and "pick_num" in v
+    }
+    labeled = set(roles.keys())
+    missing = sorted(ability_names - labeled)
+    if missing:
+        print(f"WARN: {len(missing)} unlabeled abilities (not shown in UI). Add to {INFILE_ROLES}:")
+        for name in missing[:25]:
+            print(f"  - {name}")
+        if len(missing) > 25:
+            print(f"  ... (+{len(missing)-25} more)")
+
+    html = mk_html(by_hero, hs_raw, roles, pairs)
     OUTDIR.mkdir(parents=True, exist_ok=True)
     OUTFILE.write_text(html, encoding="utf-8")
     print(f"Wrote {OUTFILE}")
-
 
 if __name__ == "__main__":
     main()
