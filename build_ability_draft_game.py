@@ -34,7 +34,7 @@ def load_hero_data():
                     {"ability_name": a.get("ability_name"), "img": a.get("img")}
                     for a in v.get("abilities", [])
                     if a and a.get("ability_name")
-                ],  # keep all here; JS will trim/pad to 4
+                ],  # keep all; JS trims/pads to 4
             }
     return heroes
 
@@ -44,7 +44,7 @@ def build_html(all_heroes):
 
     css = r"""
     :root{
-      /* 40% larger sizing from last pass */
+      /* sizing (~40% larger) */
       --tile: 56px;
       --gap: 8px;
       --rad: 8px;
@@ -55,24 +55,26 @@ def build_html(all_heroes):
       --p-width: calc(5*var(--tile) + 4*var(--p-inner-gap));
       --row-pad: 6px;
 
+      /* total width: [P] [H] [4A] [4A] [H] [P] + gaps + padding */
       --W: calc(
          var(--p-width) + var(--tile) + 4*var(--tile) + 4*var(--tile) + var(--tile) + var(--p-width)
          + 12*var(--gap) + 2*var(--row-pad)
       );
-      --H: calc( 5*(var(--tile) + 2*var(--row-pad)) + 4*var(--gap) );
+
+      /* total height for 6 rows (5 player rows + 1 bench), gaps and padding */
+      --H: calc( 6*(var(--tile) + 2*var(--row-pad)) + 5*var(--gap) );
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0; background:var(--bg); color:#e5e7eb;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-      overflow:hidden;
+      overflow:hidden; /* fixed canvas */
     }
 
     .outer{
       display:flex; flex-direction:column; align-items:center;
-      padding-block: 18px;
-      gap: 12px;
+      padding-block: 18px; gap: 12px;
     }
     .title{
       font-weight:800; letter-spacing:.3px; font-size:18px;
@@ -90,19 +92,19 @@ def build_html(all_heroes):
       width: var(--W);
       height: var(--H);
       display: grid;
-      grid-template-rows: repeat(5, 1fr);
+      grid-template-rows: repeat(6, 1fr); /* 5 player rows + 1 bench row */
       gap: var(--gap);
     }
 
-    .row{
+    .row, .bench-row{
       display: grid; align-items: center; gap: var(--gap);
       grid-template-columns:
-        var(--p-width)         /* Player strip (5 slots) */
+        var(--p-width)         /* Player/empty */
         var(--tile)            /* Hero A */
         repeat(4, var(--tile)) /* Abil A */
         repeat(4, var(--tile)) /* Abil B */
         var(--tile)            /* Hero B */
-        var(--p-width);        /* Player strip */
+        var(--p-width);        /* Player/empty */
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 10px;
@@ -115,8 +117,10 @@ def build_html(all_heroes):
       height: var(--tile); overflow:hidden; position:relative;
     }
     .cellP{ width: var(--p-width); border-radius:10px; }
+    .cellP.empty{ background: transparent; border-color: transparent; }
     .cellH, .cellA{ width: var(--tile); }
 
+    /* player strip: [model][A][A][A][A] */
     .p-strip{
       display: grid;
       grid-template-columns: repeat(5, var(--tile));
@@ -148,7 +152,7 @@ def build_html(all_heroes):
     let pickedModels = new Set();     // heroName
     let pickedAbilities = new Set();  // `${abilityName}__${sourceHeroName}`
     let selected = [];                // 12 heroes
-    let boardHeroes = [];             // first 10 heroes with exactly 4 ability tiles each (padded if needed)
+    let boardHeroes = [];             // 12 heroes with exactly 4 tiles each (padded if needed)
 
     function rngShuffle(a){
       for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
@@ -173,64 +177,47 @@ def build_html(all_heroes):
 
     function abilityKey(aName, srcHero){ return `${aName}__${srcHero}`; }
 
-    // Build a single pool of outside abilities (from heroes NOT in the 12) and use it
-    // to pad any board hero that has < 4 abilities. No replacement globally.
-    function padBoardAbilities(){
-      const selectedNames = new Set(selected.map(h => h.name));
-      const outsideAbilities = [];
+    // Pad ALL 12 heroes to 4 tiles each using abilities from outside the selected pool
+    function padAllSelected(){
+      const names = new Set(selected.map(h => h.name));
+      const outside = [];
       for (const [name, hero] of Object.entries(ALL_HEROES)){
-        if (selectedNames.has(name)) continue;
+        if (names.has(name)) continue;
         for (const a of (hero.abilities||[])){
           if (!a || !a.ability_name) continue;
-          outsideAbilities.push({
-            ability_name: a.ability_name,
-            img: a.img || "",
-            srcHero: hero.name
-          });
+          outside.push({ ability_name:a.ability_name, img:a.img||"", srcHero:hero.name, borrowed:true });
         }
       }
-      rngShuffle(outsideAbilities);
+      rngShuffle(outside);
 
-      boardHeroes = selected.slice(0, 10).map(h => {
+      boardHeroes = selected.map(h => {
         const tiles = [];
-        const own = (h.abilities||[]).slice(0, 4);
-        for (const a of own){
-          tiles.push({
-            ability_name: a.ability_name,
-            img: a.img || "",
-            srcHero: h.name,        // source = itself
-            borrowed: false
-          });
+        for (const a of (h.abilities||[]).slice(0,4)){
+          tiles.push({ ability_name:a.ability_name, img:a.img||"", srcHero:h.name, borrowed:false });
         }
-        while (tiles.length < 4 && outsideAbilities.length){
-          const x = outsideAbilities.pop();
-          tiles.push({
-            ability_name: x.ability_name,
-            img: x.img,
-            srcHero: x.srcHero,     // source = external hero
-            borrowed: true
-          });
+        while (tiles.length < 4 && outside.length){
+          tiles.push(outside.pop());
         }
-        return { name: h.name, hero_img: h.hero_img || "", tiles };
+        return { name:h.name, hero_img:h.hero_img||"", tiles };
       });
     }
 
     // cells
-    function cellP(p){
+    function cellP(p, isCurrent){
       const slots = [];
       slots.push(`<div class="p-slot">${p.modelImg ? `<img class="tile" src="${p.modelImg}">` : ""}</div>`);
       for (let i=0;i<4;i++){
         const img = p.abilities[i] || "";
         slots.push(`<div class="p-slot">${img ? `<img class="tile" src="${img}">` : ""}</div>`);
       }
-      return `<div class="cellP ${p===curPlayer()?'current':''}" data-seat="${p.seat}">
+      return `<div class="cellP ${isCurrent?'current':''}" data-seat="${p.seat}">
                 <div class="p-strip">${slots.join("")}</div>
               </div>`;
     }
-
+    function cellPEmpty(){
+      return `<div class="cellP empty" aria-hidden="true"></div>`;
+    }
     function cellH(heroName){
-      // A hero tile is pickable only once globally as a model.
-      // Find its image from selected list (not boardHeroes, since same names).
       const h = selected.find(x => x.name === heroName);
       const disabled = pickedModels.has(heroName) ? "disabled" : "";
       const img = h && h.hero_img ? `<img class="tile" src="${h.hero_img}">` : "";
@@ -238,7 +225,6 @@ def build_html(all_heroes):
                 <button class="pickbtn" data-model="${heroName}">${img}</button>
               </div>`;
     }
-
     function cellA(tile){
       const key = abilityKey(tile.ability_name, tile.srcHero);
       const disabled = pickedAbilities.has(key) ? "disabled" : "";
@@ -251,30 +237,49 @@ def build_html(all_heroes):
     function render(){
       const root = document.getElementById("wrap");
       const rows = [];
+
+      // first 10 heroes across 5 rows with players
       for (let r=0;r<5;r++){
         const pL = players[2*r];
         const pR = players[2*r+1];
         const hA = boardHeroes[2*r];
         const hB = boardHeroes[2*r+1];
+        const curSeat = (snakeForward ? turnIndex : (SEATS-1-turnIndex)) + 1;
 
         rows.push(`
           <div class="row">
-            ${cellP(pL)}
+            ${cellP(pL, pL.seat === curSeat)}
             ${cellH(hA.name)}
             ${hA.tiles.map(cellA).join("")}
             ${hB.tiles.map(cellA).join("")}
             ${cellH(hB.name)}
-            ${cellP(pR)}
+            ${cellP(pR, pR.seat === curSeat)}
           </div>
         `);
       }
+
+      // 6th row: bench for the last 2 heroes (indices 10 & 11) with empty player cells
+      const h10 = boardHeroes[10];
+      const h11 = boardHeroes[11];
+      rows.push(`
+        <div class="bench-row">
+          ${cellPEmpty()}
+          ${cellH(h10.name)}
+          ${h10.tiles.map(cellA).join("")}
+          ${h11.tiles.map(cellA).join("")}
+          ${cellH(h11.name)}
+          ${cellPEmpty()}
+        </div>
+      `);
+
       root.innerHTML = rows.join("");
       highlight();
     }
 
     function highlight(){
       document.querySelectorAll(".cellP").forEach(el=>el.classList.remove("current"));
-      const cur = document.querySelector(`.cellP[data-seat="${curPlayer().seat}"]`);
+      const curSeat = (snakeForward ? turnIndex : (SEATS-1-turnIndex)) + 1;
+      const cur = document.querySelector(`.cellP[data-seat="${curSeat}"]`);
       if (cur) cur.classList.add("current");
     }
 
@@ -321,7 +326,7 @@ def build_html(all_heroes):
     }
 
     function init(reroll=false){
-      // pick 12 heroes
+      // choose 12 heroes
       const names = Object.keys(ALL_HEROES);
       selected = rngSample(names, 12).map(n=>ALL_HEROES[n]);
 
@@ -332,8 +337,8 @@ def build_html(all_heroes):
       snakeForward = true;
       turnIndex = 0;
 
-      // normalize board heroes (first 10) with 4 tiles each, padded from outside pool
-      padBoardAbilities();
+      // pad all 12 heroes to 4 tiles each
+      padAllSelected();
 
       render();
     }
@@ -344,13 +349,13 @@ def build_html(all_heroes):
     });
     """
 
-    html = f"""<!DOCTYPE html>
+    html_template = """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Ability Draft – Table</title>
-<style>{css}</style>
+<style>__CSS__</style>
 </head>
 <body>
   <div class="outer">
@@ -360,11 +365,17 @@ def build_html(all_heroes):
     </div>
     <div class="wrap" id="wrap"></div>
   </div>
-  <script id="all-heroes-json" type="application/json">{data_json}</script>
-  <script>{js}</script>
+  <script id="all-heroes-json" type="application/json">__DATA__</script>
+  <script>__JS__</script>
 </body>
 </html>
 """
+    html = (html_template
+        .replace("__CSS__", css)
+        .replace("__DATA__", data_json)
+        .replace("__JS__", js))
+
+
     return html
 
 def main():
