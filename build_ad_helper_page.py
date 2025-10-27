@@ -555,7 +555,7 @@ function renderTables(){
   function rawScore(row){
     const p = row.pick, w = row.win;
     if (typeof p !== "number" || typeof w !== "number") return null;
-    return p * (100 - w) ** 6;
+    return p * (100 - w) ** 4;
   }
   const scores = all.map(rawScore).filter(v=>typeof v==="number" && isFinite(v));
   const rmin = Math.min(...scores), rmax = Math.max(...scores);
