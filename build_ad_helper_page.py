@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
 """
-Build static Ability Draft helper page (categorized abilities).
+Build Ability Draft helper (categorized abilities) with Supabase realtime.
+
+What you get:
+- Realtime sync of:
+  * selected heroes
+  * hidden abilities (row delete via image overlay)
+  * sort state for all 4 tables
+- Cold-join: a freshly opened tab requests current state and applies it
+- Copyable share link with the room id in the URL hash (#r=...)
+- Keeps your new Goody formula: raw = pick_num * (100 - win_pct) ** 4
 
 Inputs:
-  - cache/ability_high_skill.json  (single source of truth; contains ability + hero entries)
-  - cache/ability_roles.json       (manual labels: carry/support/both)   [optional]
-  - cache/ability_pairs.json       (combos)                              [optional]
+  - cache/ability_high_skill.json  (single source of truth)
+  - cache/ability_roles.json       (optional)
+  - cache/ability_pairs.json       (optional)
 
 Output:
   - dist/ad_helper.html
@@ -142,13 +151,13 @@ def mk_html(by_hero: dict, hs_raw: dict, roles: dict, pairs: list) -> str:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Ability Draft Helper (static)</title>
+<title>Ability Draft Helper (realtime)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
   :root { --bg:#0f1115; --card:#151923; --muted:#9aa3b2; --text:#e7ecf3; --accent:#7aa2f7; --pill:#1f2633; }
   html,body { margin:0; padding:0; background:var(--bg); color:var(--text); font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial; }
   .wrap { max-width:1300px; margin:24px auto; padding:0 16px; }
-  h1 { font-size:20px; margin:0 0 12px; }
+  h1 { font-size:20px; margin:0 0 12px; display:flex; align-items:center; gap:10px; }
   h2 { font-size:16px; margin:14px 0 8px; color:var(--muted); }
   .card { background:var(--card); border-radius:14px; padding:14px; box-shadow:0 2px 8px rgba(0,0,0,.25); }
   .row { display:flex; gap:12px; flex-wrap:wrap; }
@@ -185,11 +194,21 @@ def mk_html(by_hero: dict, hs_raw: dict, roles: dict, pairs: list) -> str:
   .icon-wrap .delBtn { position:absolute; inset:0; display:none; border:none; border-radius:6px; background: rgba(220,53,69,0); cursor:pointer; }
   .icon-wrap:hover .delBtn { display:block; background: rgba(220,53,69,0.35); }
   .icon-wrap .delBtn::before { content: "✕"; display:block; width:100%; height:100%; text-align:center; line-height:28px; font-weight:800; color:#fff; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+  .room { color:var(--muted); font-size:12px; }
 </style>
+
+<!-- Supabase client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="wrap">
-  <h1>Ability Draft Helper</h1>
+  <h1>
+    <span>Ability Draft Helper</span>
+    <span class="room" id="roomTag"></span>
+    <button id="shareBtn" class="small" title="Copy room link">Share Room</button>
+    <span id="copied" class="small muted" style="display:none;">Copied ✓</span>
+  </h1>
+
   <div class="row">
     <div class="col card">
       <div class="muted small">Pick up to 12 heroes from your AD lobby.</div>
@@ -300,11 +319,11 @@ const tbodyP = tblP.querySelector("tbody");
 const theadP = tblP.querySelector("thead");
 const countP = $("countPairs");
 
-// In-memory hidden abilities (reset on reload)
+// In-memory hidden abilities (reset on reload; we sync via Supabase, not localStorage)
 try { localStorage.removeItem("ad_hidden_abilities"); } catch (e) {}
 const hidden = new Set();
-function hideAbility(name){ hidden.add(canon(name)); renderTables(); }
-function unhideAll(){ hidden.clear(); renderTables(); }
+function hideAbility(name){ hidden.add(canon(name)); render(); }
+function unhideAll(){ hidden.clear(); render(); }
 $("restoreBtn").onclick = unhideAll;
 
 // --- Canonicalize names
@@ -316,8 +335,8 @@ function canon(s) {
     .replace(/[\u201C\u201D]/g, '"')
     .replace(/[\u2013\u2014]/g, "-")
     .replace(/[._]/g, " ")
-    .replace(/[^\w\s'-]/g, " ")
-    .replace(/\s+/g, " ")
+    .replace(/[^\w\\s'-]/g, " ")   // NOTE: this line is intentionally escaped by Python; it ends up as /[^\w\s'-]/
+    .replace(/\\s+/g, " ")         // NOTE: same here; final JS is /\s+/
     .trim();
 }
 
@@ -325,7 +344,7 @@ function canon(s) {
 function abbreviateHero(h) {
   const s = String(h || "").trim();
   if (s.length <= 12) return s;
-  const parts = s.split(/\s+/);
+  const parts = s.split(/\\s+/);
   if (parts.length === 1) return s.slice(0, 11) + "…";
   const first = parts[0];
   const restInitials = parts.slice(1).map(p => (p ? p[0] + "." : "")).join(" ");
@@ -497,8 +516,116 @@ theadP.addEventListener("click",(e)=>{ const th=e.target.closest("th"); if(!th) 
   renderPairs();
 });
 
+// -------- Realtime (Supabase): versioning + cold-join sync --------
+const SUPA_URL = "https://subxkjymwzzroctziiro.supabase.co";
+const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN1Ynhranltd3p6cm9jdHppaXJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0ODk1NTYsImV4cCI6MjA3NzA2NTU1Nn0.xhubkk6Gsx8N7btGH8vCj3B8-AGNaQCoqBZkB0PZ1zo";
+
+// room id in #r=...
+function getHashParam(key){
+  const h=location.hash.replace(/^#/,""); if(!h) return null;
+  const map=new Map(h.split("&").filter(Boolean).map(kv=>{ const i=kv.indexOf("="); return i<0?[kv,""]:[kv.slice(0,i),kv.slice(i+1)]; }));
+  return map.get(key)||null;
+}
+function setHashParam(key,value){
+  const h=location.hash.replace(/^#/,""); const pairs=h? h.split("&").filter(Boolean):[];
+  const map=new Map(pairs.map(kv=>{ const i=kv.indexOf("="); return i<0?[kv,""]:[kv.slice(0,i),kv.slice(i+1)]; }));
+  if(value==null) map.delete(key); else map.set(key,String(value));
+  const newHash="#"+[...map.entries()].map(([k,v])=>`${k}=${v}`).join("&");
+  history.replaceState(null,"",location.pathname+location.search+newHash);
+}
+function randomRoomId(n=8){ let s=""; while(s.length<n) s+=Math.random().toString(36).slice(2); return s.slice(0,n); }
+let ROOM_ID = getHashParam("r"); if(!ROOM_ID){ ROOM_ID=randomRoomId(); setHashParam("r",ROOM_ID); }
+$("roomTag").textContent = "Room: "+ROOM_ID;
+
+// identity + revisioning + cold-join flags
+const CLIENT_ID = Math.random().toString(36).slice(2,10);
+let localRev=0, lastAppliedRev=0;
+let isApplyingRemote=false;
+let isReady=false, gotRemoteState=false;
+let isSyncing=true; const JOIN_TIMEOUT_MS=800; const SYNC_NONCE=Math.random().toString(36).slice(2,10);
+
+let supa=null, channel=null;
+function debounce(fn,ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; }
+
+function currentState(){
+  return {
+    v:1,
+    sel:[...sel],
+    hidden:[...hidden],
+    sort:{ C:{key:sortC.key,dir:sortC.dir}, B:{key:sortB.key,dir:sortB.dir}, S:{key:sortS.key,dir:sortS.dir}, P:{key:sortPKey,dir:sortPDir} }
+  };
+}
+function applyState(st){
+  if(!st || st.v!==1) return;
+  sel.clear(); (st.sel||[]).forEach(h=>{ if(DATA[h]) sel.add(h); });
+  hidden.clear(); (st.hidden||[]).forEach(a=>hidden.add(canon(a)));
+  if(st.sort?.C){ sortC.key=st.sort.C.key; sortC.dir=st.sort.C.dir; }
+  if(st.sort?.B){ sortB.key=st.sort.B.key; sortB.dir=st.sort.B.dir; }
+  if(st.sort?.S){ sortS.key=st.sort.S.key; sortS.dir=st.sort.S.dir; }
+  if(st.sort?.P){ sortPKey=st.sort.P.key; sortPDir=st.sort.P.dir; }
+}
+
+const broadcastDebounced = debounce(async ()=>{
+  if(!isReady || !channel || isApplyingRemote || isSyncing) return;
+  const state=currentState();
+  try{
+    await channel.send({ type:"broadcast", event:"state", payload:{ source:CLIENT_ID, rev:localRev, state } });
+  }catch{}
+},150);
+
+async function initRealtime(){
+  const supabaseClient = window.supabase; // from CDN
+  supa = supabaseClient.createClient(SUPA_URL, SUPA_KEY);
+  channel = supa.channel("ad_helper_"+ROOM_ID, { config:{ broadcast:{ ack:true } } });
+
+  // respond to joiners
+  channel.on("broadcast", {event:"request_state"}, (msg)=>{
+    const {source,nonce} = msg?.payload||{};
+    if(!source || source===CLIENT_ID) return;
+    channel.send({ type:"broadcast", event:"state", payload:{ source:CLIENT_ID, rev:localRev, state:currentState(), reply_to:nonce } });
+  });
+
+  // apply inbound states (newest only)
+  channel.on("broadcast", {event:"state"}, (msg)=>{
+    const { source, rev, state } = msg?.payload||{};
+    if(!state) return;
+    if(source===CLIENT_ID) return;
+    if(typeof rev==="number" && rev<=lastAppliedRev) return;
+    lastAppliedRev = (typeof rev==="number") ? rev : lastAppliedRev;
+    gotRemoteState = true;
+    isApplyingRemote=true;
+    applyState(state);
+    render();              // guarded; won't rebroadcast
+    isApplyingRemote=false;
+  });
+
+  await channel.subscribe((status)=>{
+    if(status==="SUBSCRIBED"){
+      isReady=true;
+      // ask for state
+      channel.send({ type:"broadcast", event:"request_state", payload:{ source:CLIENT_ID, nonce:SYNC_NONCE } });
+      // seed if nobody answers
+      setTimeout(()=>{
+        if(!gotRemoteState){
+          isSyncing=false;
+          broadcastDebounced();
+        }else{
+          isSyncing=false;
+        }
+      }, JOIN_TIMEOUT_MS);
+    }
+  });
+}
+
+// Share room link
+$("shareBtn").onclick = async ()=>{
+  try{ await navigator.clipboard.writeText(location.href); $("copied").style.display="inline"; setTimeout(()=>$("copied").style.display="none",1200); }
+  catch{ alert("Link copied:\\n"+location.href); }
+};
+
 // --- Render
 function render(){
+  if(!isApplyingRemote) localRev++;       // bump only on local change
   // pills
   pills.innerHTML = "";
   [...sel].sort((a,b)=>a.localeCompare(b)).forEach(h=>{
@@ -509,6 +636,7 @@ function render(){
   hint.textContent = `${sel.size} / ${MAX} selected`;
   renderTables();
   renderPairs();
+  if(!isApplyingRemote && !isSyncing) broadcastDebounced();
 }
 window.removeHero = (h)=>{ sel.delete(h); render(); };
 
@@ -551,11 +679,11 @@ function renderTables(){
   }
 
   // --- compute Goody (scale 1..10; 10 best)
-  // raw = pick_num * (100 - win_pct); lower raw is better
+  // YOUR new weighting: raw = pick_num * (100 - win_pct) ** 4; lower raw is better
   function rawScore(row){
     const p = row.pick, w = row.win;
     if (typeof p !== "number" || typeof w !== "number") return null;
-    return p * (100 - w) ** 4;
+    return p * Math.pow(100 - w, 4);
   }
   const scores = all.map(rawScore).filter(v=>typeof v==="number" && isFinite(v));
   const rmin = Math.min(...scores), rmax = Math.max(...scores);
@@ -648,6 +776,7 @@ function escapeAttr(s){ return String(s).replace(/["']/g, m => (m=='"'?'&quot;':
 
 // boot
 render();
+initRealtime();
 </script>
 </body>
 </html>
