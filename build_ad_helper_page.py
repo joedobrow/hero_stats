@@ -64,6 +64,7 @@ def load_high_skill():
                 "name": a.get("ability_name"),
                 "img": a.get("img"),
                 "win_pct": a.get("win_pct"),
+                "pick_num": a.get("pick_num")
             })
 
         # Also expose the hero model itself as an "ability" so it can be labeled & shown
