@@ -1,0 +1,4778 @@
+{
+  "source": {
+    "hs": "https://windrun.io/ability-high-skill",
+    "by_hero": "https://windrun.io/ability-by-hero"
+  },
+  "cached_at": "2025-12-29T19:16:10Z",
+  "data": {
+    "Ursa": {
+      "hero_id": 70,
+      "hero_img": "https://cdn.datdota.com/images/heroes/ursa_full.png",
+      "body_winrate": 44.9,
+      "win_pct": 54.02,
+      "pick_num": 42.77,
+      "abilities": [
+        {
+          "ability_id": 5359,
+          "ability_name": "Fury Swipes",
+          "img": "https://cdn.datdota.com/images/ability/ursa_fury_swipes.png",
+          "win_pct": 58.11,
+          "pick_num": 2.09
+        },
+        {
+          "ability_id": 5358,
+          "ability_name": "Overpower",
+          "img": "https://cdn.datdota.com/images/ability/ursa_overpower.png",
+          "win_pct": 46.47,
+          "pick_num": 16.56
+        },
+        {
+          "ability_id": 5360,
+          "ability_name": "Enrage",
+          "img": "https://cdn.datdota.com/images/ability/ursa_enrage.png",
+          "win_pct": 53.49,
+          "pick_num": 25.32
+        },
+        {
+          "ability_id": 5357,
+          "ability_name": "Earthshock",
+          "img": "https://cdn.datdota.com/images/ability/ursa_earthshock.png",
+          "win_pct": 55.48,
+          "pick_num": 35.34
+        }
+      ]
+    },
+    "Dark Willow": {
+      "hero_id": 119,
+      "hero_img": "https://cdn.datdota.com/images/heroes/dark_willow_full.png",
+      "body_winrate": 48.68,
+      "win_pct": 54.23,
+      "pick_num": 30.02,
+      "abilities": [
+        {
+          "ability_id": 6341,
+          "ability_name": "Shadow Realm",
+          "img": "https://cdn.datdota.com/images/ability/dark_willow_shadow_realm.png",
+          "win_pct": 55.49,
+          "pick_num": 2.22
+        },
+        {
+          "ability_id": 6339,
+          "ability_name": "Bramble Maze",
+          "img": "https://cdn.datdota.com/images/ability/dark_willow_bramble_maze.png",
+          "win_pct": 56.64,
+          "pick_num": 24.06
+        },
+        {
+          "ability_id": 8340,
+          "ability_name": "Terrorize",
+          "img": "https://cdn.datdota.com/images/ability/dark_willow_terrorize.png",
+          "win_pct": 54.49,
+          "pick_num": 33.19
+        },
+        {
+          "ability_id": 6342,
+          "ability_name": "Cursed Crown",
+          "img": "https://cdn.datdota.com/images/ability/dark_willow_cursed_crown.png",
+          "win_pct": 55.34,
+          "pick_num": 39.28
+        }
+      ]
+    },
+    "Weaver": {
+      "hero_id": 63,
+      "hero_img": "https://cdn.datdota.com/images/heroes/weaver_full.png",
+      "body_winrate": 43.19,
+      "win_pct": 50.65,
+      "pick_num": 38.91,
+      "abilities": [
+        {
+          "ability_id": 5290,
+          "ability_name": "Shukuchi",
+          "img": "https://cdn.datdota.com/images/ability/weaver_shukuchi.png",
+          "win_pct": 57.28,
+          "pick_num": 1.65
+        },
+        {
+          "ability_id": 5291,
+          "ability_name": "Geminate Attack",
+          "img": "https://cdn.datdota.com/images/ability/weaver_geminate_attack.png",
+          "win_pct": 52.09,
+          "pick_num": 14.13
+        },
+        {
+          "ability_id": 5289,
+          "ability_name": "The Swarm",
+          "img": "https://cdn.datdota.com/images/ability/weaver_the_swarm.png",
+          "win_pct": 55.47,
+          "pick_num": 30.01
+        },
+        {
+          "ability_id": 5292,
+          "ability_name": "Time Lapse",
+          "img": "https://cdn.datdota.com/images/ability/weaver_time_lapse.png",
+          "win_pct": 50.43,
+          "pick_num": 40.08
+        }
+      ]
+    },
+    "Slardar": {
+      "hero_id": 28,
+      "hero_img": "https://cdn.datdota.com/images/heroes/slardar_full.png",
+      "body_winrate": 50.83,
+      "win_pct": 58.0,
+      "pick_num": 37.54,
+      "abilities": [
+        {
+          "ability_id": 5116,
+          "ability_name": "Bash of the Deep",
+          "img": "https://cdn.datdota.com/images/ability/slardar_bash.png",
+          "win_pct": 50.65,
+          "pick_num": 4.01
+        },
+        {
+          "ability_id": 5115,
+          "ability_name": "Slithereen Crush",
+          "img": "https://cdn.datdota.com/images/ability/slardar_slithereen_crush.png",
+          "win_pct": 54.42,
+          "pick_num": 18.18
+        },
+        {
+          "ability_id": 5117,
+          "ability_name": "Corrosive Haze",
+          "img": "https://cdn.datdota.com/images/ability/slardar_amplify_damage.png",
+          "win_pct": 55.36,
+          "pick_num": 33.97
+        },
+        {
+          "ability_id": 5114,
+          "ability_name": "Guardian Sprint",
+          "img": "https://cdn.datdota.com/images/ability/slardar_sprint.png",
+          "win_pct": 53.75,
+          "pick_num": 37.89
+        }
+      ]
+    },
+    "Huskar": {
+      "hero_id": 59,
+      "hero_img": "https://cdn.datdota.com/images/heroes/huskar_full.png",
+      "body_winrate": 47.19,
+      "win_pct": 49.25,
+      "pick_num": 24.6,
+      "abilities": [
+        {
+          "ability_id": 5273,
+          "ability_name": "Berserker's Blood",
+          "img": "https://cdn.datdota.com/images/ability/huskar_berserkers_blood.png",
+          "win_pct": 56.39,
+          "pick_num": 3.14
+        },
+        {
+          "ability_id": 5272,
+          "ability_name": "Burning Spear",
+          "img": "https://cdn.datdota.com/images/ability/huskar_burning_spear.png",
+          "win_pct": 55.75,
+          "pick_num": 21.13
+        },
+        {
+          "ability_id": 7300,
+          "ability_name": "Inner Fire",
+          "img": "https://cdn.datdota.com/images/ability/huskar_inner_fire.png",
+          "win_pct": 52.96,
+          "pick_num": 35.0
+        },
+        {
+          "ability_id": 5274,
+          "ability_name": "Life Break",
+          "img": "https://cdn.datdota.com/images/ability/huskar_life_break.png",
+          "win_pct": 57.87,
+          "pick_num": 35.81
+        }
+      ]
+    },
+    "Winter Wyvern": {
+      "hero_id": 112,
+      "hero_img": "https://cdn.datdota.com/images/heroes/winter_wyvern_full.png",
+      "body_winrate": 47.19,
+      "win_pct": 54.03,
+      "pick_num": 39.94,
+      "abilities": [
+        {
+          "ability_id": 5651,
+          "ability_name": "Arctic Burn",
+          "img": "https://cdn.datdota.com/images/ability/winter_wyvern_arctic_burn.png",
+          "win_pct": 62.68,
+          "pick_num": 1.92
+        },
+        {
+          "ability_id": 5654,
+          "ability_name": "Winter's Curse",
+          "img": "https://cdn.datdota.com/images/ability/winter_wyvern_winters_curse.png",
+          "win_pct": 54.44,
+          "pick_num": 26.14
+        },
+        {
+          "ability_id": 5653,
+          "ability_name": "Cold Embrace",
+          "img": "https://cdn.datdota.com/images/ability/winter_wyvern_cold_embrace.png",
+          "win_pct": 54.86,
+          "pick_num": 35.97
+        },
+        {
+          "ability_id": 5652,
+          "ability_name": "Splinter Blast",
+          "img": "https://cdn.datdota.com/images/ability/winter_wyvern_splinter_blast.png",
+          "win_pct": 55.02,
+          "pick_num": 37.75
+        }
+      ]
+    },
+    "Rubick": {
+      "hero_id": 86,
+      "hero_img": "https://cdn.datdota.com/images/heroes/rubick_full.png",
+      "body_winrate": 48.9,
+      "win_pct": 51.08,
+      "pick_num": 36.74,
+      "abilities": [
+        {
+          "ability_id": 7320,
+          "ability_name": "Arcane Supremacy",
+          "img": "https://cdn.datdota.com/images/ability/rubick_arcane_supremacy.png",
+          "win_pct": 53.95,
+          "pick_num": 3.02
+        },
+        {
+          "ability_id": 5450,
+          "ability_name": "Fade Bolt",
+          "img": "https://cdn.datdota.com/images/ability/rubick_fade_bolt.png",
+          "win_pct": 53.97,
+          "pick_num": 36.82
+        },
+        {
+          "ability_id": 5448,
+          "ability_name": "Telekinesis",
+          "img": "https://cdn.datdota.com/images/ability/rubick_telekinesis.png",
+          "win_pct": 54.29,
+          "pick_num": 41.6
+        }
+      ]
+    },
+    "Marci": {
+      "hero_id": 136,
+      "hero_img": "https://cdn.datdota.com/images/heroes/marci_full.png",
+      "body_winrate": 48.74,
+      "win_pct": 49.84,
+      "pick_num": 41.28,
+      "abilities": [
+        {
+          "ability_id": 8198,
+          "ability_name": "Unleash",
+          "img": "https://cdn.datdota.com/images/ability/marci_unleash.png",
+          "win_pct": 50.36,
+          "pick_num": 4.09
+        },
+        {
+          "ability_id": 8235,
+          "ability_name": "Rebound",
+          "img": "https://cdn.datdota.com/images/ability/marci_companion_run.png",
+          "win_pct": 51.84,
+          "pick_num": 26.64
+        },
+        {
+          "ability_id": 8192,
+          "ability_name": "Dispose",
+          "img": "https://cdn.datdota.com/images/ability/marci_grapple.png",
+          "win_pct": 52.8,
+          "pick_num": 33.77
+        },
+        {
+          "ability_id": 1427,
+          "ability_name": "Bodyguard",
+          "img": "https://cdn.datdota.com/images/ability/marci_bodyguard.png",
+          "win_pct": 57.61,
+          "pick_num": 25.07
+        }
+      ]
+    },
+    "Luna": {
+      "hero_id": 48,
+      "hero_img": "https://cdn.datdota.com/images/heroes/luna_full.png",
+      "body_winrate": 56.83,
+      "win_pct": 58.96,
+      "pick_num": 23.0,
+      "abilities": [
+        {
+          "ability_id": 5223,
+          "ability_name": "Moon Glaives",
+          "img": "https://cdn.datdota.com/images/ability/luna_moon_glaive.png",
+          "win_pct": 56.18,
+          "pick_num": 3.04
+        },
+        {
+          "ability_id": 5222,
+          "ability_name": "Lucent Beam",
+          "img": "https://cdn.datdota.com/images/ability/luna_lucent_beam.png",
+          "win_pct": 48.38,
+          "pick_num": 22.76
+        },
+        {
+          "ability_id": 5225,
+          "ability_name": "Eclipse",
+          "img": "https://cdn.datdota.com/images/ability/luna_eclipse.png",
+          "win_pct": 49.35,
+          "pick_num": 42.73
+        },
+        { 
+          "ability_id": 1462,
+          "ability_name": "Lunar Orbit",
+          "img": "https://cdn.datdota.com/images/ability/luna_lunar_orbit.png",
+          "win_pct": 58.07,
+          "pick_num": 35.42
+        }
+      ]
+    },
+    "Bloodseeker": {
+      "hero_id": 4,
+      "hero_img": "https://cdn.datdota.com/images/heroes/bloodseeker_full.png",
+      "body_winrate": 53.7,
+      "win_pct": 58.27,
+      "pick_num": 33.11,
+      "abilities": [
+        {
+          "ability_id": 5017,
+          "ability_name": "Thirst",
+          "img": "https://cdn.datdota.com/images/ability/bloodseeker_thirst.png",
+          "win_pct": 61.02,
+          "pick_num": 4.51
+        },
+        {
+          "ability_id": 5015,
+          "ability_name": "Bloodrage",
+          "img": "https://cdn.datdota.com/images/ability/bloodseeker_bloodrage.png",
+          "win_pct": 46.45,
+          "pick_num": 24.39
+        },
+        {
+          "ability_id": 5018,
+          "ability_name": "Rupture",
+          "img": "https://cdn.datdota.com/images/ability/bloodseeker_rupture.png",
+          "win_pct": 55.07,
+          "pick_num": 26.77
+        },
+        {
+          "ability_id": 5016,
+          "ability_name": "Blood Rite",
+          "img": "https://cdn.datdota.com/images/ability/bloodseeker_blood_bath.png",
+          "win_pct": 54.44,
+          "pick_num": 36.99
+        }
+      ]
+    },
+    "Underlord": {
+      "hero_id": 108,
+      "hero_img": "https://cdn.datdota.com/images/heroes/abyssal_underlord_full.png",
+      "body_winrate": 51.68,
+      "win_pct": 53.53,
+      "pick_num": 42.19,
+      "abilities": [
+        {
+          "ability_id": 5615,
+          "ability_name": "Atrophy Aura",
+          "img": "https://cdn.datdota.com/images/ability/abyssal_underlord_atrophy_aura.png",
+          "win_pct": 61.57,
+          "pick_num": 3.36
+        },
+        {
+          "ability_id": 5613,
+          "ability_name": "Firestorm",
+          "img": "https://cdn.datdota.com/images/ability/abyssal_underlord_firestorm.png",
+          "win_pct": 55.52,
+          "pick_num": 11.25
+        },
+        {
+          "ability_id": 5614,
+          "ability_name": "Pit of Malice",
+          "img": "https://cdn.datdota.com/images/ability/abyssal_underlord_pit_of_malice.png",
+          "win_pct": 57.16,
+          "pick_num": 11.64
+        },
+        {
+          "ability_id": 865,
+          "ability_name": "Fiend's Gate",
+          "img": "https://cdn.datdota.com/images/ability/abyssal_underlord_dark_portal.png",
+          "win_pct": 52.33,
+          "pick_num": 44.32
+        }
+      ]
+    },
+    "Outworld Devourer": {
+      "hero_id": 76,
+      "hero_img": "https://cdn.datdota.com/images/heroes/obsidian_destroyer_full.png",
+      "body_winrate": 52.01,
+      "win_pct": 58.26,
+      "pick_num": 32.04,
+      "abilities": [
+        {
+          "ability_id": 5684,
+          "ability_name": "Essence Flux",
+          "img": "https://cdn.datdota.com/images/ability/obsidian_destroyer_equilibrium.png",
+          "win_pct": 50.56,
+          "pick_num": 4.64
+        },
+        {
+          "ability_id": 5391,
+          "ability_name": "Arcane Orb",
+          "img": "https://cdn.datdota.com/images/ability/obsidian_destroyer_arcane_orb.png",
+          "win_pct": 55.78,
+          "pick_num": 27.82
+        },
+        {
+          "ability_id": 5392,
+          "ability_name": "Astral Imprisonment",
+          "img": "https://cdn.datdota.com/images/ability/obsidian_destroyer_astral_imprisonment.png",
+          "win_pct": 54.27,
+          "pick_num": 21.84
+        },
+        {
+          "ability_id": 5394,
+          "ability_name": "Sanity's Eclipse",
+          "img": "https://cdn.datdota.com/images/ability/obsidian_destroyer_sanity_eclipse.png",
+          "win_pct": 54.03,
+          "pick_num": 41.29
+        }
+      ]
+    },
+    "Queen of Pain": {
+      "hero_id": 39,
+      "hero_img": "https://cdn.datdota.com/images/heroes/queenofpain_full.png",
+      "body_winrate": 50.11,
+      "win_pct": 53.06,
+      "pick_num": 22.86,
+      "abilities": [
+        {
+          "ability_id": 5174,
+          "ability_name": "Blink",
+          "img": "https://cdn.datdota.com/images/ability/queenofpain_blink.png",
+          "win_pct": 60.32,
+          "pick_num": 3.31
+        },
+        {
+          "ability_id": 5173,
+          "ability_name": "Shadow Strike",
+          "img": "https://cdn.datdota.com/images/ability/queenofpain_shadow_strike.png",
+          "win_pct": 51.34,
+          "pick_num": 27.96
+        },
+        {
+          "ability_id": 5176,
+          "ability_name": "Sonic Wave",
+          "img": "https://cdn.datdota.com/images/ability/queenofpain_sonic_wave.png",
+          "win_pct": 50.15,
+          "pick_num": 38.25
+        },
+        {
+          "ability_id": 5175,
+          "ability_name": "Scream Of Pain",
+          "img": "https://cdn.datdota.com/images/ability/queenofpain_scream_of_pain.png",
+          "win_pct": 52.96,
+          "pick_num": 33.13
+        }
+      ]
+    },
+    "Vengeful Spirit": {
+      "hero_id": 20,
+      "hero_img": "https://cdn.datdota.com/images/heroes/vengefulspirit_full.png",
+      "body_winrate": 47.59,
+      "win_pct": 53.07,
+      "pick_num": 26.48,
+      "abilities": [
+        {
+          "ability_id": 5123,
+          "ability_name": "Vengeance Aura",
+          "img": "https://cdn.datdota.com/images/ability/vengefulspirit_command_aura.png",
+          "win_pct": 55.09,
+          "pick_num": 4.02
+        },
+        {
+          "ability_id": 5122,
+          "ability_name": "Magic Missile",
+          "img": "https://cdn.datdota.com/images/ability/vengefulspirit_magic_missile.png",
+          "win_pct": 53.58,
+          "pick_num": 10.37
+        },
+        {
+          "ability_id": 5125,
+          "ability_name": "Nether Swap",
+          "img": "https://cdn.datdota.com/images/ability/vengefulspirit_nether_swap.png",
+          "win_pct": 54.95,
+          "pick_num": 38.97
+        },
+        {
+          "ability_id": 5124,
+          "ability_name": "Wave of Terror",
+          "img": "https://cdn.datdota.com/images/ability/vengefulspirit_wave_of_terror.png",
+          "win_pct": 53.6,
+          "pick_num": 40.79
+        }
+      ]
+    },
+    "Gyrocopter": {
+      "hero_id": 72,
+      "hero_img": "https://cdn.datdota.com/images/heroes/gyrocopter_full.png",
+      "body_winrate": 53.94,
+      "win_pct": 55.52,
+      "pick_num": 19.98,
+      "abilities": [
+        {
+          "ability_id": 5363,
+          "ability_name": "Flak Cannon",
+          "img": "https://cdn.datdota.com/images/ability/gyrocopter_flak_cannon.png",
+          "win_pct": 56.58,
+          "pick_num": 3.2
+        },
+        {
+          "ability_id": 5362,
+          "ability_name": "Homing Missile",
+          "img": "https://cdn.datdota.com/images/ability/gyrocopter_homing_missile.png",
+          "win_pct": 52.75,
+          "pick_num": 24.57
+        },
+        {
+          "ability_id": 5361,
+          "ability_name": "Rocket Barrage",
+          "img": "https://cdn.datdota.com/images/ability/gyrocopter_rocket_barrage.png",
+          "win_pct": 54.81,
+          "pick_num": 20.46
+        },
+        {
+          "ability_id": 5364,
+          "ability_name": "Call Down",
+          "img": "https://cdn.datdota.com/images/ability/gyrocopter_call_down.png",
+          "win_pct": 51.35,
+          "pick_num": 42.23
+        }
+      ]
+    },
+    "Windranger": {
+      "hero_id": 21,
+      "hero_img": "https://cdn.datdota.com/images/heroes/windrunner_full.png",
+      "body_winrate": 49.38,
+      "win_pct": 52.19,
+      "pick_num": 23.16,
+      "abilities": [
+        {
+          "ability_id": 5132,
+          "ability_name": "Windrun",
+          "img": "https://cdn.datdota.com/images/ability/windrunner_windrun.png",
+          "win_pct": 57.91,
+          "pick_num": 3.91
+        },
+        {
+          "ability_id": 5133,
+          "ability_name": "Focus Fire Facet",
+          "img": "https://cdn.datdota.com/images/ability/windrunner_focusfire.png",
+          "win_pct": 49.62,
+          "pick_num": 26.71
+        },
+        {
+          "ability_id": 5131,
+          "ability_name": "Powershot",
+          "img": "https://cdn.datdota.com/images/ability/windrunner_powershot.png",
+          "win_pct": 50.83,
+          "pick_num": 20.24
+        },
+        {
+          "ability_id": 5130,
+          "ability_name": "Shackleshot",
+          "img": "https://cdn.datdota.com/images/ability/windrunner_shackleshot.png",
+          "win_pct": 56.31,
+          "pick_num": 32.82
+        }
+      ]
+    },
+    "Lion": {
+      "hero_id": 26,
+      "hero_img": "https://cdn.datdota.com/images/heroes/lion_full.png",
+      "body_winrate": 48.55,
+      "win_pct": 51.71,
+      "pick_num": 39.58,
+      "abilities": [
+        {
+          "ability_id": 5047,
+          "ability_name": "Finger of Death",
+          "img": "https://cdn.datdota.com/images/ability/lion_finger_of_death.png",
+          "win_pct": 47.1,
+          "pick_num": 7.53
+        },
+        {
+          "ability_id": 5044,
+          "ability_name": "Earth Spike",
+          "img": "https://cdn.datdota.com/images/ability/lion_impale.png",
+          "win_pct": 59.17,
+          "pick_num": 7.29
+        },
+        {
+          "ability_id": 5046,
+          "ability_name": "Mana Drain",
+          "img": "https://cdn.datdota.com/images/ability/lion_mana_drain.png",
+          "win_pct": 50.8,
+          "pick_num": 31.84
+        },
+        {
+          "ability_id": 5045,
+          "ability_name": "Hex",
+          "img": "https://cdn.datdota.com/images/ability/lion_voodoo.png",
+          "win_pct": 53.74,
+          "pick_num": 30.58
+        }
+      ]
+    },
+    "Kunkka": {
+      "hero_id": 23,
+      "hero_img": "https://cdn.datdota.com/images/heroes/kunkka_full.png",
+      "body_winrate": 50.93,
+      "win_pct": 55.49,
+      "pick_num": 32.37,
+      "abilities": [
+        {
+          "ability_id": 5032,
+          "ability_name": "Tidebringer",
+          "img": "https://cdn.datdota.com/images/ability/kunkka_tidebringer.png",
+          "win_pct": 55.93,
+          "pick_num": 5.53
+        },
+        {
+          "ability_id": 5031,
+          "ability_name": "Torrent",
+          "img": "https://cdn.datdota.com/images/ability/kunkka_torrent.png",
+          "win_pct": 52.49,
+          "pick_num": 29.57
+        },
+        {
+          "ability_id": 5035,
+          "ability_name": "Ghostship",
+          "img": "https://cdn.datdota.com/images/ability/kunkka_ghostship.png",
+          "win_pct": 51.88,
+          "pick_num": 35.97
+        },
+        {
+          "ability_id": 5033,
+          "ability_name": "X Marks the Spot",
+          "img": "https://cdn.datdota.com/images/ability/kunkka_x_marks_the_spot.png",
+          "win_pct": 50.6,
+          "pick_num": 41.88
+        }
+      ]
+    },
+    "Lina": {
+      "hero_id": 25,
+      "hero_img": "https://cdn.datdota.com/images/heroes/lina_full.png",
+      "body_winrate": 51.72,
+      "win_pct": 53.16,
+      "pick_num": 12.63,
+      "abilities": [
+        {
+          "ability_id": 5042,
+          "ability_name": "Fiery Soul",
+          "img": "https://cdn.datdota.com/images/ability/lina_fiery_soul.png",
+          "win_pct": 53.81,
+          "pick_num": 4.47
+        },
+        {
+          "ability_id": 5041,
+          "ability_name": "Light Strike Array",
+          "img": "https://cdn.datdota.com/images/ability/lina_light_strike_array.png",
+          "win_pct": 57.24,
+          "pick_num": 21.47
+        },
+        {
+          "ability_id": 5043,
+          "ability_name": "Laguna Blade",
+          "img": "https://cdn.datdota.com/images/ability/lina_laguna_blade.png",
+          "win_pct": 48.41,
+          "pick_num": 35.14
+        },
+        {
+          "ability_id": 5040,
+          "ability_name": "Dragon Slave",
+          "img": "https://cdn.datdota.com/images/ability/lina_dragon_slave.png",
+          "win_pct": 46.96,
+          "pick_num": 34.24
+        }
+      ]
+    },
+    "Earthshaker": {
+      "hero_id": 7,
+      "hero_img": "https://cdn.datdota.com/images/heroes/earthshaker_full.png",
+      "body_winrate": 51.3,
+      "win_pct": 53.69,
+      "pick_num": 37.4,
+      "abilities": [
+        {
+          "ability_id": 5025,
+          "ability_name": "Aftershock",
+          "img": "https://cdn.datdota.com/images/ability/earthshaker_aftershock.png",
+          "win_pct": 59.52,
+          "pick_num": 2.97
+        },
+        {
+          "ability_id": 5024,
+          "ability_name": "Enchant Totem",
+          "img": "https://cdn.datdota.com/images/ability/earthshaker_enchant_totem.png",
+          "win_pct": 48.67,
+          "pick_num": 9.3
+        },
+        {
+          "ability_id": 5023,
+          "ability_name": "Fissure",
+          "img": "https://cdn.datdota.com/images/ability/earthshaker_fissure.png",
+          "win_pct": 56.69,
+          "pick_num": 25.08
+        },
+        {
+          "ability_id": 5026,
+          "ability_name": "Echo Slam",
+          "img": "https://cdn.datdota.com/images/ability/earthshaker_echo_slam.png",
+          "win_pct": 54.4,
+          "pick_num": 40.7
+        }
+      ]
+    },
+    "Riki": {
+      "hero_id": 32,
+      "hero_img": "https://cdn.datdota.com/images/heroes/riki_full.png",
+      "body_winrate": 43.69,
+      "win_pct": 46.58,
+      "pick_num": 36.6,
+      "abilities": [
+        {
+          "ability_id": 5144,
+          "ability_name": "Cloak and Dagger",
+          "img": "https://cdn.datdota.com/images/ability/riki_backstab.png",
+          "win_pct": 59.09,
+          "pick_num": 9.47
+        },
+        {
+          "ability_id": 5143,
+          "ability_name": "Blink Strike",
+          "img": "https://cdn.datdota.com/images/ability/riki_blink_strike.png",
+          "win_pct": 49.13,
+          "pick_num": 17.79
+        },
+        {
+          "ability_id": 5145,
+          "ability_name": "Tricks of the Trade",
+          "img": "https://cdn.datdota.com/images/ability/riki_tricks_of_the_trade.png",
+          "win_pct": 48.62,
+          "pick_num": 31.89
+        },
+        {
+          "ability_id": 5142,
+          "ability_name": "Smoke Screen",
+          "img": "https://cdn.datdota.com/images/ability/riki_smoke_screen.png",
+          "win_pct": 56.86,
+          "pick_num": 32.03
+        }
+      ]
+    },
+    "Ringmaster": {
+      "hero_id": 202,
+      "hero_img": "",
+      "body_winrate": 47.59,
+      "win_pct": 47.59,
+      "pick_num": 41.16,
+      "abilities": [
+        { 
+          "ability_id": 352,
+          "ability_name": "Tame the Beasts",
+          "img": "https://cdn.datdota.com/images/ability/ringmaster_tame_the_beasts.png",
+          "win_pct": 53.21,
+          "pick_num": 29.26
+        },
+        {
+          "ability_id": 386,
+          "ability_name": "Impalement Arts",
+          "img": "https://cdn.datdota.com/images/ability/ringmaster_impalement.png",
+          "win_pct": 52.05,
+          "pick_num": 35.43
+        },
+        {
+          "ability_id": 383,
+          "ability_name": "Escape Act",
+          "img": "https://cdn.datdota.com/images/ability/ringmaster_the_box.png",
+          "win_pct": 47.32,
+          "pick_num": 35.56
+        },
+        { 
+          "ability_id": 385,
+          "ability_name": "Wheel of Wonder",
+          "img": "https://cdn.datdota.com/images/ability/ringmaster_wheel.png",
+          "win_pct": 52.28,
+          "pick_num": 39.61
+        }
+      ]
+    },
+    "Zeus": {
+      "hero_id": 22,
+      "hero_img": "https://cdn.datdota.com/images/heroes/zuus_full.png",
+      "body_winrate": 45.85,
+      "win_pct": 49.69,
+      "pick_num": 38.89,
+      "abilities": [
+        {
+          "ability_id": 5110,
+          "ability_name": "Arc Lightning",
+          "img": "https://cdn.datdota.com/images/ability/zuus_arc_lightning.png",
+          "win_pct": 52.55,
+          "pick_num": 5.22
+        },
+        {
+          "ability_id": 5111,
+          "ability_name": "Lightning Bolt",
+          "img": "https://cdn.datdota.com/images/ability/zuus_lightning_bolt.png",
+          "win_pct": 50.57,
+          "pick_num": 12.14
+        },
+        {
+          "ability_id": 5113,
+          "ability_name": "Thundergod's Wrath",
+          "img": "https://cdn.datdota.com/images/ability/zuus_thundergods_wrath.png",
+          "win_pct": 50.99,
+          "pick_num": 30.61
+        },
+        {
+          "ability_id": 641,
+          "ability_name": "Heavenly Jump",
+          "img": "https://cdn.datdota.com/images/ability/zuus_heavenly_jump.png",
+          "win_pct": 56.39,
+          "pick_num": 35.92
+        }
+      ]
+    },
+    "Anti-Mage": {
+      "hero_id": 1,
+      "hero_img": "https://cdn.datdota.com/images/heroes/antimage_full.png",
+      "body_winrate": 45.16,
+      "win_pct": 47.15,
+      "pick_num": 39.36,
+      "abilities": [
+        {
+          "ability_id": 5004,
+          "ability_name": "Blink",
+          "img": "https://cdn.datdota.com/images/ability/antimage_blink.png",
+          "win_pct": 57.45,
+          "pick_num": 4.64
+        },
+        {
+          "ability_id": 5003,
+          "ability_name": "Mana Break",
+          "img": "https://cdn.datdota.com/images/ability/antimage_mana_break.png",
+          "win_pct": 51.76,
+          "pick_num": 14.32
+        },
+        {
+          "ability_id": 7314,
+          "ability_name": "Counterspell",
+          "img": "https://cdn.datdota.com/images/ability/antimage_counterspell.png",
+          "win_pct": 57.76,
+          "pick_num": 32.44
+        },
+        {
+          "ability_id": 5006,
+          "ability_name": "Mana Void",
+          "img": "https://cdn.datdota.com/images/ability/antimage_mana_void.png",
+          "win_pct": 53.11,
+          "pick_num": 43.81
+        }
+      ]
+    },
+    "Faceless Void": {
+      "hero_id": 41,
+      "hero_img": "https://cdn.datdota.com/images/heroes/faceless_void_full.png",
+      "body_winrate": 47.69,
+      "win_pct": 54.76,
+      "pick_num": 38.73,
+      "abilities": [
+        {
+          "ability_id": 5184,
+          "ability_name": "Time Lock",
+          "img": "https://cdn.datdota.com/images/ability/faceless_void_time_lock.png",
+          "win_pct": 48.78,
+          "pick_num": 9.06
+        },
+        {
+          "ability_id": 5182,
+          "ability_name": "Time Walk",
+          "img": "https://cdn.datdota.com/images/ability/faceless_void_time_walk.png",
+          "win_pct": 58.67,
+          "pick_num": 4.53
+        },
+        {
+          "ability_id": 5185,
+          "ability_name": "Chronosphere",
+          "img": "https://cdn.datdota.com/images/ability/faceless_void_chronosphere.png",
+          "win_pct": 57.42,
+          "pick_num": 30.83
+        },
+        {
+          "ability_id": 5691,
+          "ability_name": "Time Dilation",
+          "img": "https://cdn.datdota.com/images/ability/faceless_void_time_dilation.png",
+          "win_pct": 56.64,
+          "pick_num": 41.84
+        },
+        { 
+          "ability_id": 1281,
+          "ability_name": "Time Zone",
+          "img": "https://cdn.datdota.com/images/ability/faceless_void_time_zone.png",
+          "win_pct": 47.26,
+          "pick_num": 40.38
+        }
+      ]
+    },
+    "Crystal Maiden": {
+      "hero_id": 5,
+      "hero_img": "https://cdn.datdota.com/images/heroes/crystal_maiden_full.png",
+      "body_winrate": 44.49,
+      "win_pct": 47.36,
+      "pick_num": 37.9,
+      "abilities": [
+        {
+          "ability_id": 5127,
+          "ability_name": "Frostbite",
+          "img": "https://cdn.datdota.com/images/ability/crystal_maiden_frostbite.png",
+          "win_pct": 53.71,
+          "pick_num": 4.97
+        },
+        {
+          "ability_id": 5129,
+          "ability_name": "Freezing Field",
+          "img": "https://cdn.datdota.com/images/ability/crystal_maiden_freezing_field.png",
+          "win_pct": 57.14,
+          "pick_num": 28.46
+        },
+        {
+          "ability_id": 5126,
+          "ability_name": "Crystal Nova",
+          "img": "https://cdn.datdota.com/images/ability/crystal_maiden_crystal_nova.png",
+          "win_pct": 54.03,
+          "pick_num": 31.61
+        },
+        {
+          "ability_id": 5128,
+          "ability_name": "Arcane Aura",
+          "img": "https://cdn.datdota.com/images/ability/crystal_maiden_brilliance_aura.png",
+          "win_pct": 53.06,
+          "pick_num": 39.07
+        }
+      ]
+    },
+    "Ember Spirit": {
+      "hero_id": 106,
+      "hero_img": "https://cdn.datdota.com/images/heroes/ember_spirit_full.png",
+      "body_winrate": 49.03,
+      "win_pct": 49.39,
+      "pick_num": 35.29,
+      "abilities": [
+        {
+          "ability_id": 5604,
+          "ability_name": "Sleight of Fist",
+          "img": "https://cdn.datdota.com/images/ability/ember_spirit_sleight_of_fist.png",
+          "win_pct": 48.9,
+          "pick_num": 6.71
+        },
+        {
+          "ability_id": 5603,
+          "ability_name": "Searing Chains",
+          "img": "https://cdn.datdota.com/images/ability/ember_spirit_searing_chains.png",
+          "win_pct": 53.43,
+          "pick_num": 27.25
+        },
+        {
+          "ability_id": 5606,
+          "ability_name": "Fire Remnant",
+          "img": "https://cdn.datdota.com/images/ability/ember_spirit_fire_remnant.png",
+          "win_pct": 54.06,
+          "pick_num": 30.09
+        },
+        {
+          "ability_id": 5605,
+          "ability_name": "Flame Guard",
+          "img": "https://cdn.datdota.com/images/ability/ember_spirit_flame_guard.png",
+          "win_pct": 55.77,
+          "pick_num": 35.88
+        }
+      ]
+    },
+    "Alchemist": {
+      "hero_id": 73,
+      "hero_img": "https://cdn.datdota.com/images/heroes/alchemist_full.png",
+      "body_winrate": 48.49,
+      "win_pct": 55.19,
+      "pick_num": 23.13,
+      "abilities": [
+        {
+          "ability_id": 5369,
+          "ability_name": "Chemical Rage",
+          "img": "https://cdn.datdota.com/images/ability/alchemist_chemical_rage.png",
+          "win_pct": 54.13,
+          "pick_num": 7.62
+        },
+        {
+          "ability_id": 1116,
+          "ability_name": "Corrosive Weaponry",
+          "img": "https://cdn.datdota.com/images/ability/alchemist_corrosive_weaponry.png",
+          "win_pct": 52.1,
+          "pick_num": 38.94
+        },
+        {
+          "ability_id": 5365,
+          "ability_name": "Acid Spray",
+          "img": "https://cdn.datdota.com/images/ability/alchemist_acid_spray.png",
+          "win_pct": 49.4,
+          "pick_num": 34.56
+        },
+        {
+          "ability_id": 5366,
+          "ability_name": "Unstable Concoction",
+          "img": "https://cdn.datdota.com/images/ability/alchemist_unstable_concoction.png",
+          "win_pct": 55.54,
+          "pick_num": 31.34
+        }
+      ]
+    },
+    "Dragon Knight": {
+      "hero_id": 49,
+      "hero_img": "https://cdn.datdota.com/images/heroes/dragon_knight_full.png",
+      "body_winrate": 57.75,
+      "win_pct": 58.88,
+      "pick_num": 18.69,
+      "abilities": [
+        {
+          "ability_id": 5229,
+          "ability_name": "Elder Dragon Form",
+          "img": "https://cdn.datdota.com/images/ability/dragon_knight_elder_dragon_form.png",
+          "win_pct": 50.91,
+          "pick_num": 6.41
+        },
+        {
+          "ability_id": 5228,
+          "ability_name": "Wyrm's Wrath",
+          "img": "https://cdn.datdota.com/images/ability/dragon_knight_dragon_blood.png",
+          "win_pct": 55.09,
+          "pick_num": 32.48
+        },
+        {
+          "ability_id": 5227,
+          "ability_name": "Dragon Tail",
+          "img": "https://cdn.datdota.com/images/ability/dragon_knight_dragon_tail.png",
+          "win_pct": 56.58,
+          "pick_num": 24.8
+        },
+        {
+          "ability_id": 5226,
+          "ability_name": "Breathe Fire",
+          "img": "https://cdn.datdota.com/images/ability/dragon_knight_breathe_fire.png",
+          "win_pct": 51.56,
+          "pick_num": 41.25
+        }
+      ]
+    },
+    "Doom": {
+      "hero_id": 69,
+      "hero_img": "https://cdn.datdota.com/images/heroes/doom_bringer_full.png",
+      "body_winrate": 47.42,
+      "win_pct": 51.19,
+      "pick_num": 41.61,
+      "abilities": [
+        {
+          "ability_id": 5341,
+          "ability_name": "Infernal Blade",
+          "img": "https://cdn.datdota.com/images/ability/doom_bringer_infernal_blade.png",
+          "win_pct": 56.1,
+          "pick_num": 7.7
+        },
+        {
+          "ability_id": 5339,
+          "ability_name": "Devour",
+          "img": "https://cdn.datdota.com/images/ability/doom_bringer_devour.png",
+          "win_pct": 52.98,
+          "pick_num": 12.49
+        },
+        {
+          "ability_id": 5342,
+          "ability_name": "Doom",
+          "img": "https://cdn.datdota.com/images/ability/doom_bringer_doom.png",
+          "win_pct": 57.04,
+          "pick_num": 25.8
+        },
+        {
+          "ability_id": 5340,
+          "ability_name": "Scorched Earth",
+          "img": "https://cdn.datdota.com/images/ability/doom_bringer_scorched_earth.png",
+          "win_pct": 53.87,
+          "pick_num": 32.52
+        }
+      ]
+    },
+    "Pudge": {
+      "hero_id": 14,
+      "hero_img": "https://cdn.datdota.com/images/heroes/pudge_full.png",
+      "body_winrate": 49.77,
+      "win_pct": 52.35,
+      "pick_num": 27.2,
+      "abilities": [
+        {
+          "ability_id": 5075,
+          "ability_name": "Meat Hook",
+          "img": "https://cdn.datdota.com/images/ability/pudge_meat_hook.png",
+          "win_pct": 53.1,
+          "pick_num": 6.01
+        },
+        {
+          "ability_id": 5076,
+          "ability_name": "Rot",
+          "img": "https://cdn.datdota.com/images/ability/pudge_rot.png",
+          "win_pct": 54.47,
+          "pick_num": 11.48
+        },
+        {
+          "ability_id": 5077,
+          "ability_name": "Dismember",
+          "img": "https://cdn.datdota.com/images/ability/pudge_dismember.png",
+          "win_pct": 52.68,
+          "pick_num": 38.65
+        },
+        {
+          "ability_id": 5074,
+          "ability_name": "Meat Shield",
+          "img": "https://cdn.datdota.com/images/ability/pudge_flesh_heap.png",
+          "win_pct": 50.74,
+          "pick_num": 42.07
+        }
+      ]
+    },
+    "Templar Assassin": {
+      "hero_id": 46,
+      "hero_img": "https://cdn.datdota.com/images/heroes/templar_assassin_full.png",
+      "body_winrate": 45.72,
+      "win_pct": 50.97,
+      "pick_num": 38.82,
+      "abilities": [
+        {
+          "ability_id": 5196,
+          "ability_name": "Psi Blades",
+          "img": "https://cdn.datdota.com/images/ability/templar_assassin_psi_blades.png",
+          "win_pct": 57.29,
+          "pick_num": 7.01
+        },
+        {
+          "ability_id": 5194,
+          "ability_name": "Refraction",
+          "img": "https://cdn.datdota.com/images/ability/templar_assassin_refraction.png",
+          "win_pct": 57.65,
+          "pick_num": 24.98
+        },
+        {
+          "ability_id": 5195,
+          "ability_name": "Meld",
+          "img": "https://cdn.datdota.com/images/ability/templar_assassin_meld.png",
+          "win_pct": 53.92,
+          "pick_num": 30.58
+        },
+        {
+          "ability_id": 5197,
+          "ability_name": "Psionic Trap",
+          "img": "https://cdn.datdota.com/images/ability/templar_assassin_psionic_trap.png",
+          "win_pct": 49.59,
+          "pick_num": 43.27
+        }
+      ]
+    },
+    "Legion Commander": {
+      "hero_id": 104,
+      "hero_img": "https://cdn.datdota.com/images/heroes/legion_commander_full.png",
+      "body_winrate": 48.95,
+      "win_pct": 52.09,
+      "pick_num": 38.53,
+      "abilities": [
+        {
+          "ability_id": 5598,
+          "ability_name": "Duel",
+          "img": "https://cdn.datdota.com/images/ability/legion_commander_duel.png",
+          "win_pct": 54.94,
+          "pick_num": 8.64
+        },
+        {
+          "ability_id": 5597,
+          "ability_name": "Moment of Courage",
+          "img": "https://cdn.datdota.com/images/ability/legion_commander_moment_of_courage.png",
+          "win_pct": 53.33,
+          "pick_num": 24.22
+        },
+        {
+          "ability_id": 5595,
+          "ability_name": "Overwhelming Odds",
+          "img": "https://cdn.datdota.com/images/ability/legion_commander_overwhelming_odds.png",
+          "win_pct": 54.33,
+          "pick_num": 30.5
+        },
+        {
+          "ability_id": 5596,
+          "ability_name": "Press The Attack",
+          "img": "https://cdn.datdota.com/images/ability/legion_commander_press_the_attack.png",
+          "win_pct": 53.72,
+          "pick_num": 38.34
+        }
+      ]
+    },
+    "Ancient Apparition": {
+      "hero_id": 68,
+      "hero_img": "https://cdn.datdota.com/images/heroes/ancient_apparition_full.png",
+      "body_winrate": 47.69,
+      "win_pct": 50.6,
+      "pick_num": 32.14,
+      "abilities": [
+        {
+          "ability_id": 5347,
+          "ability_name": "Chilling Touch",
+          "img": "https://cdn.datdota.com/images/ability/ancient_apparition_chilling_touch.png",
+          "win_pct": 50.45,
+          "pick_num": 13.16
+        },
+        {
+          "ability_id": 5348,
+          "ability_name": "Ice Blast",
+          "img": "https://cdn.datdota.com/images/ability/ancient_apparition_ice_blast.png",
+          "win_pct": 59.64,
+          "pick_num": 16.07
+        },
+        {
+          "ability_id": 5345,
+          "ability_name": "Cold Feet",
+          "img": "https://cdn.datdota.com/images/ability/ancient_apparition_cold_feet.png",
+          "win_pct": 57.24,
+          "pick_num": 31.27
+        },
+        {
+          "ability_id": 5346,
+          "ability_name": "Ice Vortex",
+          "img": "https://cdn.datdota.com/images/ability/ancient_apparition_ice_vortex.png",
+          "win_pct": 53.78,
+          "pick_num": 38.89
+        }
+      ]
+    },
+    "Bounty Hunter": {
+      "hero_id": 62,
+      "hero_img": "https://cdn.datdota.com/images/heroes/bounty_hunter_full.png",
+      "body_winrate": 49.53,
+      "win_pct": 52.91,
+      "pick_num": 38.73,
+      "abilities": [
+        {
+          "ability_id": 5286,
+          "ability_name": "Jinada",
+          "img": "https://cdn.datdota.com/images/ability/bounty_hunter_jinada.png",
+          "win_pct": 48.38,
+          "pick_num": 11.94
+        },
+        {
+          "ability_id": 5288,
+          "ability_name": "Track",
+          "img": "https://cdn.datdota.com/images/ability/bounty_hunter_track.png",
+          "win_pct": 54.08,
+          "pick_num": 20.28
+        },
+        {
+          "ability_id": 5287,
+          "ability_name": "Shadow Walk",
+          "img": "https://cdn.datdota.com/images/ability/bounty_hunter_wind_walk.png",
+          "win_pct": 56.9,
+          "pick_num": 29.9
+        },
+        { 
+          "ability_id": 1314,
+          "ability_name": "Shuriken Toss",
+          "img": "https://cdn.datdota.com/images/ability/bounty_hunter_shuriken_toss.png",
+          "win_pct": 48.98,
+          "pick_num": 35.84
+        }
+      ]
+    },
+    "Void Spirit": {
+      "hero_id": 126,
+      "hero_img": "https://cdn.datdota.com/images/heroes/void_spirit_full.png",
+      "body_winrate": 50.91,
+      "win_pct": 54.9,
+      "pick_num": 35.85,
+      "abilities": [
+        {
+          "ability_id": 7705,
+          "ability_name": "Astral Step",
+          "img": "https://cdn.datdota.com/images/ability/void_spirit_astral_step.png",
+          "win_pct": 59.13,
+          "pick_num": 4.29
+        },
+        {
+          "ability_id": 7710,
+          "ability_name": "Resonant Pulse",
+          "img": "https://cdn.datdota.com/images/ability/void_spirit_resonant_pulse.png",
+          "win_pct": 51.78,
+          "pick_num": 33.47
+        },
+        {
+          "ability_id": 7701,
+          "ability_name": "Aether Remnant",
+          "img": "https://cdn.datdota.com/images/ability/void_spirit_aether_remnant.png",
+          "win_pct": 57.33,
+          "pick_num": 29.32
+        },
+        {
+          "ability_id": 6470,
+          "ability_name": "Dissimilate",
+          "img": "https://cdn.datdota.com/images/ability/void_spirit_dissimilate.png",
+          "win_pct": 51.45,
+          "pick_num": 36.4
+        }
+      ]
+    },
+    "Snapfire": {
+      "hero_id": 128,
+      "hero_img": "https://cdn.datdota.com/images/heroes/snapfire_full.png",
+      "body_winrate": 50.61,
+      "win_pct": 54.93,
+      "pick_num": 21.29,
+      "abilities": [
+        {
+          "ability_id": 6488,
+          "ability_name": "Lil' Shredder",
+          "img": "https://cdn.datdota.com/images/ability/snapfire_lil_shredder.png",
+          "win_pct": 48.94,
+          "pick_num": 10.12
+        },
+        {
+          "ability_id": 6480,
+          "ability_name": "Scatterblast",
+          "img": "https://cdn.datdota.com/images/ability/snapfire_scatterblast.png",
+          "win_pct": 49.93,
+          "pick_num": 30.47
+        },
+        {
+          "ability_id": 6482,
+          "ability_name": "Mortimer Kisses",
+          "img": "https://cdn.datdota.com/images/ability/snapfire_mortimer_kisses.png",
+          "win_pct": 55.97,
+          "pick_num": 33.96
+        },
+        {
+          "ability_id": 6483,
+          "ability_name": "Firesnap Cookie",
+          "img": "https://cdn.datdota.com/images/ability/snapfire_firesnap_cookie.png",
+          "win_pct": 53.6,
+          "pick_num": 34.47
+        }
+      ]
+    },
+    "Chaos Knight": {
+      "hero_id": 81,
+      "hero_img": "https://cdn.datdota.com/images/heroes/chaos_knight_full.png",
+      "body_winrate": 49.97,
+      "win_pct": 48.95,
+      "pick_num": 38.07,
+      "abilities": [
+        {
+          "ability_id": 5428,
+          "ability_name": "Chaos Strike",
+          "img": "https://cdn.datdota.com/images/ability/chaos_knight_chaos_strike.png",
+          "win_pct": 51.73,
+          "pick_num": 10.83
+        },
+        {
+          "ability_id": 5426,
+          "ability_name": "Chaos Bolt",
+          "img": "https://cdn.datdota.com/images/ability/chaos_knight_chaos_bolt.png",
+          "win_pct": 58.72,
+          "pick_num": 14.43
+        },
+        {
+          "ability_id": 5427,
+          "ability_name": "Reality Rift",
+          "img": "https://cdn.datdota.com/images/ability/chaos_knight_reality_rift.png",
+          "win_pct": 51.87,
+          "pick_num": 25.81
+        },
+        {
+          "ability_id": 5429,
+          "ability_name": "Phantasm",
+          "img": "https://cdn.datdota.com/images/ability/chaos_knight_phantasm.png",
+          "win_pct": 57.38,
+          "pick_num": 32.8
+        }
+      ]
+    },
+    "Sven": {
+      "hero_id": 18,
+      "hero_img": "https://cdn.datdota.com/images/heroes/sven_full.png",
+      "body_winrate": 50.72,
+      "win_pct": 55.89,
+      "pick_num": 37.15,
+      "abilities": [
+        {
+          "ability_id": 5094,
+          "ability_name": "Storm Hammer",
+          "img": "https://cdn.datdota.com/images/ability/sven_storm_bolt.png",
+          "win_pct": 55.91,
+          "pick_num": 6.34
+        },
+        {
+          "ability_id": 5095,
+          "ability_name": "Great Cleave",
+          "img": "https://cdn.datdota.com/images/ability/sven_great_cleave.png",
+          "win_pct": 52.69,
+          "pick_num": 14.32
+        },
+        {
+          "ability_id": 5097,
+          "ability_name": "God's Strength",
+          "img": "https://cdn.datdota.com/images/ability/sven_gods_strength.png",
+          "win_pct": 52.51,
+          "pick_num": 24.11
+        },
+        {
+          "ability_id": 5096,
+          "ability_name": "Warcry",
+          "img": "https://cdn.datdota.com/images/ability/sven_warcry.png",
+          "win_pct": 53.74,
+          "pick_num": 40.88
+        }
+      ]
+    },
+    "Wraith King": {
+      "hero_id": 42,
+      "hero_img": "https://cdn.datdota.com/images/heroes/skeleton_king_full.png",
+      "body_winrate": 52.44,
+      "win_pct": 56.09,
+      "pick_num": 33.0,
+      "abilities": [
+        {
+          "ability_id": 5088,
+          "ability_name": "Mortal Strike",
+          "img": "https://cdn.datdota.com/images/ability/skeleton_king_mortal_strike.png",
+          "win_pct": 52.16,
+          "pick_num": 11.55
+        },
+        {
+          "ability_id": 5089,
+          "ability_name": "Reincarnation",
+          "img": "https://cdn.datdota.com/images/ability/skeleton_king_reincarnation.png",
+          "win_pct": 60.39,
+          "pick_num": 17.64
+        },
+        {
+          "ability_id": 5086,
+          "ability_name": "Wraithfire Blast",
+          "img": "https://cdn.datdota.com/images/ability/skeleton_king_hellfire_blast.png",
+          "win_pct": 58.48,
+          "pick_num": 20.65
+        },
+        {
+          "ability_id": 5087,
+          "ability_name": "Bone Guard",
+          "img": "https://cdn.datdota.com/images/ability/skeleton_king_bone_guard.png",
+          "win_pct": 55.86,
+          "pick_num": 39.23
+        },
+        {
+          "ability_id": 1282,
+          "ability_name": "Spectral Blade",
+          "img": "https://cdn.datdota.com/images/ability/skeleton_king_spectral_blade.png",
+          "win_pct": 47.87,
+          "pick_num": 36.27
+        }
+      ]
+    },
+    "Night Stalker": {
+      "hero_id": 60,
+      "hero_img": "https://cdn.datdota.com/images/heroes/night_stalker_full.png",
+      "body_winrate": 50.42,
+      "win_pct": 57.42,
+      "pick_num": 40.35,
+      "abilities": [
+        {
+          "ability_id": 5277,
+          "ability_name": "Hunter in the Night",
+          "img": "https://cdn.datdota.com/images/ability/night_stalker_hunter_in_the_night.png",
+          "win_pct": 55.57,
+          "pick_num": 9.0
+        },
+        {
+          "ability_id": 5276,
+          "ability_name": "Crippling Fear",
+          "img": "https://cdn.datdota.com/images/ability/night_stalker_crippling_fear.png",
+          "win_pct": 55.19,
+          "pick_num": 31.21
+        },
+        {
+          "ability_id": 5278,
+          "ability_name": "Dark Ascension",
+          "img": "https://cdn.datdota.com/images/ability/night_stalker_darkness.png",
+          "win_pct": 55.38,
+          "pick_num": 36.63
+        },
+        {
+          "ability_id": 5275,
+          "ability_name": "Void",
+          "img": "https://cdn.datdota.com/images/ability/night_stalker_void.png",
+          "win_pct": 48.96,
+          "pick_num": 38.84
+        }
+      ]
+    },
+    "Keeper of the Light": {
+      "hero_id": 90,
+      "hero_img": "https://cdn.datdota.com/images/heroes/keeper_of_the_light_full.png",
+      "body_winrate": 47.67,
+      "win_pct": 49.52,
+      "pick_num": 24.72,
+      "abilities": [
+        {
+          "ability_id": 5473,
+          "ability_name": "Chakra Magic",
+          "img": "https://cdn.datdota.com/images/ability/keeper_of_the_light_chakra_magic.png",
+          "win_pct": 53.27,
+          "pick_num": 8.38
+        },
+        {
+          "ability_id": 5471,
+          "ability_name": "Illuminate",
+          "img": "https://cdn.datdota.com/images/ability/keeper_of_the_light_illuminate.png",
+          "win_pct": 51.13,
+          "pick_num": 39.1
+        },
+        {
+          "ability_id": 5474,
+          "ability_name": "Spirit Form",
+          "img": "https://cdn.datdota.com/images/ability/keeper_of_the_light_spirit_form.png",
+          "win_pct": 50.0,
+          "pick_num": 37.22
+        },
+        {
+          "ability_id": 5476,
+          "ability_name": "Blinding Light",
+          "img": "https://cdn.datdota.com/images/ability/keeper_of_the_light_blinding_light.png",
+          "win_pct": 44.04,
+          "pick_num": 42.78
+        }
+      ]
+    },
+    "Batrider": {
+      "hero_id": 65,
+      "hero_img": "https://cdn.datdota.com/images/heroes/batrider_full.png",
+      "body_winrate": 53.81,
+      "win_pct": 59.84,
+      "pick_num": 28.46,
+      "abilities": [
+        {
+          "ability_id": 5320,
+          "ability_name": "Sticky Napalm",
+          "img": "https://cdn.datdota.com/images/ability/batrider_sticky_napalm.png",
+          "win_pct": 49.41,
+          "pick_num": 8.36
+        },
+        {
+          "ability_id": 5322,
+          "ability_name": "Firefly",
+          "img": "https://cdn.datdota.com/images/ability/batrider_firefly.png",
+          "win_pct": 55.21,
+          "pick_num": 33.34
+        },
+        {
+          "ability_id": 5323,
+          "ability_name": "Flaming Lasso",
+          "img": "https://cdn.datdota.com/images/ability/batrider_flaming_lasso.png",
+          "win_pct": 50.72,
+          "pick_num": 39.06
+        },
+        {
+          "ability_id": 5321,
+          "ability_name": "Flamebreak",
+          "img": "https://cdn.datdota.com/images/ability/batrider_flamebreak.png",
+          "win_pct": 51.35,
+          "pick_num": 43.38
+        }
+      ]
+    },
+    "Silencer": {
+      "hero_id": 75,
+      "hero_img": "https://cdn.datdota.com/images/heroes/silencer_full.png",
+      "body_winrate": 48.42,
+      "win_pct": 51.76,
+      "pick_num": 15.94,
+      "abilities": [
+        {
+          "ability_id": 5378,
+          "ability_name": "Glaives of Wisdom",
+          "img": "https://cdn.datdota.com/images/ability/silencer_glaives_of_wisdom.png",
+          "win_pct": 56.56,
+          "pick_num": 9.59
+        },
+        {
+          "ability_id": 5377,
+          "ability_name": "Arcane Curse",
+          "img": "https://cdn.datdota.com/images/ability/silencer_curse_of_the_silent.png",
+          "win_pct": 50.5,
+          "pick_num": 27.11
+        },
+        {
+          "ability_id": 5380,
+          "ability_name": "Global Silence",
+          "img": "https://cdn.datdota.com/images/ability/silencer_global_silence.png",
+          "win_pct": 52.32,
+          "pick_num": 33.29
+        },
+        {
+          "ability_id": 5379,
+          "ability_name": "Last Word",
+          "img": "https://cdn.datdota.com/images/ability/silencer_last_word.png",
+          "win_pct": 52.02,
+          "pick_num": 40.18
+        }
+      ]
+    },
+    "Muerta": {
+      "hero_id": 138,
+      "hero_img": "https://cdn.datdota.com/images/heroes/muerta_full.png",
+      "body_winrate": 50.9,
+      "win_pct": 58.95,
+      "pick_num": 14.58,
+      "abilities": [
+        {
+          "ability_id": 5753,
+          "ability_name": "Gunslinger",
+          "img": "https://cdn.datdota.com/images/ability/muerta_gunslinger.png",
+          "win_pct": 51.46,
+          "pick_num": 9.63
+        },
+        {
+          "ability_id": 5754,
+          "ability_name": "Pierce the Veil",
+          "img": "https://cdn.datdota.com/images/ability/muerta_pierce_the_veil.png",
+          "win_pct": 50.91,
+          "pick_num": 16.96
+        },
+        {
+          "ability_id": 5751,
+          "ability_name": "Dead Shot",
+          "img": "https://cdn.datdota.com/images/ability/muerta_dead_shot.png",
+          "win_pct": 55.31,
+          "pick_num": 22.55
+        },
+        {
+          "ability_id": 5752,
+          "ability_name": "The Calling",
+          "img": "https://cdn.datdota.com/images/ability/muerta_the_calling.png",
+          "win_pct": 57.54,
+          "pick_num": 34.87
+        }
+      ]
+    },
+    "Omniknight": {
+      "hero_id": 57,
+      "hero_img": "https://cdn.datdota.com/images/heroes/omniknight_full.png",
+      "body_winrate": 55.39,
+      "win_pct": 60.9,
+      "pick_num": 30.7,
+      "abilities": [
+        {
+          "ability_id": 656,
+          "ability_name": "Hammer of Purity",
+          "img": "https://cdn.datdota.com/images/ability/omniknight_hammer_of_purity.png",
+          "win_pct": 52.54,
+          "pick_num": 11.79
+        },
+        {
+          "ability_id": 5263,
+          "ability_name": "Purification",
+          "img": "https://cdn.datdota.com/images/ability/omniknight_purification.png",
+          "win_pct": 56.82,
+          "pick_num": 35.32
+        },
+        {
+          "ability_id": 895,
+          "ability_name": "Repel",
+          "img": "https://cdn.datdota.com/images/ability/omniknight_martyr.png",
+          "win_pct": 56.51,
+          "pick_num": 32.0
+        },
+        {
+          "ability_id": 5266,
+          "ability_name": "Guardian Angel",
+          "img": "https://cdn.datdota.com/images/ability/omniknight_guardian_angel.png",
+          "win_pct": 52.17,
+          "pick_num": 43.1
+        }
+      ]
+    },
+    "Sand King": {
+      "hero_id": 16,
+      "hero_img": "https://cdn.datdota.com/images/heroes/sand_king_full.png",
+      "body_winrate": 46.53,
+      "win_pct": 48.01,
+      "pick_num": 40.86,
+      "abilities": [
+        {
+          "ability_id": 5102,
+          "ability_name": "Burrowstrike",
+          "img": "https://cdn.datdota.com/images/ability/sandking_burrowstrike.png",
+          "win_pct": 55.3,
+          "pick_num": 6.28
+        },
+        {
+          "ability_id": 5103,
+          "ability_name": "Sand Storm",
+          "img": "https://cdn.datdota.com/images/ability/sandking_sand_storm.png",
+          "win_pct": 58.93,
+          "pick_num": 28.04
+        },
+        {
+          "ability_id": 5105,
+          "ability_name": "Epicenter",
+          "img": "https://cdn.datdota.com/images/ability/sandking_epicenter.png",
+          "win_pct": 53.33,
+          "pick_num": 34.33
+        },
+        { 
+          "ability_id": 1229,
+          "ability_name": "Stinger",
+          "img": "https://cdn.datdota.com/images/ability/sandking_scorpion_strike.png",
+          "win_pct": 50.08,
+          "pick_num": 31.32
+        }
+      ]
+    },
+    "Medusa": {
+      "hero_id": 94,
+      "hero_img": "https://cdn.datdota.com/images/heroes/medusa_full.png",
+      "body_winrate": 56.21,
+      "win_pct": 61.23,
+      "pick_num": 13.72,
+      "abilities": [
+        {
+          "ability_id": 5504,
+          "ability_name": "Split Shot",
+          "img": "https://cdn.datdota.com/images/ability/medusa_split_shot.png",
+          "win_pct": 53.82,
+          "pick_num": 9.87
+        },
+        {
+          "ability_id": 5505,
+          "ability_name": "Mystic Snake",
+          "img": "https://cdn.datdota.com/images/ability/medusa_mystic_snake.png",
+          "win_pct": 52.79,
+          "pick_num": 23.16
+        },
+        {
+          "ability_id": 5507,
+          "ability_name": "Stone Gaze",
+          "img": "https://cdn.datdota.com/images/ability/medusa_stone_gaze.png",
+          "win_pct": 53.54,
+          "pick_num": 40.33
+        },
+        {
+          "ability_id": 1475,
+          "ability_name": "Gorgon's Grasp",
+          "img": "https://cdn.datdota.com/images/ability/medusa_gorgon_grasp.png",
+          "win_pct": 54.32,
+          "pick_num": 37.52
+        }
+      ]
+    },
+    "Abaddon": {
+      "hero_id": 102,
+      "hero_img": "https://cdn.datdota.com/images/heroes/abaddon_full.png",
+      "body_winrate": 46.61,
+      "win_pct": 49.12,
+      "pick_num": 39.25,
+      "abilities": [
+        {
+          "ability_id": 5587,
+          "ability_name": "Curse of Avernus",
+          "img": "https://cdn.datdota.com/images/ability/abaddon_frostmourne.png",
+          "win_pct": 54.96,
+          "pick_num": 12.03
+        },
+        {
+          "ability_id": 5588,
+          "ability_name": "Borrowed Time",
+          "img": "https://cdn.datdota.com/images/ability/abaddon_borrowed_time.png",
+          "win_pct": 59.11,
+          "pick_num": 10.2
+        },
+        {
+          "ability_id": 5586,
+          "ability_name": "Aphotic Shield",
+          "img": "https://cdn.datdota.com/images/ability/abaddon_aphotic_shield.png",
+          "win_pct": 58.1,
+          "pick_num": 28.74
+        },
+        {
+          "ability_id": 5585,
+          "ability_name": "Mist Coil",
+          "img": "https://cdn.datdota.com/images/ability/abaddon_death_coil.png",
+          "win_pct": 50.0,
+          "pick_num": 36.76
+        }
+      ]
+    },
+    "Spectre": {
+      "hero_id": 67,
+      "hero_img": "https://cdn.datdota.com/images/heroes/spectre_full.png",
+      "body_winrate": 46.38,
+      "win_pct": 46.62,
+      "pick_num": 35.73,
+      "abilities": [
+        {
+          "ability_id": 5336,
+          "ability_name": "Dispersion",
+          "img": "https://cdn.datdota.com/images/ability/spectre_dispersion.png",
+          "win_pct": 60.02,
+          "pick_num": 9.43
+        },
+        {
+          "ability_id": 5337,
+          "ability_name": "Haunt",
+          "img": "https://cdn.datdota.com/images/ability/spectre_haunt.png",
+          "win_pct": 59.14,
+          "pick_num": 28.11
+        },
+        {
+          "ability_id": 5334,
+          "ability_name": "Spectral Dagger",
+          "img": "https://cdn.datdota.com/images/ability/spectre_spectral_dagger.png",
+          "win_pct": 58.15,
+          "pick_num": 37.61
+        },
+        {
+          "ability_id": 1679,
+          "ability_name": "Shadow Step",
+          "img": "https://cdn.datdota.com/images/ability/spectre_shadow_step.png",
+          "win_pct": 46.33,
+          "pick_num": 33.11
+        }
+      ]
+    },
+    "Phantom Lancer": {
+      "hero_id": 12,
+      "hero_img": "https://cdn.datdota.com/images/heroes/phantom_lancer_full.png",
+      "body_winrate": 48.85,
+      "win_pct": 50.98,
+      "pick_num": 37.9,
+      "abilities": [
+        {
+          "ability_id": 5067,
+          "ability_name": "Juxtapose",
+          "img": "https://cdn.datdota.com/images/ability/phantom_lancer_juxtapose.png",
+          "win_pct": 54.71,
+          "pick_num": 12.76
+        },
+        {
+          "ability_id": 5066,
+          "ability_name": "Doppelganger",
+          "img": "https://cdn.datdota.com/images/ability/phantom_lancer_doppelwalk.png",
+          "win_pct": 57.73,
+          "pick_num": 21.26
+        },
+        {
+          "ability_id": 5065,
+          "ability_name": "Spirit Lance",
+          "img": "https://cdn.datdota.com/images/ability/phantom_lancer_spirit_lance.png",
+          "win_pct": 52.21,
+          "pick_num": 36.93
+        },
+        { 
+          "ability_id": 1221,
+          "ability_name": "Phantom Rush",
+          "img": "https://cdn.datdota.com/images/ability/phantom_lancer_phantom_edge.png",
+          "win_pct": 49.67,
+          "pick_num": 34.88
+        }
+      ]
+    },
+    "Undying": {
+      "hero_id": 85,
+      "hero_img": "https://cdn.datdota.com/images/heroes/undying_full.png",
+      "body_winrate": 47.7,
+      "win_pct": 49.73,
+      "pick_num": 41.5,
+      "abilities": [
+        {
+          "ability_id": 5444,
+          "ability_name": "Tombstone",
+          "img": "https://cdn.datdota.com/images/ability/undying_tombstone.png",
+          "win_pct": 57.16,
+          "pick_num": 9.75
+        },
+        {
+          "ability_id": 5442,
+          "ability_name": "Decay",
+          "img": "https://cdn.datdota.com/images/ability/undying_decay.png",
+          "win_pct": 56.22,
+          "pick_num": 13.23
+        },
+        {
+          "ability_id": 5447,
+          "ability_name": "Flesh Golem",
+          "img": "https://cdn.datdota.com/images/ability/undying_flesh_golem.png",
+          "win_pct": 53.11,
+          "pick_num": 19.47
+        },
+        {
+          "ability_id": 5443,
+          "ability_name": "Soul Rip",
+          "img": "https://cdn.datdota.com/images/ability/undying_soul_rip.png",
+          "win_pct": 48.26,
+          "pick_num": 41.65
+        }
+      ]
+    },
+    "Axe": {
+      "hero_id": 2,
+      "hero_img": "https://cdn.datdota.com/images/heroes/axe_full.png",
+      "body_winrate": 50.94,
+      "win_pct": 55.52,
+      "pick_num": 37.07,
+      "abilities": [
+        {
+          "ability_id": 5009,
+          "ability_name": "Counter Helix",
+          "img": "https://cdn.datdota.com/images/ability/axe_counter_helix.png",
+          "win_pct": 56.54,
+          "pick_num": 11.62
+        },
+        {
+          "ability_id": 5007,
+          "ability_name": "Berserker's Call",
+          "img": "https://cdn.datdota.com/images/ability/axe_berserkers_call.png",
+          "win_pct": 54.74,
+          "pick_num": 13.44
+        },
+        {
+          "ability_id": 5008,
+          "ability_name": "Battle Hunger",
+          "img": "https://cdn.datdota.com/images/ability/axe_battle_hunger.png",
+          "win_pct": 54.49,
+          "pick_num": 31.15
+        },
+        {
+          "ability_id": 5010,
+          "ability_name": "Culling Blade",
+          "img": "https://cdn.datdota.com/images/ability/axe_culling_blade.png",
+          "win_pct": 51.49,
+          "pick_num": 41.12
+        }
+      ]
+    },
+    "Magnus": {
+      "hero_id": 97,
+      "hero_img": "https://cdn.datdota.com/images/heroes/magnataur_full.png",
+      "body_winrate": 48.97,
+      "win_pct": 50.26,
+      "pick_num": 37.48,
+      "abilities": [
+        {
+          "ability_id": 5519,
+          "ability_name": "Empower",
+          "img": "https://cdn.datdota.com/images/ability/magnataur_empower.png",
+          "win_pct": 58.95,
+          "pick_num": 7.9
+        },
+        {
+          "ability_id": 5518,
+          "ability_name": "Shockwave",
+          "img": "https://cdn.datdota.com/images/ability/magnataur_shockwave.png",
+          "win_pct": 50.58,
+          "pick_num": 13.73
+        },
+        {
+          "ability_id": 5520,
+          "ability_name": "Skewer",
+          "img": "https://cdn.datdota.com/images/ability/magnataur_skewer.png",
+          "win_pct": 52.84,
+          "pick_num": 14.66
+        },
+        {
+          "ability_id": 5521,
+          "ability_name": "Reverse Polarity",
+          "img": "https://cdn.datdota.com/images/ability/magnataur_reverse_polarity.png",
+          "win_pct": 55.66,
+          "pick_num": 27.77
+        }
+      ]
+    },
+    "Spirit Breaker": {
+      "hero_id": 71,
+      "hero_img": "https://cdn.datdota.com/images/heroes/spirit_breaker_full.png",
+      "body_winrate": 51.15,
+      "win_pct": 53.12,
+      "pick_num": 42.0,
+      "abilities": [
+        {
+          "ability_id": 5355,
+          "ability_name": "Greater Bash",
+          "img": "https://cdn.datdota.com/images/ability/spirit_breaker_greater_bash.png",
+          "win_pct": 51.05,
+          "pick_num": 14.31
+        },
+        {
+          "ability_id": 5353,
+          "ability_name": "Charge of Darkness",
+          "img": "https://cdn.datdota.com/images/ability/spirit_breaker_charge_of_darkness.png",
+          "win_pct": 57.33,
+          "pick_num": 9.67
+        },
+        {
+          "ability_id": 7301,
+          "ability_name": "Bulldoze",
+          "img": "https://cdn.datdota.com/images/ability/spirit_breaker_bulldoze.png",
+          "win_pct": 55.37,
+          "pick_num": 39.2
+        },
+        {
+          "ability_id": 5356,
+          "ability_name": "Nether Strike",
+          "img": "https://cdn.datdota.com/images/ability/spirit_breaker_nether_strike.png",
+          "win_pct": 45.88,
+          "pick_num": 44.79
+        }
+      ]
+    },
+    "Lifestealer": {
+      "hero_id": 54,
+      "hero_img": "https://cdn.datdota.com/images/heroes/life_stealer_full.png",
+      "body_winrate": 52.35,
+      "win_pct": 55.17,
+      "pick_num": 32.78,
+      "abilities": [
+        {
+          "ability_id": 631,
+          "ability_name": "Ghoul Frenzy",
+          "img": "https://cdn.datdota.com/images/ability/life_stealer_ghoul_frenzy.png",
+          "win_pct": 52.96,
+          "pick_num": 11.23
+        },
+        {
+          "ability_id": 5249,
+          "ability_name": "Rage",
+          "img": "https://cdn.datdota.com/images/ability/life_stealer_rage.png",
+          "win_pct": 53.36,
+          "pick_num": 17.62
+        },
+        {
+          "ability_id": 5252,
+          "ability_name": "Infest",
+          "img": "https://cdn.datdota.com/images/ability/life_stealer_infest.png",
+          "win_pct": 49.09,
+          "pick_num": 24.49
+        },
+        {
+          "ability_id": 5251,
+          "ability_name": "Open Wounds",
+          "img": "https://cdn.datdota.com/images/ability/life_stealer_open_wounds.png",
+          "win_pct": 52.27,
+          "pick_num": 43.67
+        }
+      ]
+    },
+    "Enchantress": {
+      "hero_id": 58,
+      "hero_img": "https://cdn.datdota.com/images/heroes/enchantress_full.png",
+      "body_winrate": 50.59,
+      "win_pct": 52.31,
+      "pick_num": 33.15,
+      "abilities": [
+        {
+          "ability_id": 5270,
+          "ability_name": "Impetus",
+          "img": "https://cdn.datdota.com/images/ability/enchantress_impetus.png",
+          "win_pct": 52.94,
+          "pick_num": 13.7
+        },
+        {
+          "ability_id": 5267,
+          "ability_name": "Untouchable",
+          "img": "https://cdn.datdota.com/images/ability/enchantress_untouchable.png",
+          "win_pct": 54.35,
+          "pick_num": 25.6
+        },
+        {
+          "ability_id": 5269,
+          "ability_name": "Nature's Attendants",
+          "img": "https://cdn.datdota.com/images/ability/enchantress_natures_attendants.png",
+          "win_pct": 56.55,
+          "pick_num": 33.05
+        },
+        {
+          "ability_id": 5268,
+          "ability_name": "Enchant",
+          "img": "https://cdn.datdota.com/images/ability/enchantress_enchant.png",
+          "win_pct": 50.58,
+          "pick_num": 39.84
+        }
+      ]
+    },
+    "Terrorblade": {
+      "hero_id": 109,
+      "hero_img": "https://cdn.datdota.com/images/heroes/terrorblade_full.png",
+      "body_winrate": 56.89,
+      "win_pct": 62.24,
+      "pick_num": 24.19,
+      "abilities": [
+        {
+          "ability_id": 5621,
+          "ability_name": "Metamorphosis",
+          "img": "https://cdn.datdota.com/images/ability/terrorblade_metamorphosis.png",
+          "win_pct": 52.43,
+          "pick_num": 11.63
+        },
+        {
+          "ability_id": 5619,
+          "ability_name": "Reflection",
+          "img": "https://cdn.datdota.com/images/ability/terrorblade_reflection.png",
+          "win_pct": 53.54,
+          "pick_num": 17.7
+        },
+        {
+          "ability_id": 5622,
+          "ability_name": "Sunder",
+          "img": "https://cdn.datdota.com/images/ability/terrorblade_sunder.png",
+          "win_pct": 53.46,
+          "pick_num": 29.31
+        },
+        {
+          "ability_id": 5620,
+          "ability_name": "Conjure Image",
+          "img": "https://cdn.datdota.com/images/ability/terrorblade_conjure_image.png",
+          "win_pct": 49.39,
+          "pick_num": 33.9
+        }
+      ]
+    },
+    "Sniper": {
+      "hero_id": 35,
+      "hero_img": "https://cdn.datdota.com/images/heroes/sniper_full.png",
+      "body_winrate": 57.37,
+      "win_pct": 58.55,
+      "pick_num": 2.42,
+      "abilities": [
+        {
+          "ability_id": 5157,
+          "ability_name": "Assassinate",
+          "img": "https://cdn.datdota.com/images/ability/sniper_assassinate.png",
+          "win_pct": 50.07,
+          "pick_num": 15.21
+        },
+        {
+          "ability_id": 5155,
+          "ability_name": "Headshot",
+          "img": "https://cdn.datdota.com/images/ability/sniper_headshot.png",
+          "win_pct": 52.58,
+          "pick_num": 21.21
+        },
+        {
+          "ability_id": 5154,
+          "ability_name": "Shrapnel",
+          "img": "https://cdn.datdota.com/images/ability/sniper_shrapnel.png",
+          "win_pct": 56.06,
+          "pick_num": 23.31
+        },
+        {
+          "ability_id": 5156,
+          "ability_name": "Take Aim",
+          "img": "https://cdn.datdota.com/images/ability/sniper_take_aim.png",
+          "win_pct": 53.7,
+          "pick_num": 40.33
+        }
+      ]
+    },
+    "Timbersaw": {
+      "hero_id": 98,
+      "hero_img": "https://cdn.datdota.com/images/heroes/shredder_full.png",
+      "body_winrate": 49.37,
+      "win_pct": 50.87,
+      "pick_num": 41.37,
+      "abilities": [
+        {
+          "ability_id": 5526,
+          "ability_name": "Reactive Armor",
+          "img": "https://cdn.datdota.com/images/ability/shredder_reactive_armor.png",
+          "win_pct": 55.43,
+          "pick_num": 12.56
+        },
+        {
+          "ability_id": 5524,
+          "ability_name": "Whirling Death",
+          "img": "https://cdn.datdota.com/images/ability/shredder_whirling_death.png",
+          "win_pct": 50.83,
+          "pick_num": 15.49
+        },
+        {
+          "ability_id": 5527,
+          "ability_name": "Chakram",
+          "img": "https://cdn.datdota.com/images/ability/shredder_chakram.png",
+          "win_pct": 53.01,
+          "pick_num": 36.16
+        },
+        {
+          "ability_id": 5525,
+          "ability_name": "Timber Chain",
+          "img": "https://cdn.datdota.com/images/ability/shredder_timber_chain.png",
+          "win_pct": 53.86,
+          "pick_num": 37.83
+        }
+      ]
+    },
+    "Viper": {
+      "hero_id": 47,
+      "hero_img": "https://cdn.datdota.com/images/heroes/viper_full.png",
+      "body_winrate": 46.95,
+      "win_pct": 53.58,
+      "pick_num": 30.31,
+      "abilities": [
+        {
+          "ability_id": 5220,
+          "ability_name": "Corrosive Skin",
+          "img": "https://cdn.datdota.com/images/ability/viper_corrosive_skin.png",
+          "win_pct": 58.54,
+          "pick_num": 10.22
+        },
+        {
+          "ability_id": 5218,
+          "ability_name": "Poison Attack",
+          "img": "https://cdn.datdota.com/images/ability/viper_poison_attack.png",
+          "win_pct": 56.66,
+          "pick_num": 13.08
+        },
+        {
+          "ability_id": 5219,
+          "ability_name": "Nethertoxin",
+          "img": "https://cdn.datdota.com/images/ability/viper_nethertoxin.png",
+          "win_pct": 50.12,
+          "pick_num": 28.14
+        },
+        {
+          "ability_id": 5221,
+          "ability_name": "Viper Strike",
+          "img": "https://cdn.datdota.com/images/ability/viper_viper_strike.png",
+          "win_pct": 54.32,
+          "pick_num": 26.14
+        }
+      ]
+    },
+    "Phantom Assassin": {
+      "hero_id": 44,
+      "hero_img": "https://cdn.datdota.com/images/heroes/phantom_assassin_full.png",
+      "body_winrate": 42.92,
+      "win_pct": 44.42,
+      "pick_num": 40.02,
+      "abilities": [
+        {
+          "ability_id": 5191,
+          "ability_name": "Phantom Strike",
+          "img": "https://cdn.datdota.com/images/ability/phantom_assassin_phantom_strike.png",
+          "win_pct": 51.73,
+          "pick_num": 9.6
+        },
+        {
+          "ability_id": 5193,
+          "ability_name": "Coup de Grace",
+          "img": "https://cdn.datdota.com/images/ability/phantom_assassin_coup_de_grace.png",
+          "win_pct": 52.64,
+          "pick_num": 19.89
+        },
+        {
+          "ability_id": 5190,
+          "ability_name": "Stifling Dagger",
+          "img": "https://cdn.datdota.com/images/ability/phantom_assassin_stifling_dagger.png",
+          "win_pct": 49.54,
+          "pick_num": 20.6
+        }
+      ]
+    },
+    "Tiny": {
+      "hero_id": 19,
+      "hero_img": "https://cdn.datdota.com/images/heroes/tiny_full.png",
+      "body_winrate": 49.04,
+      "win_pct": 53.12,
+      "pick_num": 41.86,
+      "abilities": [
+        {
+          "ability_id": 5108,
+          "ability_name": "Tree Grab",
+          "img": "https://cdn.datdota.com/images/ability/tiny_tree_grab.png",
+          "win_pct": 51.12,
+          "pick_num": 9.95
+        },
+        {
+          "ability_id": 5106,
+          "ability_name": "Avalanche",
+          "img": "https://cdn.datdota.com/images/ability/tiny_avalanche.png",
+          "win_pct": 58.68,
+          "pick_num": 8.08
+        },
+        {
+          "ability_id": 5109,
+          "ability_name": "Grow",
+          "img": "https://cdn.datdota.com/images/ability/tiny_grow.png",
+          "win_pct": 54.73,
+          "pick_num": 22.72
+        },
+        {
+          "ability_id": 5107,
+          "ability_name": "Toss",
+          "img": "https://cdn.datdota.com/images/ability/tiny_toss.png",
+          "win_pct": 50.97,
+          "pick_num": 29.8
+        }
+      ]
+    },
+    "Necrophos": {
+      "hero_id": 36,
+      "hero_img": "https://cdn.datdota.com/images/heroes/necrolyte_full.png",
+      "body_winrate": 46.54,
+      "win_pct": 50.75,
+      "pick_num": 29.27,
+      "abilities": [
+        {
+          "ability_id": 5159,
+          "ability_name": "Heartstopper Aura",
+          "img": "https://cdn.datdota.com/images/ability/necrolyte_heartstopper_aura.png",
+          "win_pct": 54.34,
+          "pick_num": 18.0
+        },
+        {
+          "ability_id": 5161,
+          "ability_name": "Reaper's Scythe",
+          "img": "https://cdn.datdota.com/images/ability/necrolyte_reapers_scythe.png",
+          "win_pct": 51.72,
+          "pick_num": 16.25
+        },
+        {
+          "ability_id": 5158,
+          "ability_name": "Death Pulse",
+          "img": "https://cdn.datdota.com/images/ability/necrolyte_death_pulse.png",
+          "win_pct": 52.39,
+          "pick_num": 31.73
+        },
+        { 
+          "ability_id": 1270,
+          "ability_name": "Ghost Shroud",
+          "img": "https://cdn.datdota.com/images/ability/necrolyte_ghost_shroud.png",
+          "win_pct": 54.33,
+          "pick_num": 41.4
+        }
+      ]
+    },
+    "Monkey King": {
+      "hero_id": 114,
+      "hero_img": "https://cdn.datdota.com/images/heroes/monkey_king_full.png",
+      "body_winrate": 51.82,
+      "win_pct": 56.7,
+      "pick_num": 28.83,
+      "abilities": [
+        {
+          "ability_id": 5725,
+          "ability_name": "Wukong's Command",
+          "img": "https://cdn.datdota.com/images/ability/monkey_king_wukongs_command.png",
+          "win_pct": 53.98,
+          "pick_num": 10.93
+        },
+        {
+          "ability_id": 5723,
+          "ability_name": "Jingu Mastery",
+          "img": "https://cdn.datdota.com/images/ability/monkey_king_jingu_mastery.png",
+          "win_pct": 49.77,
+          "pick_num": 18.94
+        },
+        {
+          "ability_id": 5716,
+          "ability_name": "Boundless Strike",
+          "img": "https://cdn.datdota.com/images/ability/monkey_king_boundless_strike.png",
+          "win_pct": 57.03,
+          "pick_num": 20.57
+        },
+        {
+          "ability_id": 5721,
+          "ability_name": "Tree Dance",
+          "img": "https://cdn.datdota.com/images/ability/monkey_king_tree_dance.png",
+          "win_pct": 50.9,
+          "pick_num": 40.12
+        }
+      ]
+    },
+    "Mirana": {
+      "hero_id": 9,
+      "hero_img": "https://cdn.datdota.com/images/heroes/mirana_full.png",
+      "body_winrate": 48.5,
+      "win_pct": 52.5,
+      "pick_num": 23.56,
+      "abilities": [
+        {
+          "ability_id": 5050,
+          "ability_name": "Leap",
+          "img": "https://cdn.datdota.com/images/ability/mirana_leap.png",
+          "win_pct": 56.75,
+          "pick_num": 8.51
+        },
+        {
+          "ability_id": 5048,
+          "ability_name": "Sacred Arrow",
+          "img": "https://cdn.datdota.com/images/ability/mirana_arrow.png",
+          "win_pct": 52.42,
+          "pick_num": 21.38
+        },
+        {
+          "ability_id": 5051,
+          "ability_name": "Starstorm",
+          "img": "https://cdn.datdota.com/images/ability/mirana_starfall.png",
+          "win_pct": 50.67,
+          "pick_num": 31.27
+        }
+      ]
+    },
+    "Tusk": {
+      "hero_id": 100,
+      "hero_img": "https://cdn.datdota.com/images/heroes/tusk_full.png",
+      "body_winrate": 55.82,
+      "win_pct": 58.8,
+      "pick_num": 32.15,
+      "abilities": [
+        {
+          "ability_id": 5568,
+          "ability_name": "Walrus PUNCH!",
+          "img": "https://cdn.datdota.com/images/ability/tusk_walrus_punch.png",
+          "win_pct": 48.62,
+          "pick_num": 16.17
+        },
+        {
+          "ability_id": 5566,
+          "ability_name": "Snowball",
+          "img": "https://cdn.datdota.com/images/ability/tusk_snowball.png",
+          "win_pct": 56.31,
+          "pick_num": 19.37
+        },
+        {
+          "ability_id": 5565,
+          "ability_name": "Ice Shards",
+          "img": "https://cdn.datdota.com/images/ability/tusk_ice_shards.png",
+          "win_pct": 53.31,
+          "pick_num": 25.95
+        },
+        {
+          "ability_id": 7322,
+          "ability_name": "Tag Team",
+          "img": "https://cdn.datdota.com/images/ability/tusk_tag_team.png",
+          "win_pct": 51.16,
+          "pick_num": 37.29
+        },
+        { 
+          "ability_id": 1385,
+          "ability_name": "Drinking Buddies",
+          "img": "https://cdn.datdota.com/images/ability/tusk_drinking_buddies.png",
+          "win_pct": 49.69,
+          "pick_num": 41.53
+        },
+        {
+          "ability_id": 1213,
+          "ability_name": "Moonlight Shadow",
+          "img": "https://cdn.datdota.com/images/ability/mirana_invis.png",
+          "win_pct": 54.55,
+          "pick_num": 43.52
+        }
+      ]
+    },
+    "Hoodwink": {
+      "hero_id": 123,
+      "hero_img": "https://cdn.datdota.com/images/heroes/hoodwink_full.png",
+      "body_winrate": 52.7,
+      "win_pct": 57.26,
+      "pick_num": 23.08,
+      "abilities": [
+        {
+          "ability_id": 8429,
+          "ability_name": "Acorn Shot",
+          "img": "https://cdn.datdota.com/images/ability/hoodwink_acorn_shot.png",
+          "win_pct": 50.72,
+          "pick_num": 11.54
+        },
+        {
+          "ability_id": 8158,
+          "ability_name": "Bushwhack",
+          "img": "https://cdn.datdota.com/images/ability/hoodwink_bushwhack.png",
+          "win_pct": 51.38,
+          "pick_num": 30.17
+        },
+        {
+          "ability_id": 8106,
+          "ability_name": "Sharpshooter",
+          "img": "https://cdn.datdota.com/images/ability/hoodwink_sharpshooter.png",
+          "win_pct": 48.93,
+          "pick_num": 35.55
+        },
+        {
+          "ability_id": 9501,
+          "ability_name": "Scurry",
+          "img": "https://cdn.datdota.com/images/ability/hoodwink_scurry.png",
+          "win_pct": 52.79,
+          "pick_num": 35.09
+        }
+      ]
+    },
+    "Largo": {
+      "hero_id": 200,
+      "hero_img": "",
+      "body_winrate": 59.28,
+      "win_pct": 59.28,
+      "pick_num": 31.23,
+      "abilities": [
+        {
+          "ability_id": 1659,
+          "ability_name": "Catchy Lick",
+          "img": "https://cdn.datdota.com/images/ability/largo_catchy_lick.png",
+          "win_pct": 55.58,
+          "pick_num": 21.83
+        },
+        { 
+          "ability_id": 1660,
+          "ability_name": "Frogstomp",
+          "img": "https://cdn.datdota.com/images/ability/largo_frogstomp.png",
+          "win_pct": 52.25,
+          "pick_num": 25.23
+        },
+        { 
+          "ability_id": 1287,
+          "ability_name": "Immaterial",
+          "img": "https://cdn.datdota.com/images/ability/phantom_assassin_immaterial.png",
+          "win_pct": 55.6,
+          "pick_num": 31.96
+        },
+        {
+          "ability_id": 1662,
+          "ability_name": "Amphibian Rhapsody",
+          "img": "https://cdn.datdota.com/images/ability/largo_amphibian_rhapsody.png",
+          "win_pct": 50.0,
+          "pick_num": 30.04
+        },
+        {
+          "ability_id": 1661,
+          "ability_name": "Croak of Genius",
+          "img": "https://cdn.datdota.com/images/ability/largo_croak_of_genius.png",
+          "win_pct": 48.79,
+          "pick_num": 30.51
+        }
+      ]
+    },
+    "Lycan": {
+      "hero_id": 77,
+      "hero_img": "https://cdn.datdota.com/images/heroes/lycan_full.png",
+      "body_winrate": 50.76,
+      "win_pct": 52.61,
+      "pick_num": 40.4,
+      "abilities": [
+        {
+          "ability_id": 5397,
+          "ability_name": "Feral Impulse",
+          "img": "https://cdn.datdota.com/images/ability/lycan_feral_impulse.png",
+          "win_pct": 50.97,
+          "pick_num": 15.67
+        },
+        {
+          "ability_id": 5398,
+          "ability_name": "Shapeshift",
+          "img": "https://cdn.datdota.com/images/ability/lycan_shapeshift.png",
+          "win_pct": 58.06,
+          "pick_num": 28.4
+        },
+        {
+          "ability_id": 5395,
+          "ability_name": "Summon Wolves",
+          "img": "https://cdn.datdota.com/images/ability/lycan_summon_wolves.png",
+          "win_pct": 52.22,
+          "pick_num": 37.32
+        },
+        {
+          "ability_id": 5396,
+          "ability_name": "Howl",
+          "img": "https://cdn.datdota.com/images/ability/lycan_howl.png",
+          "win_pct": 56.5,
+          "pick_num": 41.31
+        }
+      ]
+    },
+    "Juggernaut": {
+      "hero_id": 8,
+      "hero_img": "https://cdn.datdota.com/images/heroes/juggernaut_full.png",
+      "body_winrate": 48.79,
+      "win_pct": 51.65,
+      "pick_num": 21.67,
+      "abilities": [
+        {
+          "ability_id": 5028,
+          "ability_name": "Blade Fury",
+          "img": "https://cdn.datdota.com/images/ability/juggernaut_blade_fury.png",
+          "win_pct": 57.19,
+          "pick_num": 8.81
+        },
+        {
+          "ability_id": 5030,
+          "ability_name": "Omnislash",
+          "img": "https://cdn.datdota.com/images/ability/juggernaut_omni_slash.png",
+          "win_pct": 52.01,
+          "pick_num": 19.14
+        },
+        {
+          "ability_id": 5027,
+          "ability_name": "Blade Dance",
+          "img": "https://cdn.datdota.com/images/ability/juggernaut_blade_dance.png",
+          "win_pct": 52.13,
+          "pick_num": 25.67
+        },
+        {
+          "ability_id": 5029,
+          "ability_name": "Healing Ward",
+          "img": "https://cdn.datdota.com/images/ability/juggernaut_healing_ward.png",
+          "win_pct": 52.13,
+          "pick_num": 43.23
+        }
+      ]
+    },
+    "Death Prophet": {
+      "hero_id": 43,
+      "hero_img": "https://cdn.datdota.com/images/heroes/death_prophet_full.png",
+      "body_winrate": 52.72,
+      "win_pct": 55.38,
+      "pick_num": 22.72,
+      "abilities": [
+        {
+          "ability_id": 5093,
+          "ability_name": "Exorcism",
+          "img": "https://cdn.datdota.com/images/ability/death_prophet_exorcism.png",
+          "win_pct": 52.98,
+          "pick_num": 13.31
+        },
+        {
+          "ability_id": 5685,
+          "ability_name": "Spirit Siphon",
+          "img": "https://cdn.datdota.com/images/ability/death_prophet_spirit_siphon.png",
+          "win_pct": 56.78,
+          "pick_num": 16.33
+        },
+        {
+          "ability_id": 5090,
+          "ability_name": "Crypt Swarm",
+          "img": "https://cdn.datdota.com/images/ability/death_prophet_carrion_swarm.png",
+          "win_pct": 54.33,
+          "pick_num": 33.96
+        },
+        {
+          "ability_id": 5091,
+          "ability_name": "Silence",
+          "img": "https://cdn.datdota.com/images/ability/death_prophet_silence.png",
+          "win_pct": 51.26,
+          "pick_num": 43.82
+        }
+      ]
+    },
+    "Venomancer": {
+      "hero_id": 40,
+      "hero_img": "https://cdn.datdota.com/images/heroes/venomancer_full.png",
+      "body_winrate": 46.51,
+      "win_pct": 50.56,
+      "pick_num": 29.53,
+      "abilities": [
+        {
+          "ability_id": 5179,
+          "ability_name": "Poison Sting",
+          "img": "https://cdn.datdota.com/images/ability/venomancer_poison_sting.png",
+          "win_pct": 57.0,
+          "pick_num": 15.75
+        },
+        {
+          "ability_id": 5178,
+          "ability_name": "Venomous Gale",
+          "img": "https://cdn.datdota.com/images/ability/venomancer_venomous_gale.png",
+          "win_pct": 51.34,
+          "pick_num": 32.93
+        },
+        {
+          "ability_id": 1105,
+          "ability_name": "Noxious Plague",
+          "img": "https://cdn.datdota.com/images/ability/venomancer_noxious_plague.png",
+          "win_pct": 56.79,
+          "pick_num": 32.76
+        },
+        {
+          "ability_id": 5180,
+          "ability_name": "Plague Ward",
+          "img": "https://cdn.datdota.com/images/ability/venomancer_plague_ward.png",
+          "win_pct": 50.83,
+          "pick_num": 38.02
+        }
+      ]
+    },
+    "Tinker": {
+      "hero_id": 34,
+      "hero_img": "https://cdn.datdota.com/images/heroes/tinker_full.png",
+      "body_winrate": 48.63,
+      "win_pct": 53.62,
+      "pick_num": 31.1,
+      "abilities": [
+        {
+          "ability_id": 5153,
+          "ability_name": "Rearm",
+          "img": "https://cdn.datdota.com/images/ability/tinker_rearm.png",
+          "win_pct": 50.87,
+          "pick_num": 16.81
+        },
+        {
+          "ability_id": 5150,
+          "ability_name": "Laser",
+          "img": "https://cdn.datdota.com/images/ability/tinker_laser.png",
+          "win_pct": 53.11,
+          "pick_num": 31.3
+        },
+        {
+          "ability_id": 5152,
+          "ability_name": "March of the Machines",
+          "img": "https://cdn.datdota.com/images/ability/tinker_march_of_the_machines.png",
+          "win_pct": 47.64,
+          "pick_num": 38.63
+        },
+        {
+          "ability_id": 650,
+          "ability_name": "Defense Matrix",
+          "img": "https://cdn.datdota.com/images/ability/tinker_defense_matrix.png",
+          "win_pct": 50.87,
+          "pick_num": 43.08
+        }
+      ]
+    },
+    "Tidehunter": {
+      "hero_id": 29,
+      "hero_img": "https://cdn.datdota.com/images/heroes/tidehunter_full.png",
+      "body_winrate": 57.34,
+      "win_pct": 58.37,
+      "pick_num": 14.89,
+      "abilities": [
+        {
+          "ability_id": 5120,
+          "ability_name": "Anchor Smash",
+          "img": "https://cdn.datdota.com/images/ability/tidehunter_anchor_smash.png",
+          "win_pct": 53.71,
+          "pick_num": 14.12
+        },
+        {
+          "ability_id": 5118,
+          "ability_name": "Gush",
+          "img": "https://cdn.datdota.com/images/ability/tidehunter_gush.png",
+          "win_pct": 53.92,
+          "pick_num": 18.96
+        },
+        {
+          "ability_id": 5119,
+          "ability_name": "Kraken Shell",
+          "img": "https://cdn.datdota.com/images/ability/tidehunter_kraken_shell.png",
+          "win_pct": 51.26,
+          "pick_num": 35.54
+        },
+        {
+          "ability_id": 5121,
+          "ability_name": "Ravage",
+          "img": "https://cdn.datdota.com/images/ability/tidehunter_ravage.png",
+          "win_pct": 58.85,
+          "pick_num": 22.4
+        }
+      ]
+    },
+    "Primal Beast": {
+      "hero_id": 137,
+      "hero_img": "https://cdn.datdota.com/images/heroes/primal_beast_full.png",
+      "body_winrate": 51.85,
+      "win_pct": 56.88,
+      "pick_num": 34.35,
+      "abilities": [
+        {
+          "ability_id": 995,
+          "ability_name": "Uproar",
+          "img": "https://cdn.datdota.com/images/ability/primal_beast_uproar.png",
+          "win_pct": 54.31,
+          "pick_num": 10.69
+        },
+        {
+          "ability_id": 994,
+          "ability_name": "Trample",
+          "img": "https://cdn.datdota.com/images/ability/primal_beast_trample.png",
+          "win_pct": 52.86,
+          "pick_num": 24.3
+        },
+        {
+          "ability_id": 996,
+          "ability_name": "Pulverize",
+          "img": "https://cdn.datdota.com/images/ability/primal_beast_pulverize.png",
+          "win_pct": 51.61,
+          "pick_num": 27.0
+        },
+        {
+          "ability_id": 992,
+          "ability_name": "Onslaught",
+          "img": "https://cdn.datdota.com/images/ability/primal_beast_onslaught.png",
+          "win_pct": 50.78,
+          "pick_num": 38.83
+        }
+      ]
+    },
+    "Troll Warlord": {
+      "hero_id": 95,
+      "hero_img": "https://cdn.datdota.com/images/heroes/troll_warlord_full.png",
+      "body_winrate": 44.15,
+      "win_pct": 47.32,
+      "pick_num": 31.75,
+      "abilities": [
+        {
+          "ability_id": 5511,
+          "ability_name": "Fervor",
+          "img": "https://cdn.datdota.com/images/ability/troll_warlord_fervor.png",
+          "win_pct": 50.41,
+          "pick_num": 19.87
+        },
+        {
+          "ability_id": 5512,
+          "ability_name": "Battle Trance",
+          "img": "https://cdn.datdota.com/images/ability/troll_warlord_battle_trance.png",
+          "win_pct": 55.03,
+          "pick_num": 32.68
+        },
+        {
+          "ability_id": 5510,
+          "ability_name": "Whirling Axes (Melee)",
+          "img": "https://cdn.datdota.com/images/ability/troll_warlord_whirling_axes_melee.png",
+          "win_pct": 55.21,
+          "pick_num": 36.33
+        },
+        {
+          "ability_id": 5509,
+          "ability_name": "Whirling Axes (Ranged)",
+          "img": "https://cdn.datdota.com/images/ability/troll_warlord_whirling_axes_ranged.png",
+          "win_pct": 55.2,
+          "pick_num": 42.0
+        }
+      ]
+    },
+    "Nature's Prophet": {
+      "hero_id": 53,
+      "hero_img": "https://cdn.datdota.com/images/heroes/furion_full.png",
+      "body_winrate": 49.72,
+      "win_pct": 53.65,
+      "pick_num": 10.93,
+      "abilities": [
+        {
+          "ability_id": 5246,
+          "ability_name": "Teleportation",
+          "img": "https://cdn.datdota.com/images/ability/furion_teleportation.png",
+          "win_pct": 56.36,
+          "pick_num": 13.99
+        },
+        {
+          "ability_id": 5245,
+          "ability_name": "Sprout",
+          "img": "https://cdn.datdota.com/images/ability/furion_sprout.png",
+          "win_pct": 52.07,
+          "pick_num": 26.82
+        },
+        {
+          "ability_id": 5248,
+          "ability_name": "Wrath of Nature",
+          "img": "https://cdn.datdota.com/images/ability/furion_wrath_of_nature.png",
+          "win_pct": 49.76,
+          "pick_num": 30.71
+        },
+        {
+          "ability_id": 5247,
+          "ability_name": "Nature's Call",
+          "img": "https://cdn.datdota.com/images/ability/furion_force_of_nature.png",
+          "win_pct": 36.11,
+          "pick_num": 39.81
+        }
+      ]
+    },
+    "Clinkz": {
+      "hero_id": 56,
+      "hero_img": "https://cdn.datdota.com/images/heroes/clinkz_full.png",
+      "body_winrate": 44.58,
+      "win_pct": 43.62,
+      "pick_num": 34.12,
+      "abilities": [
+        {
+          "ability_id": 5261,
+          "ability_name": "Skeleton Walk",
+          "img": "https://cdn.datdota.com/images/ability/clinkz_wind_walk.png",
+          "win_pct": 56.57,
+          "pick_num": 12.56
+        },
+        {
+          "ability_id": 5260,
+          "ability_name": "Searing Arrows",
+          "img": "https://cdn.datdota.com/images/ability/clinkz_searing_arrows.png",
+          "win_pct": 50.0,
+          "pick_num": 24.89
+        },
+        {
+          "ability_id": 1120,
+          "ability_name": "Strafe",
+          "img": "https://cdn.datdota.com/images/ability/clinkz_strafe.png",
+          "win_pct": 49.87,
+          "pick_num": 23.73
+        },
+        {
+          "ability_id": 5262,
+          "ability_name": "Death Pact",
+          "img": "https://cdn.datdota.com/images/ability/clinkz_death_pact.png",
+          "win_pct": 52.43,
+          "pick_num": 38.18
+        }
+      ]
+    },
+    "Enigma": {
+      "hero_id": 33,
+      "hero_img": "https://cdn.datdota.com/images/heroes/enigma_full.png",
+      "body_winrate": 47.14,
+      "win_pct": 49.44,
+      "pick_num": 42.6,
+      "abilities": [
+        {
+          "ability_id": 5149,
+          "ability_name": "Black Hole",
+          "img": "https://cdn.datdota.com/images/ability/enigma_black_hole.png",
+          "win_pct": 51.31,
+          "pick_num": 13.62
+        },
+        {
+          "ability_id": 5146,
+          "ability_name": "Malefice",
+          "img": "https://cdn.datdota.com/images/ability/enigma_malefice.png",
+          "win_pct": 53.48,
+          "pick_num": 33.62
+        },
+        {
+          "ability_id": 5148,
+          "ability_name": "Midnight Pulse",
+          "img": "https://cdn.datdota.com/images/ability/enigma_midnight_pulse.png",
+          "win_pct": 54.9,
+          "pick_num": 39.1
+        },
+        {
+          "ability_id": 5147,
+          "ability_name": "Demonic Summoning",
+          "img": "https://cdn.datdota.com/images/ability/enigma_demonic_conversion.png",
+          "win_pct": 51.06,
+          "pick_num": 39.55
+        }
+      ]
+    },
+    "Nyx Assassin": {
+      "hero_id": 88,
+      "hero_img": "https://cdn.datdota.com/images/heroes/nyx_assassin_full.png",
+      "body_winrate": 50.15,
+      "win_pct": 53.32,
+      "pick_num": 39.21,
+      "abilities": [
+        {
+          "ability_id": 5465,
+          "ability_name": "Vendetta",
+          "img": "https://cdn.datdota.com/images/ability/nyx_assassin_vendetta.png",
+          "win_pct": 51.31,
+          "pick_num": 19.15
+        },
+        {
+          "ability_id": 5462,
+          "ability_name": "Impale",
+          "img": "https://cdn.datdota.com/images/ability/nyx_assassin_impale.png",
+          "win_pct": 56.84,
+          "pick_num": 15.21
+        },
+        {
+          "ability_id": 5464,
+          "ability_name": "Spiked Carapace",
+          "img": "https://cdn.datdota.com/images/ability/nyx_assassin_spiked_carapace.png",
+          "win_pct": 58.73,
+          "pick_num": 23.96
+        },
+        {
+          "ability_id": 1104,
+          "ability_name": "Mind Flare",
+          "img": "https://cdn.datdota.com/images/ability/nyx_assassin_jolt.png",
+          "win_pct": 51.31,
+          "pick_num": 27.83
+        }
+      ]
+    },
+    "Jakiro": {
+      "hero_id": 64,
+      "hero_img": "https://cdn.datdota.com/images/heroes/jakiro_full.png",
+      "body_winrate": 47.79,
+      "win_pct": 48.22,
+      "pick_num": 13.83,
+      "abilities": [
+        {
+          "ability_id": 5299,
+          "ability_name": "Liquid Fire",
+          "img": "https://cdn.datdota.com/images/ability/jakiro_liquid_fire.png",
+          "win_pct": 49.3,
+          "pick_num": 14.1
+        },
+        {
+          "ability_id": 5298,
+          "ability_name": "Ice Path",
+          "img": "https://cdn.datdota.com/images/ability/jakiro_ice_path.png",
+          "win_pct": 59.13,
+          "pick_num": 22.12
+        },
+        {
+          "ability_id": 5297,
+          "ability_name": "Dual Breath",
+          "img": "https://cdn.datdota.com/images/ability/jakiro_dual_breath.png",
+          "win_pct": 49.73,
+          "pick_num": 33.96
+        },
+        {
+          "ability_id": 5300,
+          "ability_name": "Macropyre",
+          "img": "https://cdn.datdota.com/images/ability/jakiro_macropyre.png",
+          "win_pct": 51.46,
+          "pick_num": 31.61
+        },
+        {
+          "ability_id": 1317,
+          "ability_name": "Liquid Frost",
+          "img": "https://cdn.datdota.com/images/ability/jakiro_liquid_ice.png",
+          "win_pct": 53.25,
+          "pick_num": 22.45
+        }
+      ]
+    },
+    "Slark": {
+      "hero_id": 93,
+      "hero_img": "https://cdn.datdota.com/images/heroes/slark_full.png",
+      "body_winrate": 46.01,
+      "win_pct": 46.29,
+      "pick_num": 21.23,
+      "abilities": [
+        {
+          "ability_id": 5497,
+          "ability_name": "Shadow Dance",
+          "img": "https://cdn.datdota.com/images/ability/slark_shadow_dance.png",
+          "win_pct": 57.81,
+          "pick_num": 9.18
+        },
+        {
+          "ability_id": 5495,
+          "ability_name": "Pounce",
+          "img": "https://cdn.datdota.com/images/ability/slark_pounce.png",
+          "win_pct": 52.15,
+          "pick_num": 26.78
+        },
+        {
+          "ability_id": 5494,
+          "ability_name": "Dark Pact",
+          "img": "https://cdn.datdota.com/images/ability/slark_dark_pact.png",
+          "win_pct": 53.66,
+          "pick_num": 35.3
+        },
+        { 
+          "ability_id": 1693,
+          "ability_name": "Saltwater Shiv",
+          "img": "https://cdn.datdota.com/images/ability/slark_saltwater_shiv.png",
+          "win_pct": 49.11,
+          "pick_num": 32.66
+        }
+      ]
+    },
+    "Centaur Warrunner": {
+      "hero_id": 96,
+      "hero_img": "https://cdn.datdota.com/images/heroes/centaur_full.png",
+      "body_winrate": 52.45,
+      "win_pct": 56.04,
+      "pick_num": 21.71,
+      "abilities": [
+        {
+          "ability_id": 5516,
+          "ability_name": "Retaliate",
+          "img": "https://cdn.datdota.com/images/ability/centaur_return.png",
+          "win_pct": 55.51,
+          "pick_num": 25.11
+        },
+        {
+          "ability_id": 5514,
+          "ability_name": "Hoof Stomp",
+          "img": "https://cdn.datdota.com/images/ability/centaur_hoof_stomp.png",
+          "win_pct": 58.8,
+          "pick_num": 18.49
+        },
+        {
+          "ability_id": 5515,
+          "ability_name": "Double Edge",
+          "img": "https://cdn.datdota.com/images/ability/centaur_double_edge.png",
+          "win_pct": 53.07,
+          "pick_num": 30.86
+        },
+        {
+          "ability_id": 5517,
+          "ability_name": "Stampede",
+          "img": "https://cdn.datdota.com/images/ability/centaur_stampede.png",
+          "win_pct": 56.75,
+          "pick_num": 40.77
+        }
+      ]
+    },
+    "Shadow Shaman": {
+      "hero_id": 27,
+      "hero_img": "https://cdn.datdota.com/images/heroes/shadow_shaman_full.png",
+      "body_winrate": 47.85,
+      "win_pct": 53.08,
+      "pick_num": 42.07,
+      "abilities": [
+        {
+          "ability_id": 5080,
+          "ability_name": "Shackles",
+          "img": "https://cdn.datdota.com/images/ability/shadow_shaman_shackles.png",
+          "win_pct": 54.26,
+          "pick_num": 14.55
+        },
+        {
+          "ability_id": 5081,
+          "ability_name": "Mass Serpent Ward",
+          "img": "https://cdn.datdota.com/images/ability/shadow_shaman_mass_serpent_ward.png",
+          "win_pct": 50.15,
+          "pick_num": 33.05
+        },
+        {
+          "ability_id": 5079,
+          "ability_name": "Hex",
+          "img": "https://cdn.datdota.com/images/ability/shadow_shaman_voodoo.png",
+          "win_pct": 53.66,
+          "pick_num": 31.77
+        },
+        {
+          "ability_id": 5078,
+          "ability_name": "Ether Shock",
+          "img": "https://cdn.datdota.com/images/ability/shadow_shaman_ether_shock.png",
+          "win_pct": 47.57,
+          "pick_num": 35.47
+        }
+      ]
+    },
+    "Invoker": {
+      "hero_id": 74,
+      "hero_img": "https://cdn.datdota.com/images/heroes/invoker_full.png",
+      "body_winrate": 42.94,
+      "win_pct": 42.7,
+      "pick_num": 35.64,
+      "abilities": [
+        {
+          "ability_id": 7841,
+          "ability_name": "Sun Strike (AD)",
+          "img": "https://cdn.datdota.com/images/ability/invoker_sun_strike_ad.png",
+          "win_pct": 44.19,
+          "pick_num": 14.87
+        },
+        {
+          "ability_id": 7840,
+          "ability_name": "Alacrity (AD)",
+          "img": "https://cdn.datdota.com/images/ability/invoker_alacrity_ad.png",
+          "win_pct": 54.9,
+          "pick_num": 29.03
+        },
+        {
+          "ability_id": 7843,
+          "ability_name": "Chaos Meteor (AD)",
+          "img": "https://cdn.datdota.com/images/ability/invoker_chaos_meteor_ad.png",
+          "win_pct": 43.83,
+          "pick_num": 30.6
+        },
+        {
+          "ability_id": 7836,
+          "ability_name": "Cold Snap (AD)",
+          "img": "https://cdn.datdota.com/images/ability/invoker_cold_snap_ad.png",
+          "win_pct": 55.88,
+          "pick_num": 28.5
+        },
+        {
+          "ability_id": 7838,
+          "ability_name": "Tornado (AD)",
+          "img": "https://cdn.datdota.com/images/ability/invoker_tornado_ad.png",
+          "win_pct": 51.57,
+          "pick_num": 32.82
+        },
+        {
+          "ability_id": 7837,
+          "ability_name": "Ghost Walk (AD)",
+          "img": "https://cdn.datdota.com/images/ability/invoker_ghost_walk_ad.png",
+          "win_pct": 56.29,
+          "pick_num": 37.97
+        },
+        {
+          "ability_id": 7839,
+          "ability_name": "E.M.P. (AD)",
+          "img": "https://cdn.datdota.com/images/ability/invoker_emp_ad.png",
+          "win_pct": 54.67,
+          "pick_num": 34.96
+        },
+        {
+          "ability_id": 7845,
+          "ability_name": "Deafening Blast",
+          "img": "https://cdn.datdota.com/images/ability/invoker_deafening_blast_ad.png",
+          "win_pct": 50.78,
+          "pick_num": 39.1
+        },
+        {
+          "ability_id": 7842,
+          "ability_name": "Forge Spirit (AD)",
+          "img": "https://cdn.datdota.com/images/ability/invoker_forge_spirit_ad.png",
+          "win_pct": 25.0,
+          "pick_num": 42.88
+        },
+        {
+          "ability_id": 7844,
+          "ability_name": "Ice Wall (AD)",
+          "img": "https://cdn.datdota.com/images/ability/invoker_ice_wall_ad.png",
+          "win_pct": 55.26,
+          "pick_num": 40.91
+        }
+      ]
+    },
+    "Morphling": {
+      "hero_id": 10,
+      "hero_img": "https://cdn.datdota.com/images/heroes/morphling_full.png",
+      "body_winrate": 49.97,
+      "win_pct": 48.65,
+      "pick_num": 17.62,
+      "abilities": [
+        {
+          "ability_id": 5052,
+          "ability_name": "Waveform",
+          "img": "https://cdn.datdota.com/images/ability/morphling_waveform.png",
+          "win_pct": 49.62,
+          "pick_num": 13.78
+        },
+        {
+          "ability_id": 5053,
+          "ability_name": "Adaptive Strike",
+          "img": "https://cdn.datdota.com/images/ability/morphling_adaptive_strike_agi.png",
+          "win_pct": 48.65,
+          "pick_num": 38.36
+        }
+      ]
+    },
+    "Razor": {
+      "hero_id": 15,
+      "hero_img": "https://cdn.datdota.com/images/heroes/razor_full.png",
+      "body_winrate": 52.41,
+      "win_pct": 56.19,
+      "pick_num": 25.09,
+      "abilities": [
+        {
+          "ability_id": 5083,
+          "ability_name": "Static Link",
+          "img": "https://cdn.datdota.com/images/ability/razor_static_link.png",
+          "win_pct": 47.79,
+          "pick_num": 19.14
+        },
+        {
+          "ability_id": 5082,
+          "ability_name": "Plasma Field",
+          "img": "https://cdn.datdota.com/images/ability/razor_plasma_field.png",
+          "win_pct": 54.53,
+          "pick_num": 28.21
+        },
+        {
+          "ability_id": 5085,
+          "ability_name": "Eye of the Storm",
+          "img": "https://cdn.datdota.com/images/ability/razor_eye_of_the_storm.png",
+          "win_pct": 54.24,
+          "pick_num": 34.8
+        },
+        { 
+          "ability_id": 1224,
+          "ability_name": "Storm Surge",
+          "img": "https://cdn.datdota.com/images/ability/razor_storm_surge.png",
+          "win_pct": 51.67,
+          "pick_num": 38.33
+        }
+      ]
+    },
+    "Shadow Demon": {
+      "hero_id": 79,
+      "hero_img": "https://cdn.datdota.com/images/heroes/shadow_demon_full.png",
+      "body_winrate": 52.75,
+      "win_pct": 59.09,
+      "pick_num": 32.66,
+      "abilities": [
+        {
+          "ability_id": 5421,
+          "ability_name": "Disruption",
+          "img": "https://cdn.datdota.com/images/ability/shadow_demon_disruption.png",
+          "win_pct": 59.34,
+          "pick_num": 9.23
+        },
+        {
+          "ability_id": 5423,
+          "ability_name": "Shadow Poison",
+          "img": "https://cdn.datdota.com/images/ability/shadow_demon_shadow_poison.png",
+          "win_pct": 52.5,
+          "pick_num": 31.96
+        },
+        {
+          "ability_id": 5425,
+          "ability_name": "Demonic Purge",
+          "img": "https://cdn.datdota.com/images/ability/shadow_demon_demonic_purge.png",
+          "win_pct": 52.77,
+          "pick_num": 29.04
+        },
+        {
+          "ability_id": 1001,
+          "ability_name": "Disseminate",
+          "img": "https://cdn.datdota.com/images/ability/shadow_demon_disseminate.png",
+          "win_pct": 52.14,
+          "pick_num": 40.97
+        }
+      ]
+    },
+    "Broodmother": {
+      "hero_id": 61,
+      "hero_img": "https://cdn.datdota.com/images/heroes/broodmother_full.png",
+      "body_winrate": 45.01,
+      "win_pct": 50.39,
+      "pick_num": 43.06,
+      "abilities": [
+        {
+          "ability_id": 5280,
+          "ability_name": "Spin Web",
+          "img": "https://cdn.datdota.com/images/ability/broodmother_spin_web.png",
+          "win_pct": 60.71,
+          "pick_num": 14.03
+        },
+        {
+          "ability_id": 5282,
+          "ability_name": "Insatiable Hunger",
+          "img": "https://cdn.datdota.com/images/ability/broodmother_insatiable_hunger.png",
+          "win_pct": 53.27,
+          "pick_num": 19.69
+        },
+        {
+          "ability_id": 5281,
+          "ability_name": "Incapacitating Bite",
+          "img": "https://cdn.datdota.com/images/ability/broodmother_incapacitating_bite.png",
+          "win_pct": 52.88,
+          "pick_num": 27.77
+        },
+        {
+          "ability_id": 5279,
+          "ability_name": "Spawn Spiderlings",
+          "img": "https://cdn.datdota.com/images/ability/broodmother_spawn_spiderlings.png",
+          "win_pct": 53.2,
+          "pick_num": 40.95
+        }
+      ]
+    },
+    "Lich": {
+      "hero_id": 31,
+      "hero_img": "https://cdn.datdota.com/images/heroes/lich_full.png",
+      "body_winrate": 49.83,
+      "win_pct": 56.21,
+      "pick_num": 41.45,
+      "abilities": [
+        {
+          "ability_id": 7325,
+          "ability_name": "Sinister Gaze",
+          "img": "https://cdn.datdota.com/images/ability/lich_sinister_gaze.png",
+          "win_pct": 56.63,
+          "pick_num": 12.67
+        },
+        {
+          "ability_id": 5137,
+          "ability_name": "Chain Frost",
+          "img": "https://cdn.datdota.com/images/ability/lich_chain_frost.png",
+          "win_pct": 56.32,
+          "pick_num": 27.16
+        },
+        {
+          "ability_id": 5134,
+          "ability_name": "Frost Blast",
+          "img": "https://cdn.datdota.com/images/ability/lich_frost_nova.png",
+          "win_pct": 50.9,
+          "pick_num": 36.19
+        },
+        {
+          "ability_id": 5136,
+          "ability_name": "Frost Shield",
+          "img": "https://cdn.datdota.com/images/ability/lich_frost_shield.png",
+          "win_pct": 51.21,
+          "pick_num": 38.12
+        }
+      ]
+    },
+    "Pangolier": {
+      "hero_id": 120,
+      "hero_img": "https://cdn.datdota.com/images/heroes/pangolier_full.png",
+      "body_winrate": 46.99,
+      "win_pct": 51.46,
+      "pick_num": 39.4,
+      "abilities": [
+        {
+          "ability_id": 6344,
+          "ability_name": "Swashbuckle",
+          "img": "https://cdn.datdota.com/images/ability/pangolier_swashbuckle.png",
+          "win_pct": 50.88,
+          "pick_num": 18.62
+        },
+        {
+          "ability_id": 7307,
+          "ability_name": "Lucky Shot",
+          "img": "https://cdn.datdota.com/images/ability/pangolier_lucky_shot.png",
+          "win_pct": 52.57,
+          "pick_num": 29.31
+        },
+        {
+          "ability_id": 6461,
+          "ability_name": "Shield Crash",
+          "img": "https://cdn.datdota.com/images/ability/pangolier_shield_crash.png",
+          "win_pct": 49.87,
+          "pick_num": 28.39
+        },
+        {
+          "ability_id": 6343,
+          "ability_name": "Rolling Thunder",
+          "img": "https://cdn.datdota.com/images/ability/pangolier_gyroshell.png",
+          "win_pct": 53.66,
+          "pick_num": 34.1
+        }
+      ]
+    },
+    "Dawnbreaker": {
+      "hero_id": 135,
+      "hero_img": "https://cdn.datdota.com/images/heroes/dawnbreaker_full.png",
+      "body_winrate": 49.56,
+      "win_pct": 52.03,
+      "pick_num": 39.15,
+      "abilities": [
+        {
+          "ability_id": 7918,
+          "ability_name": "Luminosity",
+          "img": "https://cdn.datdota.com/images/ability/dawnbreaker_luminosity.png",
+          "win_pct": 56.2,
+          "pick_num": 22.6
+        },
+        {
+          "ability_id": 7902,
+          "ability_name": "Starbreaker",
+          "img": "https://cdn.datdota.com/images/ability/dawnbreaker_fire_wreath.png",
+          "win_pct": 55.05,
+          "pick_num": 16.87
+        },
+        {
+          "ability_id": 7914,
+          "ability_name": "Celestial Hammer",
+          "img": "https://cdn.datdota.com/images/ability/dawnbreaker_celestial_hammer.png",
+          "win_pct": 56.88,
+          "pick_num": 28.31
+        },
+        {
+          "ability_id": 7906,
+          "ability_name": "Solar Guardian",
+          "img": "https://cdn.datdota.com/images/ability/dawnbreaker_solar_guardian.png",
+          "win_pct": 54.18,
+          "pick_num": 31.21
+        }
+      ]
+    },
+    "Witch Doctor": {
+      "hero_id": 30,
+      "hero_img": "https://cdn.datdota.com/images/heroes/witch_doctor_full.png",
+      "body_winrate": 49.69,
+      "win_pct": 51.8,
+      "pick_num": 39.86,
+      "abilities": [
+        {
+          "ability_id": 5141,
+          "ability_name": "Death Ward",
+          "img": "https://cdn.datdota.com/images/ability/witch_doctor_death_ward.png",
+          "win_pct": 53.12,
+          "pick_num": 21.39
+        },
+        {
+          "ability_id": 5140,
+          "ability_name": "Maledict",
+          "img": "https://cdn.datdota.com/images/ability/witch_doctor_maledict.png",
+          "win_pct": 56.29,
+          "pick_num": 20.93
+        },
+        {
+          "ability_id": 5138,
+          "ability_name": "Paralyzing Cask",
+          "img": "https://cdn.datdota.com/images/ability/witch_doctor_paralyzing_cask.png",
+          "win_pct": 57.56,
+          "pick_num": 21.26
+        },
+        {
+          "ability_id": 5139,
+          "ability_name": "Voodoo Restoration",
+          "img": "https://cdn.datdota.com/images/ability/witch_doctor_voodoo_restoration.png",
+          "win_pct": 58.01,
+          "pick_num": 29.07
+        }
+      ]
+    },
+    "Drow Ranger": {
+      "hero_id": 6,
+      "hero_img": "https://cdn.datdota.com/images/heroes/drow_ranger_full.png",
+      "body_winrate": 57.19,
+      "win_pct": 59.73,
+      "pick_num": 5.79,
+      "abilities": [
+        {
+          "ability_id": 5022,
+          "ability_name": "Marksmanship",
+          "img": "https://cdn.datdota.com/images/ability/drow_ranger_marksmanship.png",
+          "win_pct": 54.58,
+          "pick_num": 24.9
+        },
+        {
+          "ability_id": 5019,
+          "ability_name": "Frost Arrows",
+          "img": "https://cdn.datdota.com/images/ability/drow_ranger_frost_arrows.png",
+          "win_pct": 51.43,
+          "pick_num": 22.34
+        },
+        {
+          "ability_id": 343,
+          "ability_name": "Multishot",
+          "img": "https://cdn.datdota.com/images/ability/drow_ranger_multishot.png",
+          "win_pct": 55.97,
+          "pick_num": 39.5
+        },
+        {
+          "ability_id": 5632,
+          "ability_name": "Gust",
+          "img": "https://cdn.datdota.com/images/ability/drow_ranger_wave_of_silence.png",
+          "win_pct": 53.52,
+          "pick_num": 40.77
+        }
+      ]
+    },
+    "Techies": {
+      "hero_id": 105,
+      "hero_img": "https://cdn.datdota.com/images/heroes/techies_full.png",
+      "body_winrate": 54.68,
+      "win_pct": 58.97,
+      "pick_num": 4.9,
+      "abilities": [
+        {
+          "ability_id": 5601,
+          "ability_name": "Blast Off!",
+          "img": "https://cdn.datdota.com/images/ability/techies_suicide.png",
+          "win_pct": 46.17,
+          "pick_num": 17.34
+        },
+        {
+          "ability_id": 5599,
+          "ability_name": "Proximity Mines",
+          "img": "https://cdn.datdota.com/images/ability/techies_land_mines.png",
+          "win_pct": 51.15,
+          "pick_num": 25.01
+        },
+        {
+          "ability_id": 886,
+          "ability_name": "Reactive Tazer",
+          "img": "https://cdn.datdota.com/images/ability/techies_reactive_tazer.png",
+          "win_pct": 55.01,
+          "pick_num": 36.41
+        },
+        {
+          "ability_id": 879,
+          "ability_name": "Sticky Bomb",
+          "img": "https://cdn.datdota.com/images/ability/techies_sticky_bomb.png",
+          "win_pct": 52.17,
+          "pick_num": 41.05
+        }
+      ]
+    },
+    "Mars": {
+      "hero_id": 129,
+      "hero_img": "https://cdn.datdota.com/images/heroes/mars_full.png",
+      "body_winrate": 52.01,
+      "win_pct": 56.39,
+      "pick_num": 36.51,
+      "abilities": [
+        {
+          "ability_id": 6582,
+          "ability_name": "Bulwark",
+          "img": "https://cdn.datdota.com/images/ability/mars_bulwark.png",
+          "win_pct": 51.73,
+          "pick_num": 25.66
+        },
+        {
+          "ability_id": 6495,
+          "ability_name": "God's Rebuke",
+          "img": "https://cdn.datdota.com/images/ability/mars_gods_rebuke.png",
+          "win_pct": 57.68,
+          "pick_num": 19.47
+        },
+        {
+          "ability_id": 6583,
+          "ability_name": "Spear of Mars",
+          "img": "https://cdn.datdota.com/images/ability/mars_spear.png",
+          "win_pct": 53.32,
+          "pick_num": 16.67
+        },
+        { 
+          "ability_id": 1416,
+          "ability_name": "Arena Of Blood",
+          "img": "https://cdn.datdota.com/images/ability/mars_arena_of_blood.png",
+          "win_pct": 53.36,
+          "pick_num": 30.24
+        }
+      ]
+    },
+    "Leshrac": {
+      "hero_id": 52,
+      "hero_img": "https://cdn.datdota.com/images/heroes/leshrac_full.png",
+      "body_winrate": 57.05,
+      "win_pct": 60.38,
+      "pick_num": 20.76,
+      "abilities": [
+        {
+          "ability_id": 5242,
+          "ability_name": "Diabolic Edict",
+          "img": "https://cdn.datdota.com/images/ability/leshrac_diabolic_edict.png",
+          "win_pct": 53.08,
+          "pick_num": 17.34
+        },
+        {
+          "ability_id": 5244,
+          "ability_name": "Pulse Nova",
+          "img": "https://cdn.datdota.com/images/ability/leshrac_pulse_nova.png",
+          "win_pct": 57.41,
+          "pick_num": 23.89
+        },
+        {
+          "ability_id": 5241,
+          "ability_name": "Split Earth",
+          "img": "https://cdn.datdota.com/images/ability/leshrac_split_earth.png",
+          "win_pct": 55.11,
+          "pick_num": 22.16
+        },
+        {
+          "ability_id": 5243,
+          "ability_name": "Lightning Storm",
+          "img": "https://cdn.datdota.com/images/ability/leshrac_lightning_storm.png",
+          "win_pct": 55.36,
+          "pick_num": 40.27
+        }
+      ]
+    },
+    "Dark Seer": {
+      "hero_id": 55,
+      "hero_img": "https://cdn.datdota.com/images/heroes/dark_seer_full.png",
+      "body_winrate": 51.08,
+      "win_pct": 57.21,
+      "pick_num": 40.96,
+      "abilities": [
+        {
+          "ability_id": 5258,
+          "ability_name": "Wall of Replica",
+          "img": "https://cdn.datdota.com/images/ability/dark_seer_wall_of_replica.png",
+          "win_pct": 54.86,
+          "pick_num": 18.96
+        },
+        {
+          "ability_id": 5256,
+          "ability_name": "Ion Shell",
+          "img": "https://cdn.datdota.com/images/ability/dark_seer_ion_shell.png",
+          "win_pct": 53.08,
+          "pick_num": 20.5
+        },
+        {
+          "ability_id": 5255,
+          "ability_name": "Vacuum",
+          "img": "https://cdn.datdota.com/images/ability/dark_seer_vacuum.png",
+          "win_pct": 54.68,
+          "pick_num": 30.87
+        },
+        {
+          "ability_id": 5257,
+          "ability_name": "Surge",
+          "img": "https://cdn.datdota.com/images/ability/dark_seer_surge.png",
+          "win_pct": 48.74,
+          "pick_num": 37.1
+        }
+      ]
+    },
+    "Bane": {
+      "hero_id": 3,
+      "hero_img": "https://cdn.datdota.com/images/heroes/bane_full.png",
+      "body_winrate": 50.87,
+      "win_pct": 57.05,
+      "pick_num": 34.95,
+      "abilities": [
+        {
+          "ability_id": 5013,
+          "ability_name": "Fiend's Grip",
+          "img": "https://cdn.datdota.com/images/ability/bane_fiends_grip.png",
+          "win_pct": 56.58,
+          "pick_num": 14.79
+        },
+        {
+          "ability_id": 5014,
+          "ability_name": "Nightmare",
+          "img": "https://cdn.datdota.com/images/ability/bane_nightmare.png",
+          "win_pct": 50.83,
+          "pick_num": 23.94
+        },
+        {
+          "ability_id": 5011,
+          "ability_name": "Brain Sap",
+          "img": "https://cdn.datdota.com/images/ability/bane_brain_sap.png",
+          "win_pct": 54.32,
+          "pick_num": 29.76
+        },
+        {
+          "ability_id": 5012,
+          "ability_name": "Enfeeble",
+          "img": "https://cdn.datdota.com/images/ability/bane_enfeeble.png",
+          "win_pct": 53.55,
+          "pick_num": 35.77
+        }
+      ]
+    },
+    "Puck": {
+      "hero_id": 13,
+      "hero_img": "https://cdn.datdota.com/images/heroes/puck_full.png",
+      "body_winrate": 44.38,
+      "win_pct": 49.17,
+      "pick_num": 38.45,
+      "abilities": [
+        {
+          "ability_id": 5073,
+          "ability_name": "Dream Coil",
+          "img": "https://cdn.datdota.com/images/ability/puck_dream_coil.png",
+          "win_pct": 51.42,
+          "pick_num": 19.16
+        },
+        {
+          "ability_id": 5072,
+          "ability_name": "Phase Shift",
+          "img": "https://cdn.datdota.com/images/ability/puck_phase_shift.png",
+          "win_pct": 54.24,
+          "pick_num": 25.45
+        },
+        {
+          "ability_id": 5069,
+          "ability_name": "Illusory Orb",
+          "img": "https://cdn.datdota.com/images/ability/puck_illusory_orb.png",
+          "win_pct": 50.12,
+          "pick_num": 31.42
+        },
+        {
+          "ability_id": 5071,
+          "ability_name": "Waning Rift",
+          "img": "https://cdn.datdota.com/images/ability/puck_waning_rift.png",
+          "win_pct": 52.31,
+          "pick_num": 37.49
+        }
+      ]
+    },
+    "Brewmaster": {
+      "hero_id": 78,
+      "hero_img": "https://cdn.datdota.com/images/heroes/brewmaster_full.png",
+      "body_winrate": 49.8,
+      "win_pct": 51.89,
+      "pick_num": 35.23,
+      "abilities": [
+        {
+          "ability_id": 5402,
+          "ability_name": "Drunken Brawler",
+          "img": "https://cdn.datdota.com/images/ability/brewmaster_drunken_brawler.png",
+          "win_pct": 58.65,
+          "pick_num": 21.65
+        },
+        {
+          "ability_id": 7310,
+          "ability_name": "Cinder Brew",
+          "img": "https://cdn.datdota.com/images/ability/brewmaster_cinder_brew.png",
+          "win_pct": 55.57,
+          "pick_num": 36.6
+        },
+        {
+          "ability_id": 5403,
+          "ability_name": "Primal Split",
+          "img": "https://cdn.datdota.com/images/ability/brewmaster_primal_split.png",
+          "win_pct": 53.69,
+          "pick_num": 37.88
+        },
+        {
+          "ability_id": 5400,
+          "ability_name": "Thunder Clap",
+          "img": "https://cdn.datdota.com/images/ability/brewmaster_thunder_clap.png",
+          "win_pct": 55.7,
+          "pick_num": 40.46
+        }
+      ]
+    },
+    "Bristleback": {
+      "hero_id": 99,
+      "hero_img": "https://cdn.datdota.com/images/heroes/bristleback_full.png",
+      "body_winrate": 47.47,
+      "win_pct": 50.47,
+      "pick_num": 43.09,
+      "abilities": [
+        {
+          "ability_id": 5549,
+          "ability_name": "Quill Spray",
+          "img": "https://cdn.datdota.com/images/ability/bristleback_quill_spray.png",
+          "win_pct": 53.09,
+          "pick_num": 22.69
+        },
+        {
+          "ability_id": 5550,
+          "ability_name": "Bristleback",
+          "img": "https://cdn.datdota.com/images/ability/bristleback_bristleback.png",
+          "win_pct": 53.98,
+          "pick_num": 25.18
+        },
+        {
+          "ability_id": 5548,
+          "ability_name": "Viscous Nasal Goo",
+          "img": "https://cdn.datdota.com/images/ability/bristleback_viscous_nasal_goo.png",
+          "win_pct": 50.41,
+          "pick_num": 33.47
+        },
+        {
+          "ability_id": 5551,
+          "ability_name": "Warpath",
+          "img": "https://cdn.datdota.com/images/ability/bristleback_warpath.png",
+          "win_pct": 55.01,
+          "pick_num": 38.81
+        }
+      ]
+    },
+    "Beastmaster": {
+      "hero_id": 38,
+      "hero_img": "https://cdn.datdota.com/images/heroes/beastmaster_full.png",
+      "body_winrate": 46.49,
+      "win_pct": 51.84,
+      "pick_num": 40.69,
+      "abilities": [
+        {
+          "ability_id": 5168,
+          "ability_name": "Wild Axes",
+          "img": "https://cdn.datdota.com/images/ability/beastmaster_wild_axes.png",
+          "win_pct": 53.93,
+          "pick_num": 14.55
+        },
+        {
+          "ability_id": 5177,
+          "ability_name": "Primal Roar",
+          "img": "https://cdn.datdota.com/images/ability/beastmaster_primal_roar.png",
+          "win_pct": 55.27,
+          "pick_num": 20.33
+        },
+        {
+          "ability_id": 5172,
+          "ability_name": "Inner Beast",
+          "img": "https://cdn.datdota.com/images/ability/beastmaster_inner_beast.png",
+          "win_pct": 53.8,
+          "pick_num": 34.25
+        },
+        {
+          "ability_id": 7231,
+          "ability_name": "Call of the Wild Hawk",
+          "img": "https://cdn.datdota.com/images/ability/beastmaster_call_of_the_wild_hawk.png",
+          "win_pct": 46.62,
+          "pick_num": 41.41
+        }
+      ]
+    },
+    "Treant Protector": {
+      "hero_id": 83,
+      "hero_img": "https://cdn.datdota.com/images/heroes/treant_full.png",
+      "body_winrate": 46.31,
+      "win_pct": 46.31,
+      "pick_num": 25.13,
+      "abilities": [
+        {
+          "ability_id": 5437,
+          "ability_name": "Overgrowth",
+          "img": "https://cdn.datdota.com/images/ability/treant_overgrowth.png",
+          "win_pct": 56.15,
+          "pick_num": 18.91
+        },
+        {
+          "ability_id": 5435,
+          "ability_name": "Leech Seed",
+          "img": "https://cdn.datdota.com/images/ability/treant_leech_seed.png",
+          "win_pct": 57.14,
+          "pick_num": 28.52
+        },
+        {
+          "ability_id": 338,
+          "ability_name": "Nature's Grasp",
+          "img": "https://cdn.datdota.com/images/ability/treant_natures_grasp.png",
+          "win_pct": 56.29,
+          "pick_num": 37.98
+        },
+        {
+          "ability_id": 5436,
+          "ability_name": "Living Armor",
+          "img": "https://cdn.datdota.com/images/ability/treant_living_armor.png",
+          "win_pct": 45.93,
+          "pick_num": 42.38
+        }
+      ]
+    },
+    "Storm Spirit": {
+      "hero_id": 17,
+      "hero_img": "https://cdn.datdota.com/images/heroes/storm_spirit_full.png",
+      "body_winrate": 49.74,
+      "win_pct": 53.75,
+      "pick_num": 32.34,
+      "abilities": [
+        {
+          "ability_id": 5101,
+          "ability_name": "Ball Lightning",
+          "img": "https://cdn.datdota.com/images/ability/storm_spirit_ball_lightning.png",
+          "win_pct": 56.66,
+          "pick_num": 18.5
+        },
+        {
+          "ability_id": 5099,
+          "ability_name": "Electric Vortex",
+          "img": "https://cdn.datdota.com/images/ability/storm_spirit_electric_vortex.png",
+          "win_pct": 53.49,
+          "pick_num": 31.43
+        },
+        {
+          "ability_id": 5100,
+          "ability_name": "Overload",
+          "img": "https://cdn.datdota.com/images/ability/storm_spirit_overload.png",
+          "win_pct": 57.9,
+          "pick_num": 36.2
+        },
+        {
+          "ability_id": 5098,
+          "ability_name": "Static Remnant",
+          "img": "https://cdn.datdota.com/images/ability/storm_spirit_static_remnant.png",
+          "win_pct": 50.27,
+          "pick_num": 35.92
+        }
+      ]
+    },
+    "Warlock": {
+      "hero_id": 37,
+      "hero_img": "https://cdn.datdota.com/images/heroes/warlock_full.png",
+      "body_winrate": 50.76,
+      "win_pct": 50.28,
+      "pick_num": 33.05,
+      "abilities": [
+        {
+          "ability_id": 5165,
+          "ability_name": "Chaotic Offering",
+          "img": "https://cdn.datdota.com/images/ability/warlock_rain_of_chaos.png",
+          "win_pct": 57.28,
+          "pick_num": 21.57
+        },
+        {
+          "ability_id": 5162,
+          "ability_name": "Fatal Bonds",
+          "img": "https://cdn.datdota.com/images/ability/warlock_fatal_bonds.png",
+          "win_pct": 49.24,
+          "pick_num": 26.29
+        },
+        {
+          "ability_id": 5164,
+          "ability_name": "Upheaval",
+          "img": "https://cdn.datdota.com/images/ability/warlock_upheaval.png",
+          "win_pct": 47.91,
+          "pick_num": 36.79
+        },
+        {
+          "ability_id": 5163,
+          "ability_name": "Shadow Word",
+          "img": "https://cdn.datdota.com/images/ability/warlock_shadow_word.png",
+          "win_pct": 50.65,
+          "pick_num": 39.79
+        }
+      ]
+    },
+    "Kez": {
+      "hero_id": 145,
+      "hero_img": "https://cdn.datdota.com/images/heroes/kez_full.png",
+      "body_winrate": 51.41,
+      "win_pct": 56.86,
+      "pick_num": 37.68,
+      "abilities": [
+        {
+          "ability_id": 1500,
+          "ability_name": "Kazurai Katana",
+          "img": "https://cdn.datdota.com/images/ability/kez_kazurai_katana.png",
+          "win_pct": 57.86,
+          "pick_num": 22.22
+        },
+        {
+          "ability_id": 1519,
+          "ability_name": "Unknown Ability #1519",
+          "img": "https://cdn.datdota.com/images/ability/kez_shodo_sai_ad.png",
+          "win_pct": 49.41,
+          "pick_num": 23.91
+        },
+        {
+          "ability_id": 1517,
+          "ability_name": "Unknown Ability #1517",
+          "img": "https://cdn.datdota.com/images/ability/kez_falcon_rush_ad.png",
+          "win_pct": 54.08,
+          "pick_num": 24.49
+        },
+        {
+          "ability_id": 1499,
+          "ability_name": "Grappling Claw",
+          "img": "https://cdn.datdota.com/images/ability/kez_grappling_claw.png",
+          "win_pct": 52.97,
+          "pick_num": 29.32
+        },
+        {
+          "ability_id": 1518,
+          "ability_name": "Unknown Ability #1518",
+          "img": "https://cdn.datdota.com/images/ability/kez_talon_toss_ad.png",
+          "win_pct": 45.38,
+          "pick_num": 32.52
+        },
+        {
+          "ability_id": 1498,
+          "ability_name": "Echo Slash",
+          "img": "https://cdn.datdota.com/images/ability/kez_echo_slash.png",
+          "win_pct": 59.23,
+          "pick_num": 32.39
+        },
+        {
+          "ability_id": 1501,
+          "ability_name": "Raptor Dance",
+          "img": "https://cdn.datdota.com/images/ability/kez_raptor_dance.png",
+          "win_pct": 50.0,
+          "pick_num": 40.16
+        },
+        {
+          "ability_id": 1520,
+          "ability_name": "Unknown Ability #1520",
+          "img": "https://cdn.datdota.com/images/ability/kez_ravens_veil_ad.png",
+          "win_pct": 55.67,
+          "pick_num": 40.77
+        }
+      ]
+    },
+    "Grimstroke": {
+      "hero_id": 121,
+      "hero_img": "https://cdn.datdota.com/images/heroes/grimstroke_full.png",
+      "body_winrate": 49.86,
+      "win_pct": 52.41,
+      "pick_num": 40.0,
+      "abilities": [
+        {
+          "ability_id": 8006,
+          "ability_name": "Phantom's Embrace",
+          "img": "https://cdn.datdota.com/images/ability/grimstroke_ink_creature.png",
+          "win_pct": 56.88,
+          "pick_num": 21.69
+        },
+        {
+          "ability_id": 6491,
+          "ability_name": "Soulbind",
+          "img": "https://cdn.datdota.com/images/ability/grimstroke_soul_chain.png",
+          "win_pct": 56.09,
+          "pick_num": 25.48
+        },
+        {
+          "ability_id": 8007,
+          "ability_name": "Ink Swell",
+          "img": "https://cdn.datdota.com/images/ability/grimstroke_spirit_walk.png",
+          "win_pct": 52.77,
+          "pick_num": 30.29
+        },
+        {
+          "ability_id": 8000,
+          "ability_name": "Stroke of Fate",
+          "img": "https://cdn.datdota.com/images/ability/grimstroke_dark_artistry.png",
+          "win_pct": 52.27,
+          "pick_num": 32.42
+        }
+      ]
+    },
+    "Visage": {
+      "hero_id": 92,
+      "hero_img": "https://cdn.datdota.com/images/heroes/visage_full.png",
+      "body_winrate": 47.54,
+      "win_pct": 51.35,
+      "pick_num": 36.32,
+      "abilities": [
+        {
+          "ability_id": 5481,
+          "ability_name": "Soul Assumption",
+          "img": "https://cdn.datdota.com/images/ability/visage_soul_assumption.png",
+          "win_pct": 54.77,
+          "pick_num": 20.89
+        },
+        {
+          "ability_id": 5482,
+          "ability_name": "Gravekeeper's Cloak",
+          "img": "https://cdn.datdota.com/images/ability/visage_gravekeepers_cloak.png",
+          "win_pct": 55.86,
+          "pick_num": 37.8
+        },
+        {
+          "ability_id": 5480,
+          "ability_name": "Grave Chill",
+          "img": "https://cdn.datdota.com/images/ability/visage_grave_chill.png",
+          "win_pct": 47.34,
+          "pick_num": 39.54
+        },
+        {
+          "ability_id": 5483,
+          "ability_name": "Summon Familiars",
+          "img": "https://cdn.datdota.com/images/ability/visage_summon_familiars.png",
+          "win_pct": 53.65,
+          "pick_num": 42.37
+        }
+      ]
+    },
+    "Naga Siren": {
+      "hero_id": 89,
+      "hero_img": "https://cdn.datdota.com/images/heroes/naga_siren_full.png",
+      "body_winrate": 52.28,
+      "win_pct": 56.59,
+      "pick_num": 37.04,
+      "abilities": [
+        {
+          "ability_id": 5467,
+          "ability_name": "Mirror Image",
+          "img": "https://cdn.datdota.com/images/ability/naga_siren_mirror_image.png",
+          "win_pct": 61.22,
+          "pick_num": 22.36
+        },
+        {
+          "ability_id": 5468,
+          "ability_name": "Ensnare",
+          "img": "https://cdn.datdota.com/images/ability/naga_siren_ensnare.png",
+          "win_pct": 53.86,
+          "pick_num": 28.91
+        },
+        {
+          "ability_id": 5469,
+          "ability_name": "Rip Tide",
+          "img": "https://cdn.datdota.com/images/ability/naga_siren_rip_tide.png",
+          "win_pct": 62.5,
+          "pick_num": 35.26
+        },
+        {
+          "ability_id": 5470,
+          "ability_name": "Song of the Siren",
+          "img": "https://cdn.datdota.com/images/ability/naga_siren_song_of_the_siren.png",
+          "win_pct": 50.36,
+          "pick_num": 42.78
+        },
+        { 
+          "ability_id": 1369,
+          "ability_name": "Deluge",
+          "img": "https://cdn.datdota.com/images/ability/naga_siren_deluge.png",
+          "win_pct": 53.45,
+          "pick_num": 41.23
+        }
+      ]
+    },
+    "Skywrath Mage": {
+      "hero_id": 101,
+      "hero_img": "https://cdn.datdota.com/images/heroes/skywrath_mage_full.png",
+      "body_winrate": 49.72,
+      "win_pct": 54.36,
+      "pick_num": 31.41,
+      "abilities": [
+        {
+          "ability_id": 5582,
+          "ability_name": "Concussive Shot",
+          "img": "https://cdn.datdota.com/images/ability/skywrath_mage_concussive_shot.png",
+          "win_pct": 55.26,
+          "pick_num": 20.68
+        },
+        {
+          "ability_id": 5581,
+          "ability_name": "Arcane Bolt",
+          "img": "https://cdn.datdota.com/images/ability/skywrath_mage_arcane_bolt.png",
+          "win_pct": 53.16,
+          "pick_num": 25.06
+        },
+        {
+          "ability_id": 5584,
+          "ability_name": "Mystic Flare",
+          "img": "https://cdn.datdota.com/images/ability/skywrath_mage_mystic_flare.png",
+          "win_pct": 52.99,
+          "pick_num": 32.36
+        },
+        {
+          "ability_id": 5583,
+          "ability_name": "Ancient Seal",
+          "img": "https://cdn.datdota.com/images/ability/skywrath_mage_ancient_seal.png",
+          "win_pct": 51.71,
+          "pick_num": 36.85
+        }
+      ]
+    },
+    "Elder Titan": {
+      "hero_id": 103,
+      "hero_img": "https://cdn.datdota.com/images/heroes/elder_titan_full.png",
+      "body_winrate": 48.46,
+      "win_pct": 50.21,
+      "pick_num": 40.49,
+      "abilities": [
+        {
+          "ability_id": 5593,
+          "ability_name": "Natural Order",
+          "img": "https://cdn.datdota.com/images/ability/elder_titan_natural_order.png",
+          "win_pct": 59.9,
+          "pick_num": 24.84
+        },
+        {
+          "ability_id": 5589,
+          "ability_name": "Echo Stomp",
+          "img": "https://cdn.datdota.com/images/ability/elder_titan_echo_stomp.png",
+          "win_pct": 45.0,
+          "pick_num": 41.19
+        },
+        {
+          "ability_id": 5594,
+          "ability_name": "Earth Splitter",
+          "img": "https://cdn.datdota.com/images/ability/elder_titan_earth_splitter.png",
+          "win_pct": 52.16,
+          "pick_num": 42.09
+        },
+        {
+          "ability_id": 1392,
+          "ability_name": "Astral Spirit",
+          "img": "https://cdn.datdota.com/images/ability/elder_titan_ancestral_spirit.png",
+          "win_pct": 53.56,
+          "pick_num": 27.79
+        }
+      ]
+    },
+    "Oracle": {
+      "hero_id": 111,
+      "hero_img": "https://cdn.datdota.com/images/heroes/oracle_full.png",
+      "body_winrate": 50.41,
+      "win_pct": 55.75,
+      "pick_num": 35.46,
+      "abilities": [
+        {
+          "ability_id": 5637,
+          "ability_name": "Fortune's End",
+          "img": "https://cdn.datdota.com/images/ability/oracle_fortunes_end.png",
+          "win_pct": 57.09,
+          "pick_num": 15.26
+        },
+        {
+          "ability_id": 5639,
+          "ability_name": "Purifying Flames",
+          "img": "https://cdn.datdota.com/images/ability/oracle_purifying_flames.png",
+          "win_pct": 50.0,
+          "pick_num": 34.96
+        },
+        {
+          "ability_id": 5640,
+          "ability_name": "False Promise",
+          "img": "https://cdn.datdota.com/images/ability/oracle_false_promise.png",
+          "win_pct": 57.04,
+          "pick_num": 37.6
+        },
+        {
+          "ability_id": 5638,
+          "ability_name": "Fate's Edict",
+          "img": "https://cdn.datdota.com/images/ability/oracle_fates_edict.png",
+          "win_pct": 50.57,
+          "pick_num": 41.4
+        }
+      ]
+    },
+    "Ogre Magi": {
+      "hero_id": 84,
+      "hero_img": "https://cdn.datdota.com/images/heroes/ogre_magi_full.png",
+      "body_winrate": 53.99,
+      "win_pct": 56.84,
+      "pick_num": 17.58,
+      "abilities": [
+        {
+          "ability_id": 5440,
+          "ability_name": "Bloodlust",
+          "img": "https://cdn.datdota.com/images/ability/ogre_magi_bloodlust.png",
+          "win_pct": 54.81,
+          "pick_num": 23.7
+        },
+        {
+          "ability_id": 5438,
+          "ability_name": "Fireblast",
+          "img": "https://cdn.datdota.com/images/ability/ogre_magi_fireblast.png",
+          "win_pct": 55.38,
+          "pick_num": 34.42
+        },
+        {
+          "ability_id": 5439,
+          "ability_name": "Ignite",
+          "img": "https://cdn.datdota.com/images/ability/ogre_magi_ignite.png",
+          "win_pct": 50.81,
+          "pick_num": 38.33
+        }
+      ]
+    },
+    "Io": {
+      "hero_id": 91,
+      "hero_img": "https://cdn.datdota.com/images/heroes/wisp_full.png",
+      "body_winrate": 51.41,
+      "win_pct": 58.47,
+      "pick_num": 38.35,
+      "abilities": [
+        {
+          "ability_id": 5486,
+          "ability_name": "Spirits",
+          "img": "https://cdn.datdota.com/images/ability/wisp_spirits.png",
+          "win_pct": 54.29,
+          "pick_num": 22.06
+        },
+        {
+          "ability_id": 5485,
+          "ability_name": "Tether",
+          "img": "https://cdn.datdota.com/images/ability/wisp_tether.png",
+          "win_pct": 61.47,
+          "pick_num": 23.44
+        },
+        {
+          "ability_id": 5487,
+          "ability_name": "Overcharge",
+          "img": "https://cdn.datdota.com/images/ability/wisp_overcharge.png",
+          "win_pct": 54.59,
+          "pick_num": 36.15
+        },
+        {
+          "ability_id": 5488,
+          "ability_name": "Relocate",
+          "img": "https://cdn.datdota.com/images/ability/wisp_relocate.png",
+          "win_pct": 49.65,
+          "pick_num": 44.43
+        }
+      ]
+    },
+    "Shadow Fiend": {
+      "hero_id": 11,
+      "hero_img": "https://cdn.datdota.com/images/heroes/nevermore_full.png",
+      "body_winrate": 56.56,
+      "win_pct": 62.06,
+      "pick_num": 2.95,
+      "abilities": [
+        {
+          "ability_id": 5063,
+          "ability_name": "Presence of the Dark Lord",
+          "img": "https://cdn.datdota.com/images/ability/nevermore_dark_lord.png",
+          "win_pct": 58.79,
+          "pick_num": 26.44
+        },
+        {
+          "ability_id": 5060,
+          "ability_name": "Shadowraze",
+          "img": "https://cdn.datdota.com/images/ability/nevermore_shadowraze2.png",
+          "win_pct": 50.36,
+          "pick_num": 29.61
+        },
+        {
+          "ability_id": 5064,
+          "ability_name": "Requiem of Souls",
+          "img": "https://cdn.datdota.com/images/ability/nevermore_requiem.png",
+          "win_pct": 58.93,
+          "pick_num": 41.04
+        },
+        { 
+          "ability_id": 1216,
+          "ability_name": "Feast of Souls",
+          "img": "https://cdn.datdota.com/images/ability/nevermore_frenzy.png",
+          "win_pct": 54.01,
+          "pick_num": 37.62
+        }
+      ]
+    },
+    "Dazzle": {
+      "hero_id": 50,
+      "hero_img": "https://cdn.datdota.com/images/heroes/dazzle_full.png",
+      "body_winrate": 49.08,
+      "win_pct": 52.9,
+      "pick_num": 29.24,
+      "abilities": [
+        {
+          "ability_id": 5233,
+          "ability_name": "Poison Touch",
+          "img": "https://cdn.datdota.com/images/ability/dazzle_poison_touch.png",
+          "win_pct": 53.03,
+          "pick_num": 28.17
+        },
+        {
+          "ability_id": 5235,
+          "ability_name": "Shadow Wave",
+          "img": "https://cdn.datdota.com/images/ability/dazzle_shadow_wave.png",
+          "win_pct": 57.23,
+          "pick_num": 30.06
+        },
+        {
+          "ability_id": 5234,
+          "ability_name": "Shallow Grave",
+          "img": "https://cdn.datdota.com/images/ability/dazzle_shallow_grave.png",
+          "win_pct": 49.81,
+          "pick_num": 38.92
+        },
+        { 
+          "ability_id": 1550,
+          "ability_name": "Nothl Projection",
+          "img": "https://cdn.datdota.com/images/ability/dazzle_nothl_projection.png",
+          "win_pct": 49.2,
+          "pick_num": 39.76
+        }
+      ]
+    },
+    "Disruptor": {
+      "hero_id": 87,
+      "hero_img": "https://cdn.datdota.com/images/heroes/disruptor_full.png",
+      "body_winrate": 47.72,
+      "win_pct": 49.9,
+      "pick_num": 41.51,
+      "abilities": [
+        {
+          "ability_id": 5459,
+          "ability_name": "Glimpse",
+          "img": "https://cdn.datdota.com/images/ability/disruptor_glimpse.png",
+          "win_pct": 49.83,
+          "pick_num": 17.18
+        },
+        {
+          "ability_id": 5458,
+          "ability_name": "Thunder Strike",
+          "img": "https://cdn.datdota.com/images/ability/disruptor_thunder_strike.png",
+          "win_pct": 54.68,
+          "pick_num": 29.88
+        },
+        {
+          "ability_id": 5461,
+          "ability_name": "Static Storm",
+          "img": "https://cdn.datdota.com/images/ability/disruptor_static_storm.png",
+          "win_pct": 51.99,
+          "pick_num": 37.04
+        },
+        {
+          "ability_id": 5460,
+          "ability_name": "Kinetic Field",
+          "img": "https://cdn.datdota.com/images/ability/disruptor_kinetic_field.png",
+          "win_pct": 50.66,
+          "pick_num": 38.57
+        }
+      ]
+    },
+    "Pugna": {
+      "hero_id": 45,
+      "hero_img": "https://cdn.datdota.com/images/heroes/pugna_full.png",
+      "body_winrate": 52.5,
+      "win_pct": 54.59,
+      "pick_num": 22.81,
+      "abilities": [
+        {
+          "ability_id": 5189,
+          "ability_name": "Life Drain",
+          "img": "https://cdn.datdota.com/images/ability/pugna_life_drain.png",
+          "win_pct": 52.75,
+          "pick_num": 32.49
+        },
+        {
+          "ability_id": 5186,
+          "ability_name": "Nether Blast",
+          "img": "https://cdn.datdota.com/images/ability/pugna_nether_blast.png",
+          "win_pct": 45.65,
+          "pick_num": 26.97
+        },
+        {
+          "ability_id": 5188,
+          "ability_name": "Nether Ward",
+          "img": "https://cdn.datdota.com/images/ability/pugna_nether_ward.png",
+          "win_pct": 54.57,
+          "pick_num": 31.75
+        },
+        {
+          "ability_id": 5187,
+          "ability_name": "Decrepify",
+          "img": "https://cdn.datdota.com/images/ability/pugna_decrepify.png",
+          "win_pct": 47.97,
+          "pick_num": 34.25
+        }
+      ]
+    },
+    "Clockwerk": {
+      "hero_id": 51,
+      "hero_img": "https://cdn.datdota.com/images/heroes/rattletrap_full.png",
+      "body_winrate": 51.45,
+      "win_pct": 52.57,
+      "pick_num": 34.18,
+      "abilities": [
+        {
+          "ability_id": 5237,
+          "ability_name": "Battery Assault",
+          "img": "https://cdn.datdota.com/images/ability/rattletrap_battery_assault.png",
+          "win_pct": 53.98,
+          "pick_num": 28.83
+        },
+        {
+          "ability_id": 5238,
+          "ability_name": "Power Cogs",
+          "img": "https://cdn.datdota.com/images/ability/rattletrap_power_cogs.png",
+          "win_pct": 53.6,
+          "pick_num": 27.15
+        },
+        {
+          "ability_id": 5240,
+          "ability_name": "Hookshot",
+          "img": "https://cdn.datdota.com/images/ability/rattletrap_hookshot.png",
+          "win_pct": 53.79,
+          "pick_num": 39.25
+        },
+        {
+          "ability_id": 5239,
+          "ability_name": "Rocket Flare",
+          "img": "https://cdn.datdota.com/images/ability/rattletrap_rocket_flare.png",
+          "win_pct": 53.88,
+          "pick_num": 39.88
+        }
+      ]
+    },
+    "Phoenix": {
+      "hero_id": 110,
+      "hero_img": "https://cdn.datdota.com/images/heroes/phoenix_full.png",
+      "body_winrate": 47.61,
+      "win_pct": 52.26,
+      "pick_num": 37.06,
+      "abilities": [
+        {
+          "ability_id": 5623,
+          "ability_name": "Icarus Dive",
+          "img": "https://cdn.datdota.com/images/ability/phoenix_icarus_dive.png",
+          "win_pct": 53.58,
+          "pick_num": 30.17
+        },
+        {
+          "ability_id": 5630,
+          "ability_name": "Supernova",
+          "img": "https://cdn.datdota.com/images/ability/phoenix_supernova.png",
+          "win_pct": 54.5,
+          "pick_num": 30.77
+        },
+        {
+          "ability_id": 5625,
+          "ability_name": "Fire Spirits",
+          "img": "https://cdn.datdota.com/images/ability/phoenix_fire_spirits.png",
+          "win_pct": 51.26,
+          "pick_num": 35.06
+        },
+        {
+          "ability_id": 5626,
+          "ability_name": "Sun Ray",
+          "img": "https://cdn.datdota.com/images/ability/phoenix_sun_ray.png",
+          "win_pct": 49.01,
+          "pick_num": 39.98
+        }
+      ]
+    },
+    "Lone Druid": {
+      "hero_id": 80,
+      "hero_img": "https://cdn.datdota.com/images/heroes/lone_druid_full.png",
+      "body_winrate": 44.6,
+      "win_pct": 46.94,
+      "pick_num": 31.32,
+      "abilities": [
+        {
+          "ability_id": 5415,
+          "ability_name": "True Form",
+          "img": "https://cdn.datdota.com/images/ability/lone_druid_true_form.png",
+          "win_pct": 53.45,
+          "pick_num": 32.51
+        },
+        {
+          "ability_id": 7309,
+          "ability_name": "Spirit Link",
+          "img": "https://cdn.datdota.com/images/ability/lone_druid_spirit_link.png",
+          "win_pct": 53.68,
+          "pick_num": 37.5
+        },
+        {
+          "ability_id": 5414,
+          "ability_name": "Savage Roar",
+          "img": "https://cdn.datdota.com/images/ability/lone_druid_savage_roar.png",
+          "win_pct": 52.48,
+          "pick_num": 43.76
+        },
+        {
+          "ability_id": 1342,
+          "ability_name": "Summon Spirit Bear",
+          "img": "https://cdn.datdota.com/images/ability/lone_druid_spirit_bear.png",
+          "win_pct": 39.67,
+          "pick_num": 29.4
+        },
+        { 
+          "ability_id": 1684,
+          "ability_name": "Entangle",
+          "img": "https://cdn.datdota.com/images/ability/lone_druid_entangle.png",
+          "win_pct": 49.9,
+          "pick_num": 30.22
+        }
+      ]
+    },
+    "Arc Warden": {
+      "hero_id": 113,
+      "hero_img": "https://cdn.datdota.com/images/heroes/arc_warden_full.png",
+      "body_winrate": 50.45,
+      "win_pct": 52.66,
+      "pick_num": 23.12,
+      "abilities": [
+        {
+          "ability_id": 5679,
+          "ability_name": "Spark Wraith",
+          "img": "https://cdn.datdota.com/images/ability/arc_warden_spark_wraith.png",
+          "win_pct": 51.13,
+          "pick_num": 34.99
+        },
+        {
+          "ability_id": 5677,
+          "ability_name": "Flux",
+          "img": "https://cdn.datdota.com/images/ability/arc_warden_flux.png",
+          "win_pct": 49.93,
+          "pick_num": 36.52
+        },
+        {
+          "ability_id": 5678,
+          "ability_name": "Magnetic Field",
+          "img": "https://cdn.datdota.com/images/ability/arc_warden_magnetic_field.png",
+          "win_pct": 52.47,
+          "pick_num": 39.81
+        }
+      ]
+    },
+    "Earth Spirit": {
+      "hero_id": 107,
+      "hero_img": "https://cdn.datdota.com/images/heroes/earth_spirit_full.png",
+      "body_winrate": 49.34,
+      "win_pct": 52.84,
+      "pick_num": 37.98,
+      "abilities": [
+        {
+          "ability_id": 5609,
+          "ability_name": "Rolling Boulder",
+          "img": "https://cdn.datdota.com/images/ability/earth_spirit_rolling_boulder.png",
+          "win_pct": 55.68,
+          "pick_num": 31.28
+        },
+        {
+          "ability_id": 5608,
+          "ability_name": "Boulder Smash",
+          "img": "https://cdn.datdota.com/images/ability/earth_spirit_boulder_smash.png",
+          "win_pct": 50.33,
+          "pick_num": 38.6
+        },
+        {
+          "ability_id": 5612,
+          "ability_name": "Magnetize",
+          "img": "https://cdn.datdota.com/images/ability/earth_spirit_magnetize.png",
+          "win_pct": 57.14,
+          "pick_num": 40.87
+        },
+        {
+          "ability_id": 5610,
+          "ability_name": "Geomagnetic Grip",
+          "img": "https://cdn.datdota.com/images/ability/earth_spirit_geomagnetic_grip.png",
+          "win_pct": 47.56,
+          "pick_num": 41.96
+        }
+      ]
+    },
+    "Chen": {
+      "hero_id": 66,
+      "hero_img": "https://cdn.datdota.com/images/heroes/chen_full.png",
+      "body_winrate": 46.61,
+      "win_pct": 51.78,
+      "pick_num": 36.79,
+      "abilities": [
+        {
+          "ability_id": 5328,
+          "ability_name": "Penitence",
+          "img": "https://cdn.datdota.com/images/ability/chen_penitence.png",
+          "win_pct": 48.9,
+          "pick_num": 37.03
+        },
+        {
+          "ability_id": 5330,
+          "ability_name": "Holy Persuasion",
+          "img": "https://cdn.datdota.com/images/ability/chen_holy_persuasion.png",
+          "win_pct": 37.78,
+          "pick_num": 42.93
+        },
+        {
+          "ability_id": 7306,
+          "ability_name": "Divine Favor",
+          "img": "https://cdn.datdota.com/images/ability/chen_divine_favor.png",
+          "win_pct": 58.33,
+          "pick_num": 41.34
+        },
+        {
+          "ability_id": 5331,
+          "ability_name": "Hand of God",
+          "img": "https://cdn.datdota.com/images/ability/chen_hand_of_god.png",
+          "win_pct": 54.62,
+          "pick_num": 42.97
+        }
+      ]
+    },
+    "Meepo": {
+      "hero_id": 82,
+      "hero_img": "https://cdn.datdota.com/images/heroes/meepo_full.png",
+      "body_winrate": 49.23,
+      "win_pct": 57.56,
+      "pick_num": 42.98,
+      "abilities": [
+        {
+          "ability_id": 7318,
+          "ability_name": "Ransack",
+          "img": "https://cdn.datdota.com/images/ability/meepo_ransack.png",
+          "win_pct": 56.67,
+          "pick_num": 42.07
+        },
+        {
+          "ability_id": 5430,
+          "ability_name": "Earthbind",
+          "img": "https://cdn.datdota.com/images/ability/meepo_earthbind.png",
+          "win_pct": 55.0,
+          "pick_num": 44.15
+        },
+        {
+          "ability_id": 5431,
+          "ability_name": "Poof",
+          "img": "https://cdn.datdota.com/images/ability/meepo_poof.png",
+          "win_pct": 52.38,
+          "pick_num": 43.91
+        }
+      ]
+    }
+  }
+}
